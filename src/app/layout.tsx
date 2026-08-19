@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
+import WhatsAppAgentModal from "@/components/WhatsAppAgentModal";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,6 +29,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         {children}
+        <WhatsAppAgentModal />
       </body>
     </html>
   );
