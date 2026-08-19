@@ -112,6 +112,11 @@ export interface DriverCounterBid {
   bidMessage: string;
   submittedTime: string;
   status: 'pending' | 'accepted' | 'rejected';
+  
+  // Shipper Counter-Counter Fields
+  shipperCounterPrice?: number;
+  shipperCounterNote?: string;
+  lastUpdatedBy?: 'driver' | 'shipper';
 }
 
 export interface DriverAvailabilityBroadcast {

@@ -13,10 +13,41 @@ export default function PostLoadPage() {
   const [bids, setBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
   const [availabilities] = useState<DriverAvailabilityBroadcast[]>(mockDriverAvailabilities);
 
+  // Sync bids with localStorage on mount & update
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('safarload_global_bids');
+      if (stored) {
+        setBids(JSON.parse(stored));
+      } else {
+        localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const saveBidsToStorage = (updatedBids: DriverCounterBid[]) => {
+    setBids(updatedBids);
+    try {
+      localStorage.setItem('safarload_global_bids', JSON.stringify(updatedBids));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Shipper Counter-Counter Bid Modal State
   const [counterBidTarget, setCounterBidTarget] = useState<DriverCounterBid | null>(null);
   const [shipperRevisedPrice, setShipperRevisedPrice] = useState<string>('');
   const [shipperCounterNote, setShipperCounterNote] = useState<string>('Final offer: Tolls included, loading labor on site.');
+
+  // Direct Driver Chat Modal State
+  const [chatTargetDriver, setChatTargetDriver] = useState<DriverCounterBid | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
+    { sender: 'driver', text: 'Assalam-o-Alaikum! Pickup truck is ready in Multan.', time: '02:30 PM' },
+    { sender: 'shipper', text: 'Walaikum Assalam! Please arrive at Gate 3 Bosan Road.', time: '02:32 PM' }
+  ]);
+  const [chatInputText, setChatInputText] = useState('');
 
   // AI Agent Deal Lock Modal State
   const [agentDealTarget, setAgentDealTarget] = useState<DriverAvailabilityBroadcast | null>(null);
@@ -57,16 +88,14 @@ export default function PostLoadPage() {
   };
 
   const handleAcceptBid = (bidId: string) => {
-    setBids((prev) =>
-      prev.map((b) => (b.id === bidId ? { ...b, status: 'accepted' } : b))
-    );
+    const updated = bids.map((b) => (b.id === bidId ? { ...b, status: 'accepted' as const } : b));
+    saveBidsToStorage(updated);
     alert(`✅ Driver Counter Bid ACCEPTED! Load assigned and Escrow payment locked.`);
   };
 
   const handleRejectBid = (bidId: string) => {
-    setBids((prev) =>
-      prev.map((b) => (b.id === bidId ? { ...b, status: 'rejected' } : b))
-    );
+    const updated = bids.map((b) => (b.id === bidId ? { ...b, status: 'rejected' as const } : b));
+    saveBidsToStorage(updated);
   };
 
   const handleOpenCounterBackModal = (bid: DriverCounterBid) => {
@@ -78,20 +107,37 @@ export default function PostLoadPage() {
     e.preventDefault();
     if (!counterBidTarget) return;
 
-    setBids((prev) =>
-      prev.map((b) =>
-        b.id === counterBidTarget.id
-          ? {
-              ...b,
-              bidMessage: `Shipper Counter Offer: Rs. ${Number(shipperRevisedPrice).toLocaleString()} (${shipperCounterNote})`,
-              offeredBidPrice: Number(shipperRevisedPrice),
-            }
-          : b
-      )
+    const revisedPrice = Number(shipperRevisedPrice);
+    const updated = bids.map((b) =>
+      b.id === counterBidTarget.id
+        ? {
+            ...b,
+            shipperCounterPrice: revisedPrice,
+            shipperCounterNote,
+            bidMessage: `Shipper Counter Offer: Rs. ${revisedPrice.toLocaleString()} (${shipperCounterNote})`,
+            lastUpdatedBy: 'shipper' as const,
+          }
+        : b
     );
 
-    alert(`🔄 Revised Counter Offer of Rs. ${Number(shipperRevisedPrice).toLocaleString()} sent back to driver ${counterBidTarget.driverName}!`);
+    saveBidsToStorage(updated);
+    alert(`🔄 Revised Counter Offer of Rs. ${revisedPrice.toLocaleString()} sent back to driver ${counterBidTarget.driverName}! Driver dashboard updated.`);
     setCounterBidTarget(null);
+  };
+
+  const handleSendChatMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInputText.trim()) return;
+
+    setChatMessages(prev => [
+      ...prev,
+      {
+        sender: 'shipper',
+        text: chatInputText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+    setChatInputText('');
   };
 
   const handleInitiateAgentDealLock = (e: React.FormEvent) => {
@@ -197,7 +243,12 @@ export default function PostLoadPage() {
                   </>
                 )}
                 {b.status === 'accepted' && (
-                  <span className="badge badge-success">✅ Bid Accepted — Escrow Locked!</span>
+                  <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
+                    <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Bid Accepted — Escrow Locked!</span>
+                    <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                      💬 Chat with Driver ({b.driverName})
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -701,6 +752,47 @@ export default function PostLoadPage() {
                   ⚡ Confirm AI Agent Negotiation & Lock Deal
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DIRECT CHAT DRAWER MODAL FOR ACCEPTED BID */}
+      {chatTargetDriver && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.chatCard} glass-card animate-scaleIn`}>
+            <div className={styles.chatHeader}>
+              <div>
+                <h3>💬 Direct Chat: 👨‍✈️ {chatTargetDriver.driverName} ({chatTargetDriver.driverNameUr})</h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>Vehicle: {chatTargetDriver.truckNumber} | Route: {chatTargetDriver.route}</span>
+              </div>
+              <button onClick={() => setChatTargetDriver(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div className={styles.chatBody}>
+              {chatMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.chatBubble} ${msg.sender === 'shipper' ? styles.sentBubble : styles.receivedBubble}`}
+                >
+                  <div className={styles.bubbleText}>{msg.text}</div>
+                  <span className={styles.bubbleTime}>{msg.time}</span>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleSendChatMessage} className={styles.chatInputRow}>
+              <input
+                type="text"
+                value={chatInputText}
+                onChange={(e) => setChatInputText(e.target.value)}
+                placeholder="Type message to driver..."
+                className="input"
+                required
+              />
+              <button type="submit" className="btn btn-primary btn-sm">
+                📤 Send
+              </button>
             </form>
           </div>
         </div>

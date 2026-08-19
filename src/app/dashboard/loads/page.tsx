@@ -45,9 +45,15 @@ export default function LoadsPage() {
     return matchSearch && matchCityFrom && matchCityTo && matchTruck;
   });
 
+  // Track driver bids per load ID
+  const [driverBidsMap, setDriverBidsMap] = useState<Record<string, { price: number; note: string }>>({
+    'LD-2026-001': { price: 178000, note: 'Ready to load today evening. Tarpaulin and belts ready.' }
+  });
+
   const handleOpenLoadModal = (load: typeof mockLoads[0]) => {
     setSelectedLoad(load);
-    setBidAmount(load.price.toString());
+    const existingBid = driverBidsMap[load.id];
+    setBidAmount(existingBid ? existingBid.price.toString() : load.price.toString());
     setBookingSuccess(false);
   };
 
@@ -60,7 +66,48 @@ export default function LoadsPage() {
   const handleSubmitBid = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLoad) return;
-    alert(`🏷️ Bid of Rs. ${Number(bidAmount).toLocaleString()} submitted to ${selectedLoad.shipperName}!`);
+
+    const newPrice = Number(bidAmount);
+    const newBidObj = {
+      id: `BID-${Date.now()}`,
+      loadId: selectedLoad.id,
+      loadTitle: `${selectedLoad.cargoType} — ${selectedLoad.pickupCity} to ${selectedLoad.dropoffCity}`,
+      route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
+      shipperName: selectedLoad.shipperName,
+      driverName: 'Muhammad Aslam',
+      driverNameUr: 'محمد اسلم',
+      driverPhone: '+92 301 2345678',
+      driverRating: 4.8,
+      driverTrips: 456,
+      truckNumber: 'LHR-5678',
+      truckType: `${selectedLoad.truckType} (25 Tons)`,
+      originalPrice: selectedLoad.price,
+      offeredBidPrice: newPrice,
+      bidMessage: 'Driver Counter Offer: Ready for immediate dispatch.',
+      submittedTime: 'Just now',
+      status: 'pending' as const,
+      lastUpdatedBy: 'driver' as const
+    };
+
+    // Update local driver state
+    setDriverBidsMap(prev => ({
+      ...prev,
+      [selectedLoad.id]: { price: newPrice, note: newBidObj.bidMessage }
+    }));
+
+    // Update global localStorage bids for Shipper sync
+    try {
+      const existingBidsJson = localStorage.getItem('safarload_global_bids');
+      let currentBids = existingBidsJson ? JSON.parse(existingBidsJson) : [];
+      // Replace existing bid for same load or add new
+      currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
+      currentBids.unshift(newBidObj);
+      localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
+    } catch (err) {
+      console.error(err);
+    }
+
+    alert(`🏷️ Bid of Rs. ${newPrice.toLocaleString()} submitted to ${selectedLoad.shipperName}! Shipper portal updated.`);
     setSelectedLoad(null);
   };
   

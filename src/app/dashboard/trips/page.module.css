@@ -15,7 +15,7 @@
   gap: 1rem;
 }
 
-.tripBadge {
+.badge {
   display: inline-block;
   padding: 4px 12px;
   background: rgba(16, 185, 129, 0.15);
@@ -33,101 +33,35 @@
   margin: 0;
 }
 
-.headerActions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.broadcastBanner {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 14px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.broadcastInfo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.broadcastDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 12px #10B981;
-  animation: pulse-ring 1s infinite;
-}
-
-.broadcastSub {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-.destToggleRow {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.destBtn {
-  padding: 0.75rem 1rem;
-  background: var(--color-bg-secondary, #1E293B);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
-  border-radius: 10px;
-  color: var(--color-text-secondary, #CBD5E1);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-}
-
-[dir="rtl"] .destBtn {
-  text-align: right;
-}
-
-.activeDestBtn {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: var(--color-primary, #10B981);
-  color: var(--color-primary, #10B981);
-}
-
-.tripsGrid {
+.mainGrid {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 380px 1fr;
+  gap: 2rem;
   align-items: start;
 }
 
-.tripsList h3 {
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
+.tripsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .tripCard {
-  background: var(--color-bg-secondary, #1E293B);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
-  border-radius: 14px;
   padding: 1.25rem;
-  margin-bottom: 1rem;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  transition: all 0.2s ease;
 }
 
 .tripCard:hover {
   border-color: var(--color-primary-light, #34D399);
 }
 
-.selectedTripCard {
+.activeTripCard {
   border-color: var(--color-primary, #10B981);
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .tripCardHeader {
@@ -137,129 +71,52 @@
   margin-bottom: 0.75rem;
 }
 
-.tripCardBody p {
-  font-size: 0.9rem;
-  color: var(--color-text-secondary, #CBD5E1);
-  margin-bottom: 0.5rem;
-}
-
-.priceMeta {
-  display: flex;
-  justify-content: space-between;
+.tripCardMeta p {
   font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
 }
 
-.priceMeta strong {
-  color: var(--color-primary, #10B981);
-}
-
-/* Detail Panel */
-.tripDetailPanel {
+.activeTripPanel {
   padding: 2rem;
   border-radius: 16px;
 }
 
-.detailHeader {
+.panelHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
   padding-bottom: 1rem;
 }
 
-.loadIdTag {
-  font-size: 0.8rem;
-  color: var(--color-text-muted, #94A3B8);
-  font-family: monospace;
-}
-
-.pricePill {
-  padding: 0.5rem 1.25rem;
-  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
-  color: white;
-  font-size: 1.25rem;
-  font-weight: 800;
-  border-radius: 12px;
-}
-
-.specsRow {
+.infoBoxGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  background: var(--color-bg-secondary, #1E293B);
-  padding: 1.25rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.specsRow div {
+.infoBox {
+  padding: 1.25rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.statusSection {
-  margin-bottom: 2rem;
+.infoBox span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
 }
 
-.statusSection h4 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.infoBox strong {
+  font-size: 1.35rem;
 }
 
-.statusBtnsRow {
-  display: flex;
-  gap: 1rem;
-}
-
-.statusBtn {
-  flex: 1;
-  padding: 1rem;
-  background: var(--color-bg-secondary, #1E293B);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
-  border-radius: 12px;
-  color: var(--color-text-secondary, #CBD5E1);
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.activeStatusBtn {
-  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
-  color: white;
-  border-color: var(--color-primary, #10B981);
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-}
-
-.actionBoxRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.actionBox {
-  padding: 1.5rem;
-  background: var(--color-bg-secondary, #1E293B);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.actionBox h5 {
-  font-size: 0.95rem;
-}
-
-.actionBox p {
-  font-size: 0.8rem;
-  color: var(--color-text-muted, #94A3B8);
-}
-
-/* Modal */
+/* Modals & Chat */
 .modalBackdrop {
   position: fixed;
   inset: 0;
@@ -274,7 +131,7 @@
 
 .modalCard {
   width: 100%;
-  max-width: 580px;
+  max-width: 550px;
   padding: 2rem;
   background: var(--color-bg-primary, #0F172A);
   border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
@@ -310,8 +167,79 @@
   margin-top: 1.5rem;
 }
 
+/* Chat Card */
+.chatCard {
+  width: 100%;
+  max-width: 500px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 20px;
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 0.75rem;
+}
+
+.chatBody {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.chatBubble {
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sentBubble {
+  align-self: flex-end;
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.receivedBubble {
+  align-self: flex-start;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  color: var(--color-text-primary, #F1F5F9);
+  border-bottom-left-radius: 2px;
+}
+
+.bubbleText {
+  font-size: 0.9rem;
+}
+
+.bubbleTime {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  align-self: flex-end;
+}
+
+.chatInputRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
 @media (max-width: 1024px) {
-  .tripsGrid, .actionBoxRow, .specsRow {
+  .mainGrid {
     grid-template-columns: 1fr;
   }
 }

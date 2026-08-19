@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { pakistaniCities } from '@/lib/mockData';
+import { pakistaniCities, mockDriverCounterBids, DriverCounterBid } from '@/lib/mockData';
 
 interface TripItem {
   id: string;
@@ -53,53 +53,129 @@ export default function DriverTripsPage() {
   const [activeTrip, setActiveTrip] = useState<TripItem>(trips[0]);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
 
+  // Dynamic Driver Bids State Synced with localStorage
+  const [driverBids, setDriverBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
+  const [modifyBidTarget, setModifyBidTarget] = useState<DriverCounterBid | null>(null);
+  const [newDriverBidPrice, setNewDriverBidPrice] = useState<string>('');
+  const [newDriverBidMsg, setNewDriverBidMsg] = useState<string>('');
+
+  // Direct Shipper Chat Modal State
+  const [chatTargetShipper, setChatTargetShipper] = useState<TripItem | DriverCounterBid | null>(null);
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: string; text: string; time: string }>>([
+    { sender: 'shipper', text: 'Assalam-o-Alaikum! Please notify when vehicle arrives at Multan factory gate.', time: '02:15 PM' },
+    { sender: 'driver', text: 'Walaikum Assalam Tariq sahib! Vehicle LHR-5678 is currently at Toll Plaza, arriving in 20 minutes.', time: '02:20 PM' }
+  ]);
+  const [chatInputText, setChatInputText] = useState('');
+
+  // Sync bids with localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('safarload_global_bids');
+      if (stored) {
+        setDriverBids(JSON.parse(stored));
+      } else {
+        localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const saveBidsToStorage = (updatedBids: DriverCounterBid[]) => {
+    setDriverBids(updatedBids);
+    try {
+      localStorage.setItem('safarload_global_bids', JSON.stringify(updatedBids));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Driver Availability Broadcast Form State
   const [unloadedCity, setUnloadedCity] = useState('Karachi');
   const [unloadedLocation, setUnloadedLocation] = useState('Port Qasim Gate 2 (Reached & Unloaded)');
   const [destPreference, setDestPreference] = useState<'specific' | 'any'>('any');
   const [preferredRoute, setPreferredRoute] = useState('Multan / Faisalabad');
-  const [readyTime, setReadyTime] = useState('Today 6:00 PM');
-  const [broadcastActive, setBroadcastActive] = useState(true);
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
   };
 
-  const handleUpdateStatus = (tripId: string, newStatus: TripItem['status']) => {
-    setTrips((prev) =>
-      prev.map((t) => (t.id === tripId ? { ...t, status: newStatus } : t))
-    );
-    if (activeTrip.id === tripId) {
-      setActiveTrip((prev) => ({ ...prev, status: newStatus }));
-    }
-    alert(`Trip status updated to: ${newStatus.toUpperCase()}`);
+  const handleOpenModifyBidModal = (b: DriverCounterBid) => {
+    setModifyBidTarget(b);
+    setNewDriverBidPrice(b.offeredBidPrice.toString());
+    setNewDriverBidMsg(b.bidMessage);
   };
 
-  const handleUploadBilty = (tripId: string) => {
-    setTrips((prev) =>
-      prev.map((t) => (t.id === tripId ? { ...t, biltyUploaded: true } : t))
-    );
-    if (activeTrip.id === tripId) {
-      setActiveTrip((prev) => ({ ...prev, biltyUploaded: true }));
-    }
-    alert('📄 Digital Bilty photo uploaded successfully! Escrow clearing triggered.');
-  };
-
-  const handleRequestFuelAdvance = (tripId: string) => {
-    setTrips((prev) =>
-      prev.map((t) => (t.id === tripId ? { ...t, fuelAdvanceRequested: true } : t))
-    );
-    if (activeTrip.id === tripId) {
-      setActiveTrip((prev) => ({ ...prev, fuelAdvanceRequested: true }));
-    }
-    alert('⛽ Rs. 30,000 Fuel Advance request sent to shipper via JazzCash!');
-  };
-
-  const handleBroadcastSubmit = (e: React.FormEvent) => {
+  const handleSaveModifiedBid = (e: React.FormEvent) => {
     e.preventDefault();
-    setBroadcastActive(true);
+    if (!modifyBidTarget) return;
+
+    const updatedPrice = Number(newDriverBidPrice);
+    const updated = driverBids.map((b) =>
+      b.id === modifyBidTarget.id
+        ? {
+            ...b,
+            offeredBidPrice: updatedPrice,
+            bidMessage: newDriverBidMsg,
+            lastUpdatedBy: 'driver' as const,
+          }
+        : b
+    );
+
+    saveBidsToStorage(updated);
+    alert(`✏️ Bid price updated to Rs. ${updatedPrice.toLocaleString()}! Shipper portal updated.`);
+    setModifyBidTarget(null);
+  };
+
+  const handleAcceptShipperCounterOffer = (bidId: string) => {
+    const targetBid = driverBids.find(b => b.id === bidId);
+    if (!targetBid) return;
+
+    const acceptedPrice = targetBid.shipperCounterPrice || targetBid.offeredBidPrice;
+
+    // Convert bid to active trip
+    const newTrip: TripItem = {
+      id: `TRIP-${Math.floor(100 + Math.random() * 900)}`,
+      loadId: targetBid.loadId,
+      route: targetBid.route,
+      cargo: targetBid.loadTitle,
+      weight: 25,
+      price: acceptedPrice,
+      shipper: targetBid.shipperName,
+      status: 'assigned',
+      pickupDate: 'Tomorrow',
+      biltyUploaded: false,
+      fuelAdvanceRequested: false
+    };
+
+    setTrips(prev => [newTrip, ...prev]);
+
+    const updated = driverBids.map((b) => (b.id === bidId ? { ...b, status: 'accepted' as const } : b));
+    saveBidsToStorage(updated);
+
+    alert(`🎉 Shipper Counter Offer Accepted! Trip locked at Rs. ${acceptedPrice.toLocaleString()}. Added to your Booked Trips.`);
+  };
+
+  const handleSendChatMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInputText.trim()) return;
+
+    setChatMessages(prev => [
+      ...prev,
+      {
+        sender: 'driver',
+        text: chatInputText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+    setChatInputText('');
+  };
+
+  const handleBroadcastReturnAvailability = (e: React.FormEvent) => {
+    e.preventDefault();
+    const routeText = destPreference === 'any' ? 'Open for Any Route in Pakistan (تمام روٹس کے لیے کھلی گاڑی)' : preferredRoute;
+    alert(`🟢 Return Load Availability Broadcasted Live!\nLocation: ${unloadedLocation}, ${unloadedCity}\nRoute: ${routeText}\nOur AI system & dispatch agents will contact shippers to lock your return trip!`);
     setShowAvailabilityModal(false);
-    alert(`📢 Return Availability Broadcasted Live across Pakistan!\nLocation: ${unloadedLocation} (${unloadedCity})\nPreference: ${destPreference === 'any' ? 'Open for Any Route in Pakistan' : preferredRoute}\nShippers and SafarLoad Brokers have been notified!`);
   };
 
   return (
@@ -107,159 +183,228 @@ export default function DriverTripsPage() {
       {/* Header */}
       <header className={styles.header}>
         <div>
-          <div className={styles.tripBadge}>🚛 Driver Trips & Deliveries | میرے سفر</div>
-          <h1>{lang === 'ur' ? 'میرے رجسٹرڈ اور آن گوئنگ سفر' : 'My Active Booked Trips'}</h1>
-          <p>{lang === 'ur' ? 'سفر کی حالت اپ ڈیٹ کریں، بلٹی اپ لوڈ کریں اور ایندھن ایڈوانس حاصل کریں' : 'Update status, upload Bilty, and claim fuel advance'}</p>
+          <span className={styles.badge}>👨‍✈️ Driver Logistics Desk / ڈرائیور پورٹل</span>
+          <h1>{lang === 'ur' ? 'میرے ٹرپس اور بولیوں کی تفصیلات' : 'My Booked Trips & Active Bids'}</h1>
         </div>
 
-        <div className={styles.headerActions}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button onClick={toggleLanguage} className="btn btn-glass btn-sm">
             🌐 {lang === 'en' ? 'اردو' : 'English'}
           </button>
-          <button onClick={() => setShowAvailabilityModal(true)} className="btn btn-secondary btn-sm">
-            🟢 {lang === 'ur' ? 'خالی گاڑی کا اعلان کریں' : 'Broadcast Return Availability'}
+          <button onClick={() => setShowAvailabilityModal(true)} className="btn btn-primary btn-sm">
+            🟢 {lang === 'ur' ? 'خالی گاڑی کی واپسی کی اطلاع دیں' : 'Broadcast Return Load Availability'}
           </button>
-          <Link href="/dashboard/loads" className="btn btn-primary btn-sm">
-            📋 {lang === 'ur' ? 'مزید لوڈز تلاش کریں' : 'Find More Loads'}
-          </Link>
         </div>
       </header>
 
-      {/* Broadcast Status Indicator Banner */}
-      {broadcastActive && (
-        <div className={styles.broadcastBanner}>
-          <div className={styles.broadcastInfo}>
-            <span className={styles.broadcastDot}></span>
-            <div>
-              <strong>{lang === 'ur' ? '🟢 خالی گاڑی کا لائیو اعلان فعال ہے' : '🟢 Live Return Availability Broadcast Active'}</strong>
-              <div className={styles.broadcastSub}>
-                📍 Current: {unloadedLocation} | Target: {destPreference === 'any' ? 'Open for Any Route in Pakistan (تمام روٹس)' : preferredRoute}
+      {/* DRIVER ACTIVE BIDS & SHIPPER COUNTER OFFERS SECTION */}
+      <section className={`${styles.bidsSection} glass-card`} style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <h3>🏷️ {lang === 'ur' ? 'میری فعال بولیاں اور شپر کاؤنٹر آفرز' : 'My Active Bids & Shipper Counter Offers'}</h3>
+          <span className="badge badge-info">{driverBids.length} Active Bids</span>
+        </div>
+
+        <div className={styles.bidsGrid} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {driverBids.map((b) => (
+            <div key={b.id} className={`${styles.bidCard} glass-card`} style={{ padding: '1.25rem', borderRadius: '14px', background: 'var(--color-bg-secondary, #1E293B)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0.75rem' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <strong>🏢 {b.shipperName}</strong>
+                  <span className="badge badge-warning">{b.status.toUpperCase()}</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginTop: '4px' }}>📍 {b.route}</div>
+              </div>
+
+              <div style={{ fontSize: '0.85rem' }}>
+                <p><strong>Your Bid Price:</strong> <span style={{ color: '#F59E0B', fontWeight: 800 }}>Rs. {b.offeredBidPrice.toLocaleString()}</span></p>
+
+                {b.shipperCounterPrice && (
+                  <div style={{ margin: '0.5rem 0', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#10B981', fontWeight: 700 }}>📩 Shipper Counter Offer:</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10B981' }}>Rs. {b.shipperCounterPrice.toLocaleString()}</div>
+                    <div style={{ fontSize: '0.75rem', fontStyle: 'italic' }}>💬 "{b.shipperCounterNote}"</div>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {b.shipperCounterPrice && b.status === 'pending' && (
+                  <button onClick={() => handleAcceptShipperCounterOffer(b.id)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                    ✅ {lang === 'ur' ? 'شپر آفر قبول کریں' : 'Accept Shipper Offer & Lock Trip'}
+                  </button>
+                )}
+
+                {b.status === 'pending' && (
+                  <button onClick={() => handleOpenModifyBidModal(b)} className="btn btn-secondary btn-sm" style={{ flex: 1 }}>
+                    ✏️ {lang === 'ur' ? 'بولی تبدیل کریں' : 'Modify My Bid'}
+                  </button>
+                )}
+
+                {b.status === 'accepted' && (
+                  <button onClick={() => setChatTargetShipper(b)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                    💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
+                  </button>
+                )}
               </div>
             </div>
-          </div>
-          <button onClick={() => setShowAvailabilityModal(true)} className="btn btn-glass btn-sm">
-            ⚙️ Edit Broadcast
-          </button>
+          ))}
         </div>
-      )}
+      </section>
 
-      {/* Main Grid */}
-      <div className={styles.tripsGrid}>
-        {/* Left Side: Trip Cards List */}
+      {/* Main Grid: Booked Trips List & Active Trip Details */}
+      <div className={styles.mainGrid}>
+        {/* Left Side: Booked Trips Cards */}
         <div className={styles.tripsList}>
-          <h3>📋 {lang === 'ur' ? 'سفر کی فہرست' : 'Trips List'} ({trips.length})</h3>
+          <h3 style={{ marginBottom: '1rem' }}>📋 {lang === 'ur' ? 'کامیاب بک شدہ ٹرپس' : 'Booked Freight Trips'}</h3>
 
           {trips.map((t) => (
             <div
               key={t.id}
               onClick={() => setActiveTrip(t)}
-              className={`${styles.tripCard} ${activeTrip.id === t.id ? styles.selectedTripCard : ''}`}
+              className={`${styles.tripCard} ${activeTrip.id === t.id ? styles.activeTripCard : ''} glass-card`}
             >
               <div className={styles.tripCardHeader}>
                 <strong>{t.route}</strong>
-                {t.status === 'assigned' && <span className="badge badge-warning">Assigned / تفویض</span>}
-                {t.status === 'at_pickup' && <span className="badge badge-info">At Pickup / فیکٹری پر</span>}
-                {t.status === 'in_transit' && <span className="badge badge-success">In Transit / راستے میں</span>}
-                {t.status === 'delivered' && <span className="badge badge-primary">Delivered / مکمل</span>}
+                <span className="badge badge-success">Rs. {t.price.toLocaleString()}</span>
               </div>
 
-              <div className={styles.tripCardBody}>
-                <p>📦 {t.cargo}</p>
-                <div className={styles.priceMeta}>
-                  <strong>Rs. {t.price.toLocaleString()}</strong>
-                  <span>🏢 {t.shipper}</span>
-                </div>
+              <div className={styles.tripCardMeta}>
+                <p>📦 Cargo: {t.cargo}</p>
+                <p>🏢 Shipper: {t.shipper}</p>
+                <p>📅 Pickup: {t.pickupDate}</p>
+              </div>
+
+              <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => setChatTargetShipper(t)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                  💬 Direct Shipper Chat
+                </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Right Side: Active Trip Detail & Driver Action Controls */}
-        {activeTrip && (
-          <div className={`${styles.tripDetailPanel} glass-card animate-fadeIn`}>
-            <div className={styles.detailHeader}>
-              <div>
-                <h2>{activeTrip.route}</h2>
-                <span className={styles.loadIdTag}>Load ID: {activeTrip.loadId} | {activeTrip.id}</span>
-              </div>
-              <div className={styles.pricePill}>Rs. {activeTrip.price.toLocaleString()}</div>
+        {/* Right Side: Active Trip Control Center */}
+        <div className={`${styles.activeTripPanel} glass-card`}>
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>🚚 Active Trip Command Center — {activeTrip.id}</h3>
+              <p>Shipper: {activeTrip.shipper} | Route: {activeTrip.route}</p>
             </div>
+            <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
+              💬 Chat with Shipper
+            </button>
+          </div>
 
-            {/* Trip Specs */}
-            <div className={styles.specsRow}>
-              <div><span>Cargo:</span> <strong>{activeTrip.cargo}</strong></div>
-              <div><span>Weight:</span> <strong>{activeTrip.weight} Tons</strong></div>
-              <div><span>Shipper:</span> <strong>{activeTrip.shipper}</strong></div>
-              <div><span>Pickup Date:</span> <strong>{activeTrip.pickupDate}</strong></div>
+          <div className={styles.infoBoxGrid}>
+            <div className={styles.infoBox}>
+              <span>Freight Payment:</span>
+              <strong>Rs. {activeTrip.price.toLocaleString()}</strong>
+              <small style={{ color: 'var(--color-primary)' }}>Escrow Guaranteed ✅</small>
             </div>
-
-            {/* Driver One-Tap Status Buttons */}
-            <div className={styles.statusSection}>
-              <h4>🚦 {lang === 'ur' ? 'سفر کی موجودہ حالت اپ ڈیٹ کریں' : 'Update Journey Milestone Status'}</h4>
-              <div className={styles.statusBtnsRow}>
-                <button
-                  onClick={() => handleUpdateStatus(activeTrip.id, 'at_pickup')}
-                  className={`${styles.statusBtn} ${activeTrip.status === 'at_pickup' ? styles.activeStatusBtn : ''}`}
-                >
-                  🏭 {lang === 'ur' ? 'پک اپ فیکٹری پہنچ گیا' : 'At Pickup'}
-                </button>
-                <button
-                  onClick={() => handleUpdateStatus(activeTrip.id, 'in_transit')}
-                  className={`${styles.statusBtn} ${activeTrip.status === 'in_transit' ? styles.activeStatusBtn : ''}`}
-                >
-                  🚛 {lang === 'ur' ? 'راستے میں روانہ' : 'In Transit'}
-                </button>
-                <button
-                  onClick={() => handleUpdateStatus(activeTrip.id, 'delivered')}
-                  className={`${styles.statusBtn} ${activeTrip.status === 'delivered' ? styles.activeStatusBtn : ''}`}
-                >
-                  📦 {lang === 'ur' ? 'ڈیلیور ہو گیا' : 'Delivered'}
-                </button>
-              </div>
-            </div>
-
-            {/* Bilty Photo & Fuel Advance Action Section */}
-            <div className={styles.actionBoxRow}>
-              {/* Bilty Upload */}
-              <div className={styles.actionBox}>
-                <h5>📄 {lang === 'ur' ? 'ڈیجیٹل بلٹی (Bilty) اپ لوڈ کریں' : 'Digital Bilty Photo (POD)'}</h5>
-                <p>{lang === 'ur' ? 'بلٹی کی تصویر اپ لوڈ کریں تاکہ ایسکرو سے رقم فوراً والٹ میں منتقل ہو سکے' : 'Upload proof of delivery photo for instant escrow payout.'}</p>
-                {activeTrip.biltyUploaded ? (
-                  <span className="badge badge-success">✅ Bilty Photo Uploaded (بلٹی اپ لوڈ شدہ)</span>
-                ) : (
-                  <button onClick={() => handleUploadBilty(activeTrip.id)} className="btn btn-primary btn-sm">
-                    📷 {lang === 'ur' ? 'بلٹی فوٹو اپ لوڈ کریں' : 'Upload Bilty Photo'}
-                  </button>
-                )}
-              </div>
-
-              {/* Fuel Advance */}
-              <div className={styles.actionBox}>
-                <h5>⛽ {lang === 'ur' ? 'ایندھن ایڈوانس درخواست' : 'Fuel Advance Request'}</h5>
-                <p>{lang === 'ur' ? 'سفر شروع کرنے سے پہلے 30% ایندھن کا ایڈوانس جاز کیش پر حاصل کریں' : 'Claim 30% fuel advance via JazzCash before trip start.'}</p>
-                {activeTrip.fuelAdvanceRequested ? (
-                  <span className="badge badge-info">⛽ Fuel Advance Claimed (Rs. 30,000)</span>
-                ) : (
-                  <button onClick={() => handleRequestFuelAdvance(activeTrip.id)} className="btn btn-secondary btn-sm">
-                    💸 {lang === 'ur' ? 'ایندھن ایڈوانس مانگیں' : 'Request Fuel Advance'}
-                  </button>
-                )}
-              </div>
+            <div className={styles.infoBox}>
+              <span>Fuel Advance (30%):</span>
+              <strong>Rs. {(activeTrip.price * 0.3).toLocaleString()}</strong>
+              <small style={{ color: '#F59E0B' }}>JazzCash Wallet Ready</small>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* DRIVER AVAILABILITY BROADCAST MODAL */}
+      {/* MODIFY DRIVER BID MODAL */}
+      {modifyBidTarget && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>✏️ Modify / Update Your Bid — {modifyBidTarget.route}</h3>
+              <button onClick={() => setModifyBidTarget(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleSaveModifiedBid}>
+              <div className={styles.inputGroup}>
+                <label>New Offered Rate (PKR):</label>
+                <input
+                  type="number"
+                  value={newDriverBidPrice}
+                  onChange={(e) => setNewDriverBidPrice(e.target.value)}
+                  className="input input-lg"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Message / Note to Shipper (پیغام):</label>
+                <input
+                  type="text"
+                  value={newDriverBidMsg}
+                  onChange={(e) => setNewDriverBidMsg(e.target.value)}
+                  className="input"
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setModifyBidTarget(null)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  💾 Update Bid & Notify Shipper
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DIRECT SHIPPER CHAT DRAWER MODAL */}
+      {chatTargetShipper && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.chatCard} glass-card animate-scaleIn`}>
+            <div className={styles.chatHeader}>
+              <div>
+                <h3>💬 Direct Chat with Shipper: {'shipper' in chatTargetShipper ? chatTargetShipper.shipper : chatTargetShipper.shipperName}</h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>Load Route: {chatTargetShipper.route}</span>
+              </div>
+              <button onClick={() => setChatTargetShipper(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div className={styles.chatBody}>
+              {chatMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.chatBubble} ${msg.sender === 'driver' ? styles.sentBubble : styles.receivedBubble}`}
+                >
+                  <div className={styles.bubbleText}>{msg.text}</div>
+                  <span className={styles.bubbleTime}>{msg.time}</span>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleSendChatMessage} className={styles.chatInputRow}>
+              <input
+                type="text"
+                value={chatInputText}
+                onChange={(e) => setChatInputText(e.target.value)}
+                placeholder="Type message to shipper..."
+                className="input"
+                required
+              />
+              <button type="submit" className="btn btn-primary btn-sm">
+                📤 Send
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DRIVER RETURN AVAILABILITY BROADCAST MODAL */}
       {showAvailabilityModal && (
         <div className={styles.modalBackdrop}>
           <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
             <div className={styles.modalHeader}>
-              <h3>🟢 Broadcast Return Load Availability (خالی گاڑی کا لائیو اعلان)</h3>
+              <h3>🟢 Broadcast Return Load Availability (خالی گاڑی کی واپسی کی اطلاع)</h3>
               <button onClick={() => setShowAvailabilityModal(false)} className={styles.closeBtn}>✕</button>
             </div>
 
-            <form onSubmit={handleBroadcastSubmit}>
+            <form onSubmit={handleBroadcastReturnAvailability}>
               <div className={styles.inputGroup}>
                 <label>Current Unloaded City (شہر جہاں اب گاڑی موجود ہے)</label>
                 <select value={unloadedCity} onChange={(e) => setUnloadedCity(e.target.value)} className="input">
@@ -282,65 +427,57 @@ export default function DriverTripsPage() {
               </div>
 
               <div className={styles.inputGroup}>
-                <label>Exact Location / Adda (موجودہ اڈا یا پورٹ لوکیشن)</label>
+                <label>Specific Pickup Location / Yard (مقام)</label>
                 <input
                   type="text"
                   value={unloadedLocation}
                   onChange={(e) => setUnloadedLocation(e.target.value)}
                   className="input"
-                  placeholder="e.g. Port Qasim Gate 2 / Hawkesbay Adda / Multan Bypass"
+                  placeholder="e.g. Port Qasim Gate 2, Bin Qasim Town"
+                  required
                 />
               </div>
 
-              {/* Destination Preference */}
               <div className={styles.inputGroup}>
-                <label>Destination Route Preference (کہاں کا لوڈ چاہیے؟)</label>
-                <div className={styles.destToggleRow}>
+                <label>Return Route Preference (کہاں جانا ہے)</label>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
                   <button
                     type="button"
                     onClick={() => setDestPreference('any')}
-                    className={`${styles.destBtn} ${destPreference === 'any' ? styles.activeDestBtn : ''}`}
+                    className={`btn ${destPreference === 'any' ? 'btn-primary' : 'btn-glass'} btn-sm`}
                   >
-                    🇵🇰 Open for Any Route in Pakistan (تمام روٹس کے لیے کھلی گاڑی)
+                    🇵🇰 Open for Any Route (تمام روٹس کے لیے کھلی گاڑی)
                   </button>
                   <button
                     type="button"
                     onClick={() => setDestPreference('specific')}
-                    className={`${styles.destBtn} ${destPreference === 'specific' ? styles.activeDestBtn : ''}`}
+                    className={`btn ${destPreference === 'specific' ? 'btn-primary' : 'btn-glass'} btn-sm`}
                   >
-                    🎯 Specific Return Route (مخصوص روٹ)
+                    🎯 Specific Route (خاص شہر)
                   </button>
                 </div>
               </div>
 
               {destPreference === 'specific' && (
                 <div className={styles.inputGroup}>
-                  <label>Preferred Destination Route (مطلوبہ روٹ)</label>
+                  <label>Preferred Destination City / Hub:</label>
                   <input
                     type="text"
                     value={preferredRoute}
                     onChange={(e) => setPreferredRoute(e.target.value)}
                     className="input"
-                    placeholder="e.g. Multan, Faisalabad, or Rawalpindi"
+                    placeholder="e.g. Multan, Faisalabad, Lahore"
+                    required
                   />
                 </div>
               )}
-
-              <div className={styles.inputGroup}>
-                <label>Ready Departure Time (کب روانگی کے لیے تیار ہیں)</label>
-                <select value={readyTime} onChange={(e) => setReadyTime(e.target.value)} className="input">
-                  <option value="Immediate Departure">Immediate Departure (ابھی روانہ ہو سکتا ہوں)</option>
-                  <option value="Today 6:00 PM">Today Evening (آج شام)</option>
-                  <option value="Tomorrow Morning 08:00 AM">Tomorrow Morning (کل صبح)</option>
-                </select>
-              </div>
 
               <div className={styles.modalActions}>
                 <button type="button" onClick={() => setShowAvailabilityModal(false)} className="btn btn-glass">
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  📢 Broadcast Availability Now
+                  📡 Broadcast Availability Live
                 </button>
               </div>
             </form>
