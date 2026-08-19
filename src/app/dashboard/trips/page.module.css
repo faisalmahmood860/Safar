@@ -115,6 +115,7 @@
 
 .infoBox strong {
   font-size: 1.35rem;
+  color: var(--color-text-primary, #0F172A);
 }
 
 /* Modals & Chat */
