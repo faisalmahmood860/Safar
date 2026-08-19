@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './WhatsAppAgentModal.module.css';
 
+import { usePathname } from 'next/navigation';
+
 export interface WhatsAppMessage {
   id: string;
   sender: 'user' | 'bot' | 'human_agent';
@@ -22,7 +24,9 @@ export interface WhatsAppSession {
 }
 
 export default function WhatsAppAgentModal() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [session, setSession] = useState<WhatsAppSession>({
     sessionId: 'WA-SESS-9842',
     userName: 'Muhammad Aslam (Driver)',
@@ -44,9 +48,17 @@ export default function WhatsAppAgentModal() {
   const [inputText, setInputText] = useState('');
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Sync session with localStorage for Support Portal live updates
+  // Sync session and check user authentication
   useEffect(() => {
     try {
+      const loggedUser = localStorage.getItem('safarload_logged_user');
+      const loggedRole = localStorage.getItem('safarload_user_role');
+      if (loggedUser || loggedRole) {
+        setIsUserLoggedIn(true);
+      } else {
+        setIsUserLoggedIn(false);
+      }
+
       const stored = localStorage.getItem('safarload_whatsapp_chats');
       if (stored) {
         setSession(JSON.parse(stored));
@@ -56,7 +68,12 @@ export default function WhatsAppAgentModal() {
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [pathname]);
+
+  // Hide WhatsApp chatbot on unauthenticated pages (/login, /) or when user is not logged in
+  if (pathname === '/login' || pathname === '/' || !isUserLoggedIn) {
+    return null;
+  }
 
   useEffect(() => {
     if (chatBottomRef.current) {
