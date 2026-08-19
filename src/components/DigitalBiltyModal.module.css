@@ -1,0 +1,250 @@
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.biltyPaper {
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #0F172A;
+  border: 2px solid var(--color-primary, #10B981);
+  border-radius: 20px;
+  padding: 2rem;
+  color: #F1F5F9;
+  box-shadow: 0 0 35px rgba(16, 185, 129, 0.25);
+}
+
+.topActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.biltyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--color-primary, #10B981);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.companyTitle h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-primary, #10B981);
+  margin: 0;
+}
+
+.urduSubtitle {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 1.1rem;
+  color: #F59E0B;
+  margin: 2px 0;
+}
+
+.biltyMetaBox {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px dashed var(--color-primary, #10B981);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  text-align: right;
+}
+
+.biltyNoLabel {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.biltyNoValue {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--color-primary, #10B981);
+}
+
+.biltyDate {
+  font-size: 0.75rem;
+  color: #CBD5E1;
+}
+
+.partyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.partyBox {
+  background: #1E293B;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.partyTitle {
+  font-size: 0.9rem;
+  color: #38BDF8;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  padding-bottom: 0.25rem;
+}
+
+.partyBox p {
+  font-size: 0.8rem;
+  color: #CBD5E1;
+  margin-bottom: 0.25rem;
+}
+
+.sectionCard {
+  background: #1E293B;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  color: #F59E0B;
+  margin-bottom: 0.75rem;
+}
+
+.fourColGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.fourColGrid div span {
+  display: block;
+  font-size: 0.7rem;
+  color: #94A3B8;
+}
+
+.fourColGrid div strong {
+  font-size: 0.85rem;
+  color: #F1F5F9;
+}
+
+.biltyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.biltyTable th {
+  background: #0F172A;
+  padding: 0.5rem;
+  text-align: left;
+  color: #CBD5E1;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.biltyTable td {
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  color: #F1F5F9;
+}
+
+.freightGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.freightGrid div span {
+  display: block;
+  font-size: 0.7rem;
+  color: #94A3B8;
+}
+
+.highlightGreen {
+  font-size: 1.1rem;
+  color: #10B981;
+}
+
+.highlightAmber {
+  font-size: 0.95rem;
+  color: #F59E0B;
+}
+
+.signaturesRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(148, 163, 184, 0.2);
+}
+
+.sigBox {
+  width: 200px;
+  text-align: center;
+}
+
+.sigLine {
+  height: 1px;
+  background: #94A3B8;
+  margin-bottom: 0.5rem;
+}
+
+.sigBox p {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.stampBox {
+  text-align: center;
+}
+
+.verifiedStamp {
+  border: 2px solid #10B981;
+  color: #10B981;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  transform: rotate(-5deg);
+  display: inline-block;
+}
+
+.verifiedStamp span {
+  display: block;
+  font-size: 0.6rem;
+}
+
+@media print {
+  .topActions {
+    display: none;
+  }
+  .modalBackdrop {
+    position: static;
+    background: none;
+    padding: 0;
+  }
+  .biltyPaper {
+    max-width: 100%;
+    border: none;
+    color: #000;
+    background: #fff;
+  }
+}

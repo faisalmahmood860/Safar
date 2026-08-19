@@ -3,10 +3,40 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
+import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import { mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
 
 export default function PostLoadPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
+  const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
+
+  const handleOpenBilty = (b: DriverCounterBid) => {
+    setSelectedBilty({
+      biltyNumber: `BLT-2026-${b.id.replace('BID-', '')}`,
+      date: '2026-08-19',
+      consignorName: 'Noor Textile Mills Ltd',
+      consignorCnic: '35202-9842107-1',
+      consignorPhone: '+92 42 35789000',
+      pickupAddress: 'Industrial Estate Gate 3, Multan',
+      consigneeName: 'Pak Cotton Trading Co.',
+      consigneeCnic: '42201-1122334-9',
+      consigneePhone: '+92 21 34567890',
+      dropoffAddress: 'Port Qasim, Bin Qasim Town, Karachi',
+      driverName: b.driverName,
+      driverCnic: '35201-1234567-1',
+      driverPhone: b.driverPhone,
+      truckNumber: b.truckNumber,
+      truckType: b.truckType,
+      cargoDescription: b.loadTitle,
+      packageCount: '500 Bales',
+      weightTons: '25',
+      declaredValuePkr: 4500000,
+      totalFreightPkr: b.offeredBidPrice,
+      paymentTerm: '30% Advance + 70% Delivery Pay',
+      tollsIncluded: true,
+      challanProtected: true,
+    });
+  };
   const [formStep, setFormStep] = useState<1 | 2 | 3>(1);
   const [voicePosting, setVoicePosting] = useState(false);
   const [loadPostedSuccess, setLoadPostedSuccess] = useState(false);
@@ -245,8 +275,11 @@ export default function PostLoadPage() {
                 {b.status === 'accepted' && (
                   <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
                     <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Bid Accepted — Escrow Locked!</span>
-                    <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                    <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
                       💬 Chat with Driver ({b.driverName})
+                    </button>
+                    <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                      📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
                     </button>
                   </div>
                 )}
@@ -796,6 +829,11 @@ export default function PostLoadPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* DIGITAL BILTY MODAL */}
+      {selectedBilty && (
+        <DigitalBiltyModal bilty={selectedBilty} onClose={() => setSelectedBilty(null)} />
       )}
     </div>
   );

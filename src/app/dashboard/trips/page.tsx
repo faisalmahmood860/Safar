@@ -5,6 +5,8 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { pakistaniCities, mockDriverCounterBids, DriverCounterBid } from '@/lib/mockData';
 
+import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
+
 interface TripItem {
   id: string;
   loadId: string;
@@ -21,6 +23,35 @@ interface TripItem {
 
 export default function DriverTripsPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
+  const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
+
+  const handleOpenBilty = (trip: TripItem) => {
+    setSelectedBilty({
+      biltyNumber: `BLT-2026-${trip.id.replace('TRIP-', '')}`,
+      date: '2026-08-19',
+      consignorName: trip.shipper,
+      consignorCnic: '35202-9842107-1',
+      consignorPhone: '+92 42 35789000',
+      pickupAddress: 'Industrial Estate Gate 3, Multan',
+      consigneeName: 'Pak Cotton Trading Co.',
+      consigneeCnic: '42201-1122334-9',
+      consigneePhone: '+92 21 34567890',
+      dropoffAddress: 'Port Qasim, Bin Qasim Town, Karachi',
+      driverName: 'Muhammad Aslam',
+      driverCnic: '35201-1234567-1',
+      driverPhone: '+92 301 2345678',
+      truckNumber: 'LHR-5678',
+      truckType: 'Flatbed Trailer (25 Tons)',
+      cargoDescription: trip.cargo,
+      packageCount: '500 Bales',
+      weightTons: trip.weight.toString(),
+      declaredValuePkr: 4500000,
+      totalFreightPkr: trip.price,
+      paymentTerm: '30% Advance + 70% Delivery Pay',
+      tollsIncluded: true,
+      challanProtected: true,
+    });
+  };
   const [trips, setTrips] = useState<TripItem[]>([
     {
       id: 'TRIP-901',
@@ -274,9 +305,12 @@ export default function DriverTripsPage() {
                 <p>📅 Pickup: {t.pickupDate}</p>
               </div>
 
-              <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => setChatTargetShipper(t)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
-                  💬 Direct Shipper Chat
+              <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => setChatTargetShipper(t)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                  💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
+                </button>
+                <button onClick={() => handleOpenBilty(t)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                  📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
                 </button>
               </div>
             </div>
@@ -290,9 +324,14 @@ export default function DriverTripsPage() {
               <h3>🚚 Active Trip Command Center — {activeTrip.id}</h3>
               <p>Shipper: {activeTrip.shipper} | Route: {activeTrip.route}</p>
             </div>
-            <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
-              💬 Chat with Shipper
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button onClick={() => handleOpenBilty(activeTrip)} className="btn btn-glass btn-sm">
+                📜 {lang === 'ur' ? 'بلٹی رسید دیکھیں' : 'View Digital Bilty'}
+              </button>
+              <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
+                💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
+              </button>
+            </div>
           </div>
 
           <div className={styles.infoBoxGrid}>
@@ -483,6 +522,11 @@ export default function DriverTripsPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* DIGITAL BILTY MODAL */}
+      {selectedBilty && (
+        <DigitalBiltyModal bilty={selectedBilty} onClose={() => setSelectedBilty(null)} />
       )}
     </div>
   );
