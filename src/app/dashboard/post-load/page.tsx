@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
+import GlobalBannerContainer from '@/components/GlobalBannerContainer';
 import { mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
 
 export default function PostLoadPage() {
@@ -258,6 +259,9 @@ export default function PostLoadPage() {
 
   return (
     <div className={styles.container} dir={lang === 'ur' ? 'rtl' : 'ltr'}>
+      {/* GLOBAL PLATFORM BANNERS & OVERDUE PAYMENT WARNINGS */}
+      <GlobalBannerContainer />
+
       {/* Top Header Bar */}
       <header className={styles.header}>
         <div className={styles.headerTitleGroup}>

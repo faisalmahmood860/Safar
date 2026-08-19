@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import { pakistaniCities, mockDriverCounterBids, DriverCounterBid } from '@/lib/mockData';
 
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
+import GlobalBannerContainer from '@/components/GlobalBannerContainer';
 
 interface TripItem {
   id: string;
@@ -211,6 +212,9 @@ export default function DriverTripsPage() {
 
   return (
     <div className={styles.container} dir={lang === 'ur' ? 'rtl' : 'ltr'}>
+      {/* GLOBAL PLATFORM BANNERS & OVERDUE PAYMENT WARNINGS */}
+      <GlobalBannerContainer />
+
       {/* Header */}
       <header className={styles.header}>
         <div>

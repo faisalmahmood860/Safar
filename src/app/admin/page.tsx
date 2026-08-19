@@ -30,9 +30,84 @@ interface ShipperOrg {
   totalSpent: number;
 }
 
+import { PlatformBanner, initialPlatformBanners } from '@/components/GlobalBannerContainer';
+
 export default function SuperAdminPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
-  const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'shippers' | 'orgs' | 'commission'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'shippers' | 'orgs' | 'commission' | 'banners'>('overview');
+
+  // Platform Banners State
+  const [banners, setBanners] = useState<PlatformBanner[]>(initialPlatformBanners);
+  const [bTitle, setBTitle] = useState('');
+  const [bMessage, setBMessage] = useState('');
+  const [bType, setBType] = useState<'feature_update' | 'payment_warning' | 'system_alert'>('feature_update');
+  const [bAudience, setBAudience] = useState<'all' | 'driver' | 'shipper' | 'fleet' | 'specific_user'>('all');
+  const [bTargetUser, setBTargetUser] = useState('');
+  const [bActionText, setBActionText] = useState('');
+  const [bActionUrl, setBActionUrl] = useState('');
+
+  // Sync Banners with localStorage
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('safarload_global_banners');
+      if (stored) {
+        setBanners(JSON.parse(stored));
+      } else {
+        localStorage.setItem('safarload_global_banners', JSON.stringify(initialPlatformBanners));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const saveBannersToStorage = (updated: PlatformBanner[]) => {
+    setBanners(updated);
+    try {
+      localStorage.setItem('safarload_global_banners', JSON.stringify(updated));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCreateBanner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bTitle || !bMessage) return;
+
+    const newBanner: PlatformBanner = {
+      id: `BAN-${Date.now()}`,
+      title: bTitle,
+      message: bMessage,
+      bannerType: bType,
+      targetAudience: bAudience,
+      targetUserEmail: bTargetUser || undefined,
+      actionText: bActionText || undefined,
+      actionUrl: bActionUrl || undefined,
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    const updated = [newBanner, ...banners];
+    saveBannersToStorage(updated);
+
+    setBTitle('');
+    setBMessage('');
+    setBTargetUser('');
+    setBActionText('');
+    setBActionUrl('');
+    alert(`📢 Platform Banner / Warning Notification Broadcasted Successfully!`);
+  };
+
+  const handleToggleBannerStatus = (id: string) => {
+    const updated = banners.map((b) => (b.id === id ? { ...b, status: (b.status === 'active' ? 'archived' : 'active') as 'active' | 'archived' } : b));
+    saveBannersToStorage(updated);
+  };
+
+  const handleDeleteBanner = (id: string) => {
+    if (confirm('Delete this banner announcement permanently?')) {
+      const updated = banners.filter((b) => b.id !== id);
+      saveBannersToStorage(updated);
+    }
+  };
 
   // Super Admin Credentials
   const adminCredentials = {
@@ -240,7 +315,168 @@ export default function SuperAdminPage() {
         >
           ⚙️ Subscription & Commission Settings
         </button>
+        <button
+          onClick={() => setActiveTab('banners')}
+          className={`${styles.tabBtn} ${activeTab === 'banners' ? styles.activeTab : ''}`}
+        >
+          📢 Platform Banners & Overdue Warnings ({banners.filter(b => b.status === 'active').length})
+        </button>
       </div>
+
+      {/* TAB 5: PLATFORM BANNERS & OVERDUE PAYMENT WARNINGS */}
+      {activeTab === 'banners' && (
+        <div className={`${styles.panel} glass-card animate-fadeIn`}>
+          <h3>📢 Platform Announcement Banners & Overdue Payment Warnings</h3>
+          <p className={styles.panelSubtitle}>
+            Broadcast new feature releases to all users, or issue targeted overdue payment warnings to specific shippers/drivers.
+          </p>
+
+          {/* CREATE BANNER FORM */}
+          <form onSubmit={handleCreateBanner} style={{ background: 'var(--color-bg-secondary)', padding: '1.5rem', borderRadius: '14px', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
+            <h4 style={{ margin: '0 0 1rem', color: 'var(--color-primary)' }}>➕ Broadcast New Banner Announcement / Warning</h4>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Announcement Title (عنوان):</label>
+                <input
+                  type="text"
+                  value={bTitle}
+                  onChange={(e) => setBTitle(e.target.value)}
+                  placeholder="e.g. 🚀 NEW FEATURE: Pakistani Digital Bilty System Live!"
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Banner Category (قسم):</label>
+                <select value={bType} onChange={(e: any) => setBType(e.target.value)} className="input">
+                  <option value="feature_update">📢 Feature Release Announcement (Green)</option>
+                  <option value="payment_warning">⚠️ Overdue Payment Warning Notice (Amber/Red)</option>
+                  <option value="system_alert">🚨 Critical System Alert (Red)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Message Body (پیغام کی تفصیل):</label>
+              <textarea
+                value={bMessage}
+                onChange={(e) => setBMessage(e.target.value)}
+                placeholder="Enter detailed notification text..."
+                className="input"
+                rows={2}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Target Audience:</label>
+                <select value={bAudience} onChange={(e: any) => setBAudience(e.target.value)} className="input">
+                  <option value="all">🌐 All Users (Public Broadcast)</option>
+                  <option value="driver">🚛 Drivers Only</option>
+                  <option value="shipper">🏢 Shippers Only</option>
+                  <option value="fleet">🚚 Fleet Owners Only</option>
+                  <option value="specific_user">🎯 Specific Selected User / Org</option>
+                </select>
+              </div>
+
+              {bAudience === 'specific_user' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Targeted User / Org Name:</label>
+                  <input
+                    type="text"
+                    value={bTargetUser}
+                    onChange={(e) => setBTargetUser(e.target.value)}
+                    placeholder="e.g. Noor Textile Mills or driver@safarload.pk"
+                    className="input"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Action Button Text:</label>
+                <input
+                  type="text"
+                  value={bActionText}
+                  onChange={(e) => setBActionText(e.target.value)}
+                  placeholder="e.g. 💳 Clear Dues Now"
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '4px' }}>Action Link URL:</label>
+                <input
+                  type="text"
+                  value={bActionUrl}
+                  onChange={(e) => setBActionUrl(e.target.value)}
+                  placeholder="e.g. /dashboard/wallet"
+                  className="input"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary">
+              📡 Broadcast Banner Now
+            </button>
+          </form>
+
+          {/* ACTIVE & ARCHIVED BANNERS LIST */}
+          <h4 style={{ marginBottom: '1rem' }}>📋 Active Broadcast Banners ({banners.length})</h4>
+          <div className="tableContainer">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Category & Title</th>
+                  <th>Target Audience</th>
+                  <th>Message Body</th>
+                  <th>Created Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {banners.map((b) => (
+                  <tr key={b.id}>
+                    <td>
+                      <strong>{b.title}</strong>
+                      <div style={{ fontSize: '0.75rem', color: b.bannerType === 'payment_warning' ? '#F59E0B' : '#10B981' }}>
+                        {b.bannerType === 'payment_warning' ? '⚠️ Payment Warning' : '📢 Feature Update'}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge badge-info">{b.targetAudience.toUpperCase()}</span>
+                      {b.targetUserEmail && <div style={{ fontSize: '0.75rem', color: '#CBD5E1' }}>🎯 {b.targetUserEmail}</div>}
+                    </td>
+                    <td><p style={{ margin: 0, fontSize: '0.8rem' }}>{b.message}</p></td>
+                    <td>{b.createdAt}</td>
+                    <td>
+                      {b.status === 'active' ? (
+                        <span className="badge badge-success">Active 🟢</span>
+                      ) : (
+                        <span className="badge badge-warning">Archived ⏸️</span>
+                      )}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button onClick={() => handleToggleBannerStatus(b.id)} className="btn btn-glass btn-sm">
+                          {b.status === 'active' ? '⏸️ Archive' : '▶️ Activate'}
+                        </button>
+                        <button onClick={() => handleDeleteBanner(b.id)} className="btn btn-accent btn-sm">
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* TAB 1: SYSTEM OVERVIEW */}
       {activeTab === 'overview' && (
