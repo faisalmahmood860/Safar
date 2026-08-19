@@ -79,10 +79,6 @@ export default function PostLoadPage() {
   ]);
   const [chatInputText, setChatInputText] = useState('');
 
-  // AI Agent Deal Lock Modal State
-  const [agentDealTarget, setAgentDealTarget] = useState<DriverAvailabilityBroadcast | null>(null);
-  const [proposedCargoRate, setProposedCargoRate] = useState<string>('180000');
-
   // Form State
   const [pickupCity, setPickupCity] = useState('Multan');
   const [pickupAddress, setPickupAddress] = useState('Industrial Estate, Bosan Road');
@@ -117,10 +113,47 @@ export default function PostLoadPage() {
     setLoadPostedSuccess(true);
   };
 
+  // Shipper Filter State (Default: Noor Textile Mills)
+  const [currentShipperName] = useState('Noor Textile Mills');
+  const [shipperTab, setShipperTab] = useState<'pending' | 'booked'>('pending');
+
+  // Enhanced AI Agent Deal Lock Modal State
+  const [agentDealTarget, setAgentDealTarget] = useState<DriverAvailabilityBroadcast | null>(null);
+  const [aiPickupCity, setAiPickupCity] = useState('Karachi');
+  const [aiDropoffCity, setAiDropoffCity] = useState('Multan');
+  const [aiProposedPrice, setAiProposedPrice] = useState('180000');
+  const [aiTollIncluded, setAiTollIncluded] = useState(true);
+  const [aiChallanProtected, setAiChallanProtected] = useState(true);
+  const [aiLaborIncluded, setAiLaborIncluded] = useState(true);
+  const [aiFuelAdvance, setAiFuelAdvance] = useState(true);
+
+  const handleOpenAiAgentModal = (avail: DriverAvailabilityBroadcast) => {
+    setAgentDealTarget(avail);
+    setAiPickupCity(avail.currentCity);
+    setAiDropoffCity(avail.preferredDestination.includes('Multan') ? 'Multan' : 'Lahore');
+    setAiProposedPrice('180000');
+  };
+
   const handleAcceptBid = (bidId: string) => {
+    const targetBid = bids.find(b => b.id === bidId);
     const updated = bids.map((b) => (b.id === bidId ? { ...b, status: 'accepted' as const } : b));
     saveBidsToStorage(updated);
-    alert(`✅ Driver Counter Bid ACCEPTED! Load assigned and Escrow payment locked.`);
+
+    // Save booked load ID to localStorage so it is removed from Driver Find Loads Board
+    if (targetBid) {
+      try {
+        const storedBooked = localStorage.getItem('safarload_booked_loads');
+        const bookedArr: string[] = storedBooked ? JSON.parse(storedBooked) : [];
+        if (!bookedArr.includes(targetBid.loadId)) {
+          bookedArr.push(targetBid.loadId);
+          localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedArr));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    alert(`✅ Driver Counter Bid ACCEPTED! Load assigned, Escrow payment locked, and load moved to Booked Trips. Auto-removed from Driver Find Loads board.`);
   };
 
   const handleRejectBid = (bidId: string) => {
@@ -174,8 +207,41 @@ export default function PostLoadPage() {
     e.preventDefault();
     if (!agentDealTarget) return;
 
+    const newDealBid: DriverCounterBid = {
+      id: `BID-AI-${Date.now()}`,
+      loadId: `LD-AI-${Date.now()}`,
+      loadTitle: `Return Trip — ${aiPickupCity} to ${aiDropoffCity}`,
+      route: `${aiPickupCity} → ${aiDropoffCity}`,
+      shipperName: currentShipperName,
+      driverName: agentDealTarget.driverName,
+      driverNameUr: agentDealTarget.driverNameUr,
+      driverPhone: agentDealTarget.driverPhone,
+      driverRating: agentDealTarget.driverRating,
+      driverTrips: 340,
+      truckNumber: agentDealTarget.truckNumber,
+      truckType: agentDealTarget.truckType,
+      originalPrice: Number(aiProposedPrice),
+      offeredBidPrice: Number(aiProposedPrice),
+      bidMessage: `AI Agent Negotiated Deal: Route ${aiPickupCity} → ${aiDropoffCity}. Inclusions: Tolls ${aiTollIncluded ? 'Yes' : 'No'}, Challan ${aiChallanProtected ? 'Yes' : 'No'}, Fuel Advance ${aiFuelAdvance ? 'Yes' : 'No'}`,
+      submittedTime: 'Just now',
+      status: 'accepted',
+      lastUpdatedBy: 'shipper'
+    };
+
+    saveBidsToStorage([newDealBid, ...bids]);
+
+    // Save to booked loads so it removes from public board
+    try {
+      const storedBooked = localStorage.getItem('safarload_booked_loads');
+      const bookedArr: string[] = storedBooked ? JSON.parse(storedBooked) : [];
+      bookedArr.push(newDealBid.loadId);
+      localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedArr));
+    } catch (e) {
+      console.error(e);
+    }
+
     alert(
-      `🤖 SafarLoad AI Matchmaker & Broker Agent Initiated!\nDriver: ${agentDealTarget.driverName} (${agentDealTarget.truckNumber})\nDestination: ${agentDealTarget.preferredDestination}\nAgreed Rate: Rs. ${Number(proposedCargoRate).toLocaleString()}\n\nOur agent is contacting ${agentDealTarget.driverName} to verify driver documents and lock the Escrow deal!`
+      `🤖 SafarLoad AI Matchmaker & Broker Agent Deal LOCKED!\nDriver: ${agentDealTarget.driverName} (${agentDealTarget.truckNumber})\nRoute: ${aiPickupCity} → ${aiDropoffCity}\nAgreed Rate: Rs. ${Number(aiProposedPrice).toLocaleString()}\n\nEscrow payment locked. Load assigned and moved to Booked Trips!`
     );
     setAgentDealTarget(null);
   };
@@ -231,61 +297,80 @@ export default function PostLoadPage() {
         </div>
       </div>
 
-      {/* INCOMING DRIVER COUNTER BIDS SECTION */}
+      {/* INCOMING DRIVER COUNTER BIDS SECTION & BOOKED TRIPS */}
       <section className={`${styles.bidsSection} glass-card`}>
         <div className={styles.bidsHeader}>
-          <h3>🏷️ {lang === 'ur' ? 'ڈرائیورز کی طرف سے موصول شدہ کاؤنٹر بولیاں' : 'Incoming Driver Counter Bids & Offers'}</h3>
-          <span className="badge badge-warning">{bids.filter((b) => b.status === 'pending').length} {lang === 'ur' ? 'نیا کاؤنٹر آفرز' : 'New Bids Received'}</span>
+          <div>
+            <h3>🏢 {currentShipperName} — Freight Bids & Booked Shipments</h3>
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)' }}>Scoped strictly to {currentShipperName} loads</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={() => setShipperTab('pending')}
+              className={`btn ${shipperTab === 'pending' ? 'btn-primary' : 'btn-glass'} btn-sm`}
+            >
+              🏷️ Pending Bids ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})
+            </button>
+            <button
+              onClick={() => setShipperTab('booked')}
+              className={`btn ${shipperTab === 'booked' ? 'btn-primary' : 'btn-glass'} btn-sm`}
+            >
+              ✅ Booked & En Route ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length})
+            </button>
+          </div>
         </div>
 
         <div className={styles.bidsGrid}>
-          {bids.map((b) => (
-            <div key={b.id} className={`${styles.bidCard} ${b.status === 'accepted' ? styles.acceptedBid : ''}`}>
-              <div className={styles.bidCardHeader}>
-                <div>
-                  <strong>{b.driverName} ({b.driverNameUr})</strong>
-                  <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
-                </div>
-                <div className={styles.bidPriceTag}>
-                  Rs. {b.offeredBidPrice.toLocaleString()}
-                  <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
-                </div>
-              </div>
-
-              <div className={styles.bidMeta}>
-                <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
-                <p>📍 <strong>Route:</strong> {b.route}</p>
-                <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
-              </div>
-
-              <div className={styles.bidActions}>
-                {b.status === 'pending' && (
-                  <>
-                    <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
-                      ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
-                    </button>
-                    <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
-                      🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
-                    </button>
-                    <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
-                      ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
-                    </button>
-                  </>
-                )}
-                {b.status === 'accepted' && (
-                  <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
-                    <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Bid Accepted — Escrow Locked!</span>
-                    <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-                      💬 Chat with Driver ({b.driverName})
-                    </button>
-                    <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
-                      📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
-                    </button>
+          {bids
+            .filter((b) => b.shipperName === currentShipperName && (shipperTab === 'pending' ? b.status === 'pending' : b.status === 'accepted'))
+            .map((b) => (
+              <div key={b.id} className={`${styles.bidCard} ${b.status === 'accepted' ? styles.acceptedBid : ''}`}>
+                <div className={styles.bidCardHeader}>
+                  <div>
+                    <strong>{b.driverName} ({b.driverNameUr})</strong>
+                    <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
                   </div>
-                )}
+                  <div className={styles.bidPriceTag}>
+                    Rs. {b.offeredBidPrice.toLocaleString()}
+                    <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
+                  </div>
+                </div>
+
+                <div className={styles.bidMeta}>
+                  <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
+                  <p>📍 <strong>Route:</strong> {b.route}</p>
+                  <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
+                </div>
+
+                <div className={styles.bidActions}>
+                  {b.status === 'pending' && (
+                    <>
+                      <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
+                        ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
+                      </button>
+                      <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
+                        🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
+                      </button>
+                      <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
+                        ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
+                      </button>
+                    </>
+                  )}
+                  {b.status === 'accepted' && (
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
+                      <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Booked & Escrow Locked!</span>
+                      <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                        💬 Chat with Driver ({b.driverName})
+                      </button>
+                      <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                        📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </section>
 
@@ -752,29 +837,86 @@ export default function PostLoadPage() {
 
             <form onSubmit={handleInitiateAgentDealLock}>
               <div className={styles.aiNoticeBox}>
-                <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛡️ Protected Deal Negotiation</div>
-                <p>
-                  SafarLoad AI System and Dispatcher Agent will contact driver <strong>{agentDealTarget.driverName}</strong> directly, negotiate load terms, confirm toll/challan inclusions, and lock Escrow payment.
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.25rem', color: '#10B981' }}>🛡️ SafarLoad Protected Deal Matchmaker</div>
+                <p style={{ fontSize: '0.85rem', color: '#CBD5E1', margin: 0 }}>
+                  Our AI system and dispatcher agents will negotiate with driver <strong>{agentDealTarget.driverName} ({agentDealTarget.truckNumber})</strong> on your behalf, verify CNIC documents, and lock Escrow.
                 </p>
-                <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-primary)' }}>
-                  🔒 <em>Direct phone numbers remain hidden until Escrow deal confirmation to protect commission & platform terms.</em>
+              </div>
+
+              {/* ROUTE SELECTION */}
+              <div className={styles.rowGrid}>
+                <div className={styles.inputGroup}>
+                  <label>📍 Pickup City (پک اپ شہر):</label>
+                  <select value={aiPickupCity} onChange={(e) => setAiPickupCity(e.target.value)} className="input">
+                    {pakistaniCities.map((c) => (
+                      <option key={c.en} value={c.en}>{c.en} ({c.ur})</option>
+                    ))}
+                    <option value="custom">➕ Add Custom City...</option>
+                  </select>
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label>🏁 Delivery Destination (ڈیلیوری شہر):</label>
+                  <select value={aiDropoffCity} onChange={(e) => setAiDropoffCity(e.target.value)} className="input">
+                    {pakistaniCities.map((c) => (
+                      <option key={c.en} value={c.en}>{c.en} ({c.ur})</option>
+                    ))}
+                    <option value="custom">➕ Add Custom City...</option>
+                  </select>
                 </div>
               </div>
 
+              {/* RATE PROPOSAL */}
               <div className={styles.inputGroup}>
-                <label>Driver Current Location:</label>
-                <strong>📍 {agentDealTarget.currentLocation} ({agentDealTarget.currentCity})</strong>
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label>Proposed Freight Agreed Rate (PKR):</label>
+                <label>💰 Proposed Freight Rate (PKR - پیش کردہ کرایہ):</label>
                 <input
                   type="number"
-                  value={proposedCargoRate}
-                  onChange={(e) => setProposedCargoRate(e.target.value)}
+                  value={aiProposedPrice}
+                  onChange={(e) => setAiProposedPrice(e.target.value)}
                   className="input input-lg"
                   required
                 />
+              </div>
+
+              {/* EXPENSE INCLUSIONS CHECKLIST */}
+              <div className={styles.inclusionsSection} style={{ marginTop: '1rem', padding: '1rem', borderRadius: '10px' }}>
+                <label style={{ fontWeight: 700, fontSize: '0.85rem', display: 'block', marginBottom: '0.5rem' }}>
+                  📋 Expense Inclusions Checklist (اخراجات شامل ہیں):
+                </label>
+                <div className={styles.checkboxGrid}>
+                  <label className={styles.checkboxItem}>
+                    <input
+                      type="checkbox"
+                      checked={aiTollIncluded}
+                      onChange={(e) => setAiTollIncluded(e.target.checked)}
+                    />
+                    <span>🛣️ Toll Plaza Taxes Included</span>
+                  </label>
+                  <label className={styles.checkboxItem}>
+                    <input
+                      type="checkbox"
+                      checked={aiChallanProtected}
+                      onChange={(e) => setAiChallanProtected(e.target.checked)}
+                    />
+                    <span>👮 Highway Police Challan Protection</span>
+                  </label>
+                  <label className={styles.checkboxItem}>
+                    <input
+                      type="checkbox"
+                      checked={aiLaborIncluded}
+                      onChange={(e) => setAiLaborIncluded(e.target.checked)}
+                    />
+                    <span>👷 Loading Labor Included</span>
+                  </label>
+                  <label className={styles.checkboxItem}>
+                    <input
+                      type="checkbox"
+                      checked={aiFuelAdvance}
+                      onChange={(e) => setAiFuelAdvance(e.target.checked)}
+                    />
+                    <span>⛽ 30% JazzCash Fuel Advance</span>
+                  </label>
+                </div>
               </div>
 
               <div className={styles.modalActions}>

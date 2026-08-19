@@ -27,8 +27,22 @@ export default function LoadsPage() {
     setLanguage(prev => prev === 'en' ? 'ur' : 'en');
   };
   
-  // Basic filtering
+  // Read booked loads from localStorage to exclude booked shipments from public board
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('safarload_booked_loads');
+      if (stored) {
+        setBookedLoadIds(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  // Basic filtering (Hides booked shipments)
   const filteredLoads = mockLoads.filter(load => {
+    if (bookedLoadIds.includes(load.id)) return false;
+
     const s = search.toLowerCase();
     const matchSearch = !search || 
       load.pickupCity.toLowerCase().includes(s) ||
