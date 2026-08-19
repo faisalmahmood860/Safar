@@ -26,11 +26,13 @@ export interface WhatsAppSession {
 export default function WhatsAppAgentModal() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('guest');
+  const [userName, setUserName] = useState<string>('Guest Visitor');
+
   const [session, setSession] = useState<WhatsAppSession>({
-    sessionId: 'WA-SESS-9842',
-    userName: 'Muhammad Aslam (Driver)',
-    userPhone: '+92 301 2345678',
+    sessionId: 'WA-SESS-GUEST',
+    userName: 'Guest Visitor',
+    userPhone: '+92 300 0000000',
     userRole: 'driver',
     status: 'bot_active',
     lastActivity: 'Just now',
@@ -48,32 +50,61 @@ export default function WhatsAppAgentModal() {
   const [inputText, setInputText] = useState('');
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Sync session and check user authentication
+  // Helper to get storage key unique to logged in user email or guest
+  const getStorageKey = (emailStr: string) => `safarload_whatsapp_chats_${emailStr.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+  // Load private session for current user
   useEffect(() => {
     try {
-      const loggedUser = localStorage.getItem('safarload_logged_user');
-      const loggedRole = localStorage.getItem('safarload_user_role');
-      if (loggedUser || loggedRole) {
-        setIsUserLoggedIn(true);
-      } else {
-        setIsUserLoggedIn(false);
+      const loggedUserRaw = localStorage.getItem('safarload_logged_user');
+      let currentEmail = 'guest';
+      let currentName = 'Guest Visitor';
+      let currentPhone = '+92 300 0000000';
+      let currentRole: any = 'driver';
+
+      if (loggedUserRaw) {
+        const parsedUser = JSON.parse(loggedUserRaw);
+        if (parsedUser && parsedUser.email) {
+          currentEmail = parsedUser.email;
+          currentName = parsedUser.name || parsedUser.email;
+          currentPhone = parsedUser.phone || '+92 301 2345678';
+          currentRole = parsedUser.role || 'driver';
+        }
       }
 
-      const stored = localStorage.getItem('safarload_whatsapp_chats');
+      setUserEmail(currentEmail);
+      setUserName(currentName);
+
+      const storageKey = getStorageKey(currentEmail);
+      const stored = localStorage.getItem(storageKey);
+
       if (stored) {
         setSession(JSON.parse(stored));
       } else {
-        localStorage.setItem('safarload_whatsapp_chats', JSON.stringify(session));
+        const defaultSession: WhatsAppSession = {
+          sessionId: `WA-SESS-${Date.now()}`,
+          userName: currentName,
+          userPhone: currentPhone,
+          userRole: currentRole,
+          status: 'bot_active',
+          lastActivity: 'Just now',
+          messages: [
+            {
+              id: '1',
+              sender: 'bot',
+              senderName: 'SafarLoad AI Bot 🤖',
+              text: `Assalam-o-Alaikum ${currentName}! Welcome to SafarLoad WhatsApp Assistant.\n\nHow can I help you today?\n1️⃣ Type "load" to find cargo loads\n2️⃣ Type "return" to broadcast return truck\n3️⃣ Type "bilty" to view goods receipt\n4️⃣ Type "agent" to connect with Human Support Desk`,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            },
+          ],
+        };
+        setSession(defaultSession);
+        localStorage.setItem(storageKey, JSON.stringify(defaultSession));
       }
     } catch (e) {
       console.error(e);
     }
   }, [pathname]);
-
-  // Hide WhatsApp chatbot on unauthenticated pages (/login, /) or when user is not logged in
-  if (pathname === '/login' || pathname === '/' || !isUserLoggedIn) {
-    return null;
-  }
 
   useEffect(() => {
     if (chatBottomRef.current) {
@@ -84,6 +115,9 @@ export default function WhatsAppAgentModal() {
   const saveSession = (updated: WhatsAppSession) => {
     setSession(updated);
     try {
+      const storageKey = getStorageKey(userEmail);
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      // Also sync global active chat for support desk
       localStorage.setItem('safarload_whatsapp_chats', JSON.stringify(updated));
     } catch (e) {
       console.error(e);
