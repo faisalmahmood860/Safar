@@ -562,6 +562,70 @@
   color: var(--color-primary, #10B981);
 }
 
+/* Modals */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 550px;
+  padding: 2rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.routeSpecBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+}
+
+.aiNoticeBox {
+  padding: 1.25rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 1024px) {
   .mainGrid, .bidsGrid, .availGrid, .checkboxGrid {
     grid-template-columns: 1fr;

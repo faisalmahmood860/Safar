@@ -13,6 +13,15 @@ export default function PostLoadPage() {
   const [bids, setBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
   const [availabilities] = useState<DriverAvailabilityBroadcast[]>(mockDriverAvailabilities);
 
+  // Shipper Counter-Counter Bid Modal State
+  const [counterBidTarget, setCounterBidTarget] = useState<DriverCounterBid | null>(null);
+  const [shipperRevisedPrice, setShipperRevisedPrice] = useState<string>('');
+  const [shipperCounterNote, setShipperCounterNote] = useState<string>('Final offer: Tolls included, loading labor on site.');
+
+  // AI Agent Deal Lock Modal State
+  const [agentDealTarget, setAgentDealTarget] = useState<DriverAvailabilityBroadcast | null>(null);
+  const [proposedCargoRate, setProposedCargoRate] = useState<string>('180000');
+
   // Form State
   const [pickupCity, setPickupCity] = useState('Multan');
   const [pickupAddress, setPickupAddress] = useState('Industrial Estate, Bosan Road');
@@ -24,7 +33,6 @@ export default function PostLoadPage() {
   const [pricingType, setPricingType] = useState<'fixed' | 'bidding'>('fixed');
   const [offeredPrice, setOfferedPrice] = useState('185000');
   const [pickupDate, setPickupDate] = useState('2026-08-22');
-  const [specialNotes, setSpecialNotes] = useState('Tarpaulin required, handle with care');
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
@@ -52,13 +60,48 @@ export default function PostLoadPage() {
     setBids((prev) =>
       prev.map((b) => (b.id === bidId ? { ...b, status: 'accepted' } : b))
     );
-    alert(`✅ Driver Counter Bid ${bidId} ACCEPTED! Load assigned and Escrow payment locked.`);
+    alert(`✅ Driver Counter Bid ACCEPTED! Load assigned and Escrow payment locked.`);
   };
 
   const handleRejectBid = (bidId: string) => {
     setBids((prev) =>
       prev.map((b) => (b.id === bidId ? { ...b, status: 'rejected' } : b))
     );
+  };
+
+  const handleOpenCounterBackModal = (bid: DriverCounterBid) => {
+    setCounterBidTarget(bid);
+    setShipperRevisedPrice((bid.offeredBidPrice + 3000).toString());
+  };
+
+  const handleSendShipperCounterOffer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!counterBidTarget) return;
+
+    setBids((prev) =>
+      prev.map((b) =>
+        b.id === counterBidTarget.id
+          ? {
+              ...b,
+              bidMessage: `Shipper Counter Offer: Rs. ${Number(shipperRevisedPrice).toLocaleString()} (${shipperCounterNote})`,
+              offeredBidPrice: Number(shipperRevisedPrice),
+            }
+          : b
+      )
+    );
+
+    alert(`🔄 Revised Counter Offer of Rs. ${Number(shipperRevisedPrice).toLocaleString()} sent back to driver ${counterBidTarget.driverName}!`);
+    setCounterBidTarget(null);
+  };
+
+  const handleInitiateAgentDealLock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agentDealTarget) return;
+
+    alert(
+      `🤖 SafarLoad AI Matchmaker & Broker Agent Initiated!\nDriver: ${agentDealTarget.driverName} (${agentDealTarget.truckNumber})\nDestination: ${agentDealTarget.preferredDestination}\nAgreed Rate: Rs. ${Number(proposedCargoRate).toLocaleString()}\n\nOur agent is contacting ${agentDealTarget.driverName} to verify driver documents and lock the Escrow deal!`
+    );
+    setAgentDealTarget(null);
   };
 
   return (
@@ -143,10 +186,13 @@ export default function PostLoadPage() {
                 {b.status === 'pending' && (
                   <>
                     <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
-                      ✅ {lang === 'ur' ? 'بولی قبول کریں اور بوک کریں' : 'Accept Bid & Lock Escrow'}
+                      ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
+                    </button>
+                    <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
+                      🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
                     </button>
                     <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
-                      ❌ {lang === 'ur' ? 'مسترد کریں' : 'Reject'}
+                      ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
                     </button>
                   </>
                 )}
@@ -159,12 +205,12 @@ export default function PostLoadPage() {
         </div>
       </section>
 
-      {/* DRIVER AVAILABILITY STREAM (RETURN TRIPS RADAR) */}
+      {/* DRIVER AVAILABILITY STREAM (RETURN TRIPS RADAR - AI & AGENT MATCHING) */}
       <section className={`${styles.availSection} glass-card`}>
         <div className={styles.availHeader}>
           <div>
             <h3>🟢 {lang === 'ur' ? 'خالی گاڑی اور ریٹرن روٹ ڈرائیور رڈار' : 'Available Driver Return Radar Stream'}</h3>
-            <p>{lang === 'ur' ? 'شہر پہنچے ہوئے ڈرائیورز کا اعلان — پوسٹ کرنے سے پہلے ڈرائیور منتخب کریں' : 'Drivers who recently unloaded and announced return trip availability.'}</p>
+            <p>{lang === 'ur' ? 'ہماری AI یا سفرلوڈ ایجنٹ کے ذریعے ڈرائیور سے محفوظ ڈیل کریں (براہ راست نمبر افشا نہیں ہوتا)' : 'Protected negotiation via SafarLoad AI System & Dispatcher Agent.'}</p>
           </div>
           <span className="badge badge-success">3 Ready Drivers Streamed</span>
         </div>
@@ -192,11 +238,11 @@ export default function PostLoadPage() {
 
               <div className={styles.availActionRow}>
                 <button
-                  onClick={() => alert(`📞 SafarLoad Agent connecting with ${a.driverName} (${a.driverPhone}) for your load!`)}
+                  onClick={() => setAgentDealTarget(a)}
                   className="btn btn-primary btn-sm"
                   style={{ width: '100%' }}
                 >
-                  🤝 {lang === 'ur' ? 'ایجنٹ سے ڈرائیور بک کرائیں' : 'Connect Agent & Book Driver'}
+                  🤖 {lang === 'ur' ? 'AI / ایجنٹ کے ذریعے ڈیل مکمل کریں' : 'AI & Agent Deal Lock'}
                 </button>
               </div>
             </div>
@@ -494,7 +540,7 @@ export default function PostLoadPage() {
             <div className={`${styles.sidebarBidsCard} glass-card`}>
               <div className={styles.sidebarBidsHeader}>
                 <h3>🏷️ {lang === 'ur' ? 'موصول شدہ کاؤنٹر بولیاں' : 'Incoming Driver Bids'}</h3>
-                <span className="badge badge-warning">{bids.filter(b => b.status === 'pending').length} New</span>
+                <span className="badge badge-warning">{bids.filter((b) => b.status === 'pending').length} New</span>
               </div>
 
               <div className={styles.sidebarBidsList}>
@@ -520,8 +566,11 @@ export default function PostLoadPage() {
                     <div className={styles.sidebarBidActions}>
                       {b.status === 'pending' ? (
                         <>
-                          <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
-                            ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept & Lock Escrow'}
+                          <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
+                            ✅ Accept
+                          </button>
+                          <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
+                            🔄 Counter
                           </button>
                           <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
                             ❌
@@ -529,7 +578,7 @@ export default function PostLoadPage() {
                         </>
                       ) : (
                         <span className="badge badge-success" style={{ width: '100%', textAlign: 'center' }}>
-                          ✅ Bid Accepted — Escrow Locked!
+                          ✅ Accepted — Escrow Locked!
                         </span>
                       )}
                     </div>
@@ -555,6 +604,105 @@ export default function PostLoadPage() {
               </div>
             </div>
           </aside>
+        </div>
+      )}
+
+      {/* SHIPPER COUNTER-COUNTER BID MODAL */}
+      {counterBidTarget && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>🔄 Send Counter Offer to Driver — {counterBidTarget.driverName}</h3>
+              <button onClick={() => setCounterBidTarget(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleSendShipperCounterOffer}>
+              <div className={styles.routeSpecBox}>
+                <div><span>Driver Offered Rate:</span> <strong>Rs. {counterBidTarget.offeredBidPrice.toLocaleString()}</strong></div>
+                <div><span>Driver Vehicle:</span> <strong>{counterBidTarget.truckNumber} ({counterBidTarget.truckType})</strong></div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Your Revised Shipper Counter Offer (PKR):</label>
+                <input
+                  type="number"
+                  value={shipperRevisedPrice}
+                  onChange={(e) => setShipperRevisedPrice(e.target.value)}
+                  className="input input-lg"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Terms Note to Driver (مجموعی شرائط):</label>
+                <input
+                  type="text"
+                  value={shipperCounterNote}
+                  onChange={(e) => setShipperCounterNote(e.target.value)}
+                  className="input"
+                  placeholder="e.g. Final offer: Tolls included, loading labor on site."
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setCounterBidTarget(null)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  📩 Send Revised Counter Offer to Driver
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI MATCHMAKER & AGENT DEAL LOCK MODAL */}
+      {agentDealTarget && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>🤖 SafarLoad AI Matchmaker & Broker Agent Negotiation</h3>
+              <button onClick={() => setAgentDealTarget(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleInitiateAgentDealLock}>
+              <div className={styles.aiNoticeBox}>
+                <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🛡️ Protected Deal Negotiation</div>
+                <p>
+                  SafarLoad AI System and Dispatcher Agent will contact driver <strong>{agentDealTarget.driverName}</strong> directly, negotiate load terms, confirm toll/challan inclusions, and lock Escrow payment.
+                </p>
+                <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-primary)' }}>
+                  🔒 <em>Direct phone numbers remain hidden until Escrow deal confirmation to protect commission & platform terms.</em>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Driver Current Location:</label>
+                <strong>📍 {agentDealTarget.currentLocation} ({agentDealTarget.currentCity})</strong>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Proposed Freight Agreed Rate (PKR):</label>
+                <input
+                  type="number"
+                  value={proposedCargoRate}
+                  onChange={(e) => setProposedCargoRate(e.target.value)}
+                  className="input input-lg"
+                  required
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setAgentDealTarget(null)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  ⚡ Confirm AI Agent Negotiation & Lock Deal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
