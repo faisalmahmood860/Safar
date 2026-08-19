@@ -100,7 +100,8 @@
 
 .infoBox {
   padding: 1.25rem;
-  background: var(--color-bg-secondary, #1E293B);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -120,7 +121,7 @@
 .modalBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--color-bg-overlay);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -133,9 +134,10 @@
   width: 100%;
   max-width: 550px;
   padding: 2rem;
-  background: var(--color-bg-primary, #0F172A);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
+  color: var(--color-text-primary);
 }
 
 .modalHeader {
@@ -175,9 +177,10 @@
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  background: var(--color-bg-primary, #0F172A);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
+  color: var(--color-text-primary);
 }
 
 .chatHeader {
