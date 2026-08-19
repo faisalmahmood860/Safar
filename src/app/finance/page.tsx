@@ -61,11 +61,11 @@ export default function FinancialManagerPage() {
           <button onClick={toggleLanguage} className="btn btn-glass btn-sm">
             🌐 {lang === 'en' ? 'اردو' : 'English'}
           </button>
-          <Link href="/admin" className="btn btn-outline btn-sm">
+          <Link href="/dashboard/admin" className="btn btn-outline btn-sm">
             👑 Super Admin
           </Link>
-          <Link href="/dashboard" className="btn btn-primary btn-sm">
-            📊 Operations Dashboard
+          <Link href="/dashboard/broker" className="btn btn-primary btn-sm">
+            🛡️ Escrow Clearing
           </Link>
         </div>
       </header>

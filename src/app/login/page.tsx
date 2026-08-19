@@ -22,9 +22,9 @@ export const validSystemUsers: SystemUser[] = [
   { role: 'driver', email: 'driver@safarload.pk', password: 'Driver@123', name: 'Muhammad Aslam (Verified Driver)', redirectUrl: '/dashboard' },
   { role: 'shipper', email: 'shipper@safarload.pk', password: 'Shipper@123', name: 'Noor Textile Mills Ltd', redirectUrl: '/dashboard/post-load' },
   { role: 'fleet', email: 'fleet@safarload.pk', password: 'Fleet@123', name: 'Al-Farooq Fleet Logistics', redirectUrl: '/dashboard/fleet' },
-  { role: 'support', email: 'support@safarload.pk', password: 'Support@123', name: 'Ayesha Khan (Support Staff)', redirectUrl: '/support' },
-  { role: 'finance', email: 'finance@safarload.pk', password: 'Finance@123', name: 'Kamran Ali (Finance Desk)', redirectUrl: '/finance' },
-  { role: 'admin', email: 'admin@safarload.pk', password: 'SafarLoad@2026#Admin', name: 'Super Admin System', redirectUrl: '/admin' },
+  { role: 'support', email: 'support@safarload.pk', password: 'Support@123', name: 'Ayesha Khan (Support Staff)', redirectUrl: '/dashboard/support' },
+  { role: 'finance', email: 'finance@safarload.pk', password: 'Finance@123', name: 'Kamran Ali (Finance Desk)', redirectUrl: '/dashboard/finance' },
+  { role: 'admin', email: 'admin@safarload.pk', password: 'SafarLoad@2026#Admin', name: 'Super Admin System', redirectUrl: '/dashboard/admin' },
 ];
 
 export default function LoginPage() {

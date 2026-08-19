@@ -225,8 +225,8 @@ export default function SuperAdminPage() {
           <button onClick={() => setShowOrgModal(true)} className="btn btn-primary btn-sm">
             🏢 Create Organization
           </button>
-          <Link href="/dashboard" className="btn btn-outline btn-sm">
-            📊 Operations Dashboard
+          <Link href="/dashboard/finance" className="btn btn-outline btn-sm">
+            💵 Revenue & Invoices
           </Link>
         </div>
       </header>
