@@ -29,12 +29,8 @@ export const validSystemUsers: SystemUser[] = [
 
 export default function LoginPage() {
   const [lang, setLang] = useState<Lang>('en');
-  const [selectedRole, setSelectedRole] = useState<'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin'>('driver');
-  
-  // Credentials Inputs
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [adminPin, setAdminPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   const router = useRouter();
@@ -47,26 +43,24 @@ export default function LoginPage() {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
   };
 
-  const handleRoleSelect = (role: 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin') => {
-    setSelectedRole(role);
-    setErrorMsg('');
-  };
-
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
+    const inputClean = emailOrPhone.trim().toLowerCase();
+
+    // Match against system registered users across all roles automatically
     const targetUser = validSystemUsers.find(
-      (u) => u.role === selectedRole && (u.email.toLowerCase() === emailOrPhone.trim().toLowerCase() || u.phone === emailOrPhone.trim())
+      (u) => u.email.toLowerCase() === inputClean || u.phone === inputClean || u.role === inputClean
     );
 
     if (!targetUser) {
-      setErrorMsg(`❌ Invalid email or phone number for ${selectedRole.toUpperCase()} login!`);
+      setErrorMsg('❌ Invalid Username or Email! Please enter a registered SafarLoad account email (e.g., driver@safarload.pk, shipper@safarload.pk, finance@safarload.pk, support@safarload.pk, admin@safarload.pk).');
       return;
     }
 
     if (targetUser.password !== password) {
-      setErrorMsg('❌ Incorrect Password! Please enter the valid password for your account.');
+      setErrorMsg('❌ Incorrect Password! Please check your account password and try again.');
       return;
     }
 
@@ -78,6 +72,7 @@ export default function LoginPage() {
       console.error(e);
     }
 
+    // Auto Route to Assigned Role Dashboard
     router.push(targetUser.redirectUrl);
   };
 
@@ -92,7 +87,7 @@ export default function LoginPage() {
           <h2 className={styles.tagline}>{t('brand.tagline')}</h2>
           <p className={styles.taglineDesc}>
             {lang === 'en'
-              ? 'Connecting drivers, fleet owners, enterprise shippers, and support desks across Pakistan.'
+              ? 'Connecting drivers, fleet owners, enterprise shippers, finance desks, and support across Pakistan.'
               : 'پاکستان کے تمام اضلاع میں ڈرائیورز اور لاجسٹکس سسٹمز کا بااعتماد نیٹ ورک۔'}
           </p>
 
@@ -128,66 +123,20 @@ export default function LoginPage() {
 
         <div className={styles.formCardBox}>
           <h1 className={styles.title}>{t('login.welcome')}</h1>
-          <p className={styles.subtitle}>Select your assigned role and log in with your password</p>
-
-          {/* User Role Selection Tabs */}
-          <div className={styles.roleTabs}>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('driver')}
-              className={`${styles.roleTab} ${selectedRole === 'driver' ? styles.activeRoleTab : ''}`}
-            >
-              🚛 Driver
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('shipper')}
-              className={`${styles.roleTab} ${selectedRole === 'shipper' ? styles.activeRoleTab : ''}`}
-            >
-              🏢 Shipper
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('fleet')}
-              className={`${styles.roleTab} ${selectedRole === 'fleet' ? styles.activeRoleTab : ''}`}
-            >
-              🚚 Fleet Owner
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('support')}
-              className={`${styles.roleTab} ${selectedRole === 'support' ? styles.activeRoleTab : ''}`}
-            >
-              🎧 KYC Support
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('finance')}
-              className={`${styles.roleTab} ${selectedRole === 'finance' ? styles.activeRoleTab : ''}`}
-            >
-              💵 Finance
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('admin')}
-              className={`${styles.roleTab} ${selectedRole === 'admin' ? styles.adminRoleTab : ''}`}
-            >
-              👑 Super Admin
-            </button>
-          </div>
+          <p className={styles.subtitle}>Enter your username/email and password to log in</p>
 
           {errorMsg && <div className={styles.errorAlert}>{errorMsg}</div>}
 
-          {/* Login Form */}
+          {/* Direct Login Form */}
           <form onSubmit={handleLoginSubmit} className={styles.formStack}>
             <div className={styles.inputGroup}>
-              <label>Email or Registered Phone Number</label>
+              <label>Username / Email / Registered Phone</label>
               <input
                 type="text"
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}
                 className="input input-lg"
-                placeholder={`e.g. ${selectedRole}@safarload.pk`}
+                placeholder="e.g. driver@safarload.pk, finance@safarload.pk..."
                 required
               />
             </div>
@@ -204,21 +153,8 @@ export default function LoginPage() {
               />
             </div>
 
-            {selectedRole === 'admin' && (
-              <div className={styles.inputGroup}>
-                <label>Super Admin Security PIN (Optional)</label>
-                <input
-                  type="text"
-                  value={adminPin}
-                  onChange={(e) => setAdminPin(e.target.value)}
-                  className="input"
-                  placeholder="e.g. 786-921"
-                />
-              </div>
-            )}
-
             <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-              🔐 Log In to {selectedRole.toUpperCase()} System →
+              🔐 Log In to SafarLoad →
             </button>
           </form>
         </div>
