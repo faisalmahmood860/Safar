@@ -217,14 +217,72 @@ export default function BrokerHubPage() {
         </div>
       )}
 
-      {/* TAB 4: ESCROW */}
+      {/* TAB 4: ESCROW PAYMENT & TRANSACTION MECHANISM HUB */}
       {activeTab === 'escrow' && (
         <div className={`${styles.panelCard} glass-card animate-fadeIn`}>
           <div className={styles.panelHeader}>
-            <h3>🛡️ Escrow Payment Monitor</h3>
-            <p>Track payments held in escrow and releases triggered by uploaded Bilty PODs.</p>
+            <div>
+              <h3>💳 Complete End-to-End Payment & Transaction Mechanism Hub</h3>
+              <p>Model 3 Dual-Sided Marketplace Clearing Engine (2.0% Shipper Fee + 3.0% Driver QuickPay Fee).</p>
+            </div>
+            <span className="badge badge-success">Model 3 Dual Escrow Active</span>
           </div>
-          <p style={{ color: 'var(--color-text-muted)' }}>Total Funds Protected in Escrow: <strong>Rs. 425,000</strong> (JazzCash & Easypaisa Gateway)</p>
+
+          {/* Interactive Calculation Demo Card */}
+          <div style={{ padding: '1.25rem', background: 'var(--color-bg-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)', marginBottom: '1.5rem' }}>
+            <h4 style={{ color: 'var(--color-primary)', marginTop: 0, marginBottom: '0.75rem' }}>
+              📊 Model 3 Transaction Ledger Calculation (Example: Rs. 150,000 Base Freight)
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              <div style={{ padding: '0.75rem', background: 'var(--color-bg-dark)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>1. Shipper Escrow Deposit</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>Rs. 153,000</div>
+                <small style={{ color: 'var(--color-text-secondary)' }}>Rs. 150,000 Base + 2% Escrow Fee (Rs. 3,000)</small>
+              </div>
+
+              <div style={{ padding: '0.75rem', background: 'var(--color-bg-dark)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>2. Tranche 1: 30% Fuel Advance</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F59E0B' }}>Rs. 43,650</div>
+                <small style={{ color: 'var(--color-text-secondary)' }}>Disbursed instantly via JazzCash on trip start</small>
+              </div>
+
+              <div style={{ padding: '0.75rem', background: 'var(--color-bg-dark)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>3. Tranche 2: 70% Bilty Settlement</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#10B981' }}>Rs. 101,850</div>
+                <small style={{ color: 'var(--color-text-secondary)' }}>Released to Driver upon Digital POD verification</small>
+              </div>
+
+              <div style={{ padding: '0.75rem', background: 'var(--color-bg-dark)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>4. SafarLoad Net Profit</span>
+                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#8B5CF6' }}>Rs. 7,500</div>
+                <small style={{ color: 'var(--color-text-secondary)' }}>5.0% Combined Platform Revenue Realized</small>
+              </div>
+            </div>
+          </div>
+
+          {/* Step-by-Step Lifecycle Tranches */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+            <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-primary)' }}>
+              <strong style={{ color: 'var(--color-primary)' }}>Step 1: Shipper Escrow Deposit 🏦</strong>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                Shipper posts route and transfers <strong>Rs. 153,000</strong> (Base + 2% Fee) into SafarLoad Corporate Escrow Account via 1Link IBFT / Card. Funds are locked safely (`STATUS: ESCROW_SECURED`).
+              </p>
+            </div>
+
+            <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-primary)' }}>
+              <strong style={{ color: '#F59E0B' }}>Step 2: 30% JazzCash Fuel Advance ⛽</strong>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                When Driver arrives at pickup warehouse and clicks "Start Trip", SafarLoad automatically transfers <strong>Rs. 43,650</strong> (30% of Net Rs. 145,500) to Driver JazzCash/Easypaisa for diesel.
+              </p>
+            </div>
+
+            <div style={{ padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--color-bg-primary)' }}>
+              <strong style={{ color: '#10B981' }}>Step 3: 70% Bilty Delivery Settlement 🧾</strong>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: '6px 0 0' }}>
+                Upon unloading, Driver uploads signed Digital Bilty POD. SafarLoad AI validates the receipt and releases the final <strong>Rs. 101,850</strong> balance to Driver's bank account.
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>
