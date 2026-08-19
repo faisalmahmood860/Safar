@@ -115,7 +115,17 @@ export default function PostLoadPage() {
 
   // Shipper Filter State (Default: Noor Textile Mills)
   const [currentShipperName] = useState('Noor Textile Mills');
-  const [shipperTab, setShipperTab] = useState<'pending' | 'booked'>('pending');
+  const [shipperTab, setShipperTab] = useState<'pending' | 'booked' | 'escrow'>('pending');
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('200000');
+
+  const handleReleaseFinalEscrow = (bidId: string) => {
+    alert(`⚡ 70% Final Settlement Escrow Released for load ${bidId}!\nFunds transferred to driver's verified account. Tax invoice generated.`);
+  };
+
+  const handleReportShortageDispute = (bidId: string) => {
+    alert(`⚠️ Shortage / Damage Claim logged for shipment ${bidId}!\n70% Escrow balance held in Vault. SafarLoad Support Inspection Agent assigned.`);
+  };
 
   // Enhanced AI Agent Deal Lock Modal State
   const [agentDealTarget, setAgentDealTarget] = useState<DriverAvailabilityBroadcast | null>(null);
@@ -305,7 +315,7 @@ export default function PostLoadPage() {
             <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)' }}>Scoped strictly to {currentShipperName} loads</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setShipperTab('pending')}
               className={`btn ${shipperTab === 'pending' ? 'btn-primary' : 'btn-glass'} btn-sm`}
@@ -318,60 +328,174 @@ export default function PostLoadPage() {
             >
               ✅ Booked & En Route ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length})
             </button>
+            <button
+              onClick={() => setShipperTab('escrow')}
+              className={`btn ${shipperTab === 'escrow' ? 'btn-primary' : 'btn-glass'} btn-sm`}
+            >
+              🛡️ Escrow Hub (ایسکرو ہب)
+            </button>
           </div>
         </div>
 
-        <div className={styles.bidsGrid}>
-          {bids
-            .filter((b) => b.shipperName === currentShipperName && (shipperTab === 'pending' ? b.status === 'pending' : b.status === 'accepted'))
-            .map((b) => (
-              <div key={b.id} className={`${styles.bidCard} ${b.status === 'accepted' ? styles.acceptedBid : ''}`}>
-                <div className={styles.bidCardHeader}>
-                  <div>
-                    <strong>{b.driverName} ({b.driverNameUr})</strong>
-                    <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
-                  </div>
-                  <div className={styles.bidPriceTag}>
-                    Rs. {b.offeredBidPrice.toLocaleString()}
-                    <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
-                  </div>
-                </div>
-
-                <div className={styles.bidMeta}>
-                  <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
-                  <p>📍 <strong>Route:</strong> {b.route}</p>
-                  <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
-                </div>
-
-                <div className={styles.bidActions}>
-                  {b.status === 'pending' && (
-                    <>
-                      <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
-                        ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
-                      </button>
-                      <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
-                        🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
-                      </button>
-                      <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
-                        ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
-                      </button>
-                    </>
-                  )}
-                  {b.status === 'accepted' && (
-                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
-                      <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Booked & Escrow Locked!</span>
-                      <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-                        💬 Chat with Driver ({b.driverName})
-                      </button>
-                      <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
-                        📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
-                      </button>
-                    </div>
-                  )}
-                </div>
+        {shipperTab === 'escrow' ? (
+          /* SHIPPER ESCROW CONTROL HUB PANEL */
+          <div className="animate-fadeIn" style={{ padding: '0.5rem 0' }}>
+            {/* ESCROW STATS OVERVIEW CARDS */}
+            <div className={styles.rowGrid} style={{ marginBottom: '1.5rem' }}>
+              <div className="stat-card">
+                <div className="stat-card-icon">🛡️</div>
+                <div className="stat-card-value">Rs. 420,000</div>
+                <div className="stat-card-label">Active Escrow Vault Balance</div>
+                <div className="stat-card-change positive">100% Protected Guarantee</div>
               </div>
-            ))}
-        </div>
+
+              <div className="stat-card">
+                <div className="stat-card-icon">⛽</div>
+                <div className="stat-card-value">Rs. 126,000</div>
+                <div className="stat-card-label">30% Fuel Advances Released</div>
+                <div className="stat-card-change positive">Paid to Driver JazzCash</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-card-icon">🔒</div>
+                <div className="stat-card-value">Rs. 294,000</div>
+                <div className="stat-card-label">70% Final Delivery Balances</div>
+                <div className="stat-card-change positive">Locked Pending Unloading</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-card-icon">🧾</div>
+                <div className="stat-card-value">Rs. 16,800</div>
+                <div className="stat-card-label">Platform Fee (4%) & WHT</div>
+                <div className="stat-card-change positive">Tax Receipt Ready</div>
+              </div>
+            </div>
+
+            {/* DEPOSIT ACTION BANNER */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid #10B981', padding: '1rem 1.25rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
+              <div>
+                <strong style={{ color: '#10B981', fontSize: '1.05rem' }}>🔒 SafarLoad Bank & JazzCash Escrow Protection</strong>
+                <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#CBD5E1' }}>
+                  Shipper deposits are held safely in Escrow. 30% fuel advance is auto-paid upon Bilty pickup, and 70% final balance is released upon OTP delivery code.
+                </p>
+              </div>
+              <button onClick={() => setShowDepositModal(true)} className="btn btn-primary btn-sm">
+                💳 + Deposit Funds to Escrow Vault
+              </button>
+            </div>
+
+            {/* TRANCHE ESCROW TRANSACTIONS TABLE */}
+            <div className="tableContainer">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Shipment ID & Route</th>
+                    <th>Driver & Vehicle</th>
+                    <th>Total Freight</th>
+                    <th>30% Fuel Advance (Tranche 1)</th>
+                    <th>70% Delivery Balance (Tranche 2)</th>
+                    <th>Delivery Proof</th>
+                    <th>Escrow Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bids
+                    .filter((b) => b.shipperName === currentShipperName && b.status === 'accepted')
+                    .map((b) => (
+                      <tr key={b.id}>
+                        <td>
+                          <strong>{b.loadTitle}</strong>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>📍 {b.route}</div>
+                        </td>
+                        <td>
+                          👨‍✈️ {b.driverName}
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>🚛 {b.truckNumber} ({b.truckType})</div>
+                        </td>
+                        <td><strong>Rs. {b.offeredBidPrice.toLocaleString()}</strong></td>
+                        <td>
+                          <span className="badge badge-success">
+                            Rs. {(b.offeredBidPrice * 0.3).toLocaleString()} (Paid JazzCash ✅)
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge badge-warning">
+                            Rs. {(b.offeredBidPrice * 0.7).toLocaleString()} (Vault Locked 🔒)
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm">
+                            📜 Bilty Verified ✅
+                          </button>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <button onClick={() => handleReleaseFinalEscrow(b.id)} className="btn btn-primary btn-sm">
+                              ⚡ Release 70% Escrow
+                            </button>
+                            <button onClick={() => handleReportShortageDispute(b.id)} className="btn btn-accent btn-sm">
+                              ⚠️ Hold / Shortage Claim
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.bidsGrid}>
+            {bids
+              .filter((b) => b.shipperName === currentShipperName && (shipperTab === 'pending' ? b.status === 'pending' : b.status === 'accepted'))
+              .map((b) => (
+                <div key={b.id} className={`${styles.bidCard} ${b.status === 'accepted' ? styles.acceptedBid : ''}`}>
+                  <div className={styles.bidCardHeader}>
+                    <div>
+                      <strong>{b.driverName} ({b.driverNameUr})</strong>
+                      <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
+                    </div>
+                    <div className={styles.bidPriceTag}>
+                      Rs. {b.offeredBidPrice.toLocaleString()}
+                      <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
+                    </div>
+                  </div>
+
+                  <div className={styles.bidMeta}>
+                    <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
+                    <p>📍 <strong>Route:</strong> {b.route}</p>
+                    <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
+                  </div>
+
+                  <div className={styles.bidActions}>
+                    {b.status === 'pending' && (
+                      <>
+                        <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
+                          ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
+                        </button>
+                        <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
+                          🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
+                        </button>
+                        <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
+                          ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
+                        </button>
+                      </>
+                    )}
+                    {b.status === 'accepted' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
+                        <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Booked & Escrow Locked!</span>
+                        <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                          💬 Chat with Driver ({b.driverName})
+                        </button>
+                        <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                          📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </section>
 
       {/* DRIVER AVAILABILITY STREAM (RETURN TRIPS RADAR - AI & AGENT MATCHING) */}
@@ -968,6 +1092,52 @@ export default function PostLoadPage() {
               <button type="submit" className="btn btn-primary btn-sm">
                 📤 Send
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DEPOSIT ESCROW FUNDS MODAL */}
+      {showDepositModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>💳 Deposit Funds into SafarLoad Escrow Vault</h3>
+              <button onClick={() => setShowDepositModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              alert(`✅ Escrow Vault Top Up Received!\nRs. ${Number(depositAmount).toLocaleString()} deposited via Bank Direct Escrow Transfer.\nVault Balance Updated.`);
+              setShowDepositModal(false);
+            }}>
+              <div className={styles.inputGroup}>
+                <label>Deposit Amount (PKR - رقم درج کریں):</label>
+                <input
+                  type="number"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                  className="input input-lg"
+                  required
+                />
+              </div>
+
+              <div style={{ background: '#1E293B', padding: '1rem', borderRadius: '10px', margin: '1rem 0', fontSize: '0.85rem' }}>
+                <strong style={{ color: '#F59E0B' }}>🏛️ Bank Escrow Deposit Account:</strong>
+                <p style={{ margin: '4px 0 0', color: '#CBD5E1' }}>Bank: Meezan Bank Ltd (Corporate Freight Escrow Branch)</p>
+                <p style={{ margin: '2px 0 0', color: '#CBD5E1' }}>Account Title: SafarLoad Pakistan Pvt Ltd (Escrow Vault)</p>
+                <p style={{ margin: '2px 0 0', color: '#CBD5E1' }}>IBAN: PK42 MEZN 0001 9842 1074 0102</p>
+                <p style={{ margin: '2px 0 0', color: '#10B981' }}>JazzCash Business Merchant Till ID: 0984210</p>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setShowDepositModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  💳 Confirm Bank Escrow Top Up
+                </button>
+              </div>
             </form>
           </div>
         </div>
