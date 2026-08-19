@@ -9,13 +9,31 @@ import { presetTestAccounts, TestAccount } from '@/lib/mockData';
 
 type Lang = 'en' | 'ur';
 
+export interface SystemUser {
+  role: 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
+  email: string;
+  phone?: string;
+  password: string;
+  name: string;
+  redirectUrl: string;
+}
+
+export const validSystemUsers: SystemUser[] = [
+  { role: 'driver', email: 'driver@safarload.pk', password: 'Driver@123', name: 'Muhammad Aslam (Verified Driver)', redirectUrl: '/dashboard' },
+  { role: 'shipper', email: 'shipper@safarload.pk', password: 'Shipper@123', name: 'Noor Textile Mills Ltd', redirectUrl: '/dashboard/post-load' },
+  { role: 'fleet', email: 'fleet@safarload.pk', password: 'Fleet@123', name: 'Al-Farooq Fleet Logistics', redirectUrl: '/dashboard/fleet' },
+  { role: 'support', email: 'support@safarload.pk', password: 'Support@123', name: 'Ayesha Khan (Support Staff)', redirectUrl: '/support' },
+  { role: 'finance', email: 'finance@safarload.pk', password: 'Finance@123', name: 'Kamran Ali (Finance Desk)', redirectUrl: '/finance' },
+  { role: 'admin', email: 'admin@safarload.pk', password: 'SafarLoad@2026#Admin', name: 'Super Admin System', redirectUrl: '/admin' },
+];
+
 export default function LoginPage() {
   const [lang, setLang] = useState<Lang>('en');
   const [selectedRole, setSelectedRole] = useState<'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin'>('driver');
   
   // Credentials Inputs
-  const [emailOrPhone, setEmailOrPhone] = useState('driver@safarload.pk');
-  const [password, setPassword] = useState('Driver@123');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [adminPin, setAdminPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -29,11 +47,8 @@ export default function LoginPage() {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
   };
 
-  // Quick Preset Test Account Selector
-  const handleSelectPreset = (acc: TestAccount) => {
-    setSelectedRole(acc.role);
-    setEmailOrPhone(acc.email);
-    setPassword(acc.password);
+  const handleRoleSelect = (role: 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin') => {
+    setSelectedRole(role);
     setErrorMsg('');
   };
 
@@ -41,42 +56,29 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMsg('');
 
-    // Secure Verification for Super Admin
-    if (selectedRole === 'admin') {
-      if (emailOrPhone !== 'admin@safarload.pk' || password !== 'SafarLoad@2026#Admin') {
-        setErrorMsg('❌ Invalid Super Admin Credentials! Required: admin@safarload.pk / SafarLoad@2026#Admin');
-        return;
-      }
-      router.push('/admin');
+    const targetUser = validSystemUsers.find(
+      (u) => u.role === selectedRole && (u.email.toLowerCase() === emailOrPhone.trim().toLowerCase() || u.phone === emailOrPhone.trim())
+    );
+
+    if (!targetUser) {
+      setErrorMsg(`❌ Invalid email or phone number for ${selectedRole.toUpperCase()} login!`);
       return;
     }
 
-    // Support Staff Verification
-    if (selectedRole === 'support') {
-      router.push('/support');
+    if (targetUser.password !== password) {
+      setErrorMsg('❌ Incorrect Password! Please enter the valid password for your account.');
       return;
     }
 
-    // Finance Manager Verification
-    if (selectedRole === 'finance') {
-      router.push('/finance');
-      return;
+    // Save User Session to localStorage
+    try {
+      localStorage.setItem('safarload_logged_user', JSON.stringify(targetUser));
+      localStorage.setItem('safarload_user_role', targetUser.role);
+    } catch (e) {
+      console.error(e);
     }
 
-    // Shipper / Organization Verification
-    if (selectedRole === 'shipper') {
-      router.push('/dashboard/post-load');
-      return;
-    }
-
-    // Fleet Owner Verification
-    if (selectedRole === 'fleet') {
-      router.push('/dashboard/fleet');
-      return;
-    }
-
-    // Driver Verification
-    router.push('/dashboard');
+    router.push(targetUser.redirectUrl);
   };
 
   return (
@@ -126,48 +128,48 @@ export default function LoginPage() {
 
         <div className={styles.formCardBox}>
           <h1 className={styles.title}>{t('login.welcome')}</h1>
-          <p className={styles.subtitle}>Select your user role and log in to SafarLoad</p>
+          <p className={styles.subtitle}>Select your assigned role and log in with your password</p>
 
           {/* User Role Selection Tabs */}
           <div className={styles.roleTabs}>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[0])}
+              onClick={() => handleRoleSelect('driver')}
               className={`${styles.roleTab} ${selectedRole === 'driver' ? styles.activeRoleTab : ''}`}
             >
               🚛 Driver
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[1])}
+              onClick={() => handleRoleSelect('shipper')}
               className={`${styles.roleTab} ${selectedRole === 'shipper' ? styles.activeRoleTab : ''}`}
             >
               🏢 Shipper
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[2])}
+              onClick={() => handleRoleSelect('fleet')}
               className={`${styles.roleTab} ${selectedRole === 'fleet' ? styles.activeRoleTab : ''}`}
             >
               🚚 Fleet Owner
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[3])}
+              onClick={() => handleRoleSelect('support')}
               className={`${styles.roleTab} ${selectedRole === 'support' ? styles.activeRoleTab : ''}`}
             >
               🎧 KYC Support
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[4])}
+              onClick={() => handleRoleSelect('finance')}
               className={`${styles.roleTab} ${selectedRole === 'finance' ? styles.activeRoleTab : ''}`}
             >
               💵 Finance
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset(presetTestAccounts[5])}
+              onClick={() => handleRoleSelect('admin')}
               className={`${styles.roleTab} ${selectedRole === 'admin' ? styles.adminRoleTab : ''}`}
             >
               👑 Super Admin
@@ -179,19 +181,19 @@ export default function LoginPage() {
           {/* Login Form */}
           <form onSubmit={handleLoginSubmit} className={styles.formStack}>
             <div className={styles.inputGroup}>
-              <label>Email or Phone Number</label>
+              <label>Email or Registered Phone Number</label>
               <input
                 type="text"
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}
                 className="input input-lg"
-                placeholder="e.g. driver@safarload.pk or +92 301 2345678"
+                placeholder={`e.g. ${selectedRole}@safarload.pk`}
                 required
               />
             </div>
 
             <div className={styles.inputGroup}>
-              <label>Password</label>
+              <label>Account Password</label>
               <input
                 type="password"
                 value={password}
@@ -216,30 +218,21 @@ export default function LoginPage() {
             )}
 
             <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>
-              🚀 Log In to {selectedRole.toUpperCase()} System →
+              🔐 Log In to {selectedRole.toUpperCase()} System →
             </button>
           </form>
 
-          {/* Preset Quick Fill Demo Accounts */}
-          <div className={styles.presetBox}>
-            <span className={styles.presetLabel}>🧪 Test Account Quick Fill:</span>
-            <div className={styles.presetChips}>
-              {presetTestAccounts.map((acc, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSelectPreset(acc)}
-                  className={`${styles.presetChip} ${selectedRole === acc.role ? styles.activePreset : ''}`}
-                >
-                  {acc.role === 'driver' && '🚛 Driver'}
-                  {acc.role === 'shipper' && '🏢 Shipper'}
-                  {acc.role === 'fleet' && '🚚 Fleet'}
-                  {acc.role === 'support' && '🎧 Support'}
-                  {acc.role === 'finance' && '💵 Finance'}
-                  {acc.role === 'admin' && '👑 Admin'}
-                </button>
-              ))}
-            </div>
+          {/* Credential Reference Box */}
+          <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--color-bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}>
+            <strong style={{ color: 'var(--color-primary)' }}>🔑 Registered Account Credentials:</strong>
+            <ul style={{ margin: '4px 0 0', paddingLeft: '1.25rem', color: 'var(--color-text-secondary)' }}>
+              <li><strong>Driver:</strong> driver@safarload.pk / <code>Driver@123</code></li>
+              <li><strong>Shipper:</strong> shipper@safarload.pk / <code>Shipper@123</code></li>
+              <li><strong>Fleet Manager:</strong> fleet@safarload.pk / <code>Fleet@123</code></li>
+              <li><strong>KYC Support:</strong> support@safarload.pk / <code>Support@123</code></li>
+              <li><strong>Finance Desk:</strong> finance@safarload.pk / <code>Finance@123</code></li>
+              <li><strong>Super Admin:</strong> admin@safarload.pk / <code>SafarLoad@2026#Admin</code></li>
+            </ul>
           </div>
         </div>
 
