@@ -1,0 +1,267 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-bg-primary, #0F172A);
+  color: var(--color-text-primary, #F1F5F9);
+  overflow-x: hidden;
+}
+
+/* Left Branding Panel */
+.brandingPanel {
+  flex: 1;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #059669 100%);
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  border-right: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+}
+
+[dir="rtl"] .brandingPanel {
+  border-right: none;
+  border-left: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+}
+
+.brandingContent {
+  max-width: 500px;
+}
+
+.logo {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-primary, #10B981);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+.logo span {
+  color: var(--color-secondary, #F59E0B);
+}
+
+.tagline {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.taglineDesc {
+  font-size: 1.05rem;
+  color: var(--color-text-secondary, #CBD5E1);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.statsBadgeContainer {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.statBadge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+
+.statIcon {
+  font-size: 1.75rem;
+}
+
+.statVal {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: white;
+}
+
+.statLbl {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+.truckArtLine {
+  height: 6px;
+  background: var(--gradient-truck-art, linear-gradient(135deg, #10B981 0%, #3B82F6 25%, #F59E0B 50%, #EF4444 75%, #10B981 100%));
+  border-radius: 3px;
+  margin-top: 2rem;
+}
+
+/* Right Form Panel */
+.formPanel {
+  width: 560px;
+  max-width: 100%;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--color-bg-secondary, #1E293B);
+  box-sizing: border-box;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.langToggle {
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-glass, rgba(15, 23, 42, 0.6));
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 10px;
+  color: var(--color-text-primary, #F1F5F9);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formCardBox {
+  width: 100%;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--color-text-muted, #94A3B8);
+  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
+}
+
+/* Role Selection Tabs */
+.roleTabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.roleTab {
+  padding: 0.65rem 0.5rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 10px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.activeRoleTab {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-color: var(--color-primary, #10B981);
+}
+
+.adminRoleTab {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #EF4444;
+  color: #EF4444;
+}
+
+.adminRoleTab.activeRoleTab {
+  background: var(--gradient-accent, linear-gradient(135deg, #EF4444 0%, #DC2626 100%));
+  color: white;
+}
+
+.errorAlert {
+  padding: 0.875rem 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  color: #EF4444;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #CBD5E1);
+}
+
+/* Preset Account Quick Fill */
+.presetBox {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px dashed var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 12px;
+}
+
+.presetLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted, #94A3B8);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.presetChips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.presetChip {
+  padding: 0.4rem 0.75rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 8px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activePreset {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--color-primary, #10B981);
+  color: var(--color-primary, #10B981);
+}
+
+.footerTerms {
+  font-size: 0.75rem;
+  color: var(--color-text-disabled, #64748B);
+  margin-top: 2rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .brandingPanel {
+    padding: 2.5rem 1.5rem;
+  }
+  .formPanel {
+    width: 100%;
+    padding: 2rem 1.5rem;
+  }
+}

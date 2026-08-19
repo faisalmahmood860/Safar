@@ -1,0 +1,603 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pageTitleUr {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 20px;
+  color: var(--color-text-muted);
+}
+
+/* Balance Card */
+.balanceCard {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.balanceCard::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    rgba(16, 185, 129, 0.1),
+    transparent 30%
+  );
+  animation: rotate 4s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.balanceContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.balanceLabel {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.balanceLabelUr {
+  font-family: 'Noto Nastaliq Urdu', serif;
+}
+
+.balanceValue {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+  transition: all 0.5s ease-out;
+}
+
+.balanceValue.animating {
+  transform: scale(1.05);
+  color: #fff;
+}
+
+.cardButtons {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.btnOutline, .btnPrimary {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btnOutline {
+  background: transparent;
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.btnOutline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-text);
+}
+
+.btnPrimary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+/* Quick Stats Row */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.statCard {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.statHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statIcon {
+  font-size: 24px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 4px;
+}
+
+.statBadge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--color-success);
+  margin-left: auto;
+}
+
+/* Section Common */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sectionTitleUr {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+/* Payment Methods */
+.methodsScroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.methodsScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.methodsScroll::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+
+.methodCard {
+  flex: 0 0 auto;
+  width: 260px;
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.methodCard:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.methodCard.jazzcash { border-top: 3px solid #EF4444; }
+.methodCard.easypaisa { border-top: 3px solid #22C55E; }
+.methodCard.bank { border-top: 3px solid #3B82F6; }
+
+.methodHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.methodBrand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.connectedBadge {
+  font-size: 12px;
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.methodDetails {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  font-family: monospace;
+}
+
+.addMethodCard {
+  flex: 0 0 auto;
+  width: 260px;
+  background: transparent;
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addMethodCard:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+/* Withdraw Section */
+.withdrawSection {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideDown 0.3s ease;
+}
+
+.withdrawSection.open {
+  display: flex;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amountInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.rsPrefix {
+  position: absolute;
+  left: 16px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.amountInput {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 16px 16px 48px;
+  font-size: 20px;
+  color: var(--color-text);
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.amountInput:focus {
+  border-color: var(--color-primary);
+}
+
+.quickAmounts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quickAmountBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: var(--color-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickAmountBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.methodSelect {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.methodOption {
+  flex: 1;
+  min-width: 140px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.methodOption.selected {
+  border-color: var(--color-primary);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.processingNote {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Transactions */
+.filters {
+  display: flex;
+  gap: 12px;
+}
+
+.filterBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.filterBtn.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.transactionsList {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.transactionItem {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.transactionItem:last-child {
+  border-bottom: none;
+}
+
+.transactionItem:nth-child(even) {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.transactionItem:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.txnIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.txnIcon.credit {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+}
+
+.txnIcon.debit {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+.txnDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.txnDesc {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.txnDescUr {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.txnMeta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.txnMethod {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.txnAmountArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.txnAmount {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.txnAmount.credit {
+  color: var(--color-success);
+}
+
+.txnAmount.debit {
+  color: var(--color-text);
+}
+
+.txnStatus {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.status-completed {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.status-failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .transactionItem {
+    flex-wrap: wrap;
+  }
+  
+  .txnAmountArea {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  }
+  
+  .cardButtons {
+    flex-direction: column;
+  }
+}

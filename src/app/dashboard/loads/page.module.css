@@ -1,0 +1,428 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin: 0;
+}
+
+.titleCount {
+  color: var(--color-primary, #10B981);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.langToggle {
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 10px;
+  color: var(--color-text-primary, #F1F5F9);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.viewToggle {
+  display: flex;
+  background: var(--color-bg-secondary, #1E293B);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+}
+
+.viewBtn {
+  padding: 0.4rem 0.85rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #94A3B8);
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+
+  font-size: 0.875rem;
+}
+
+.viewBtn.active {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+}
+
+.micBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-secondary, linear-gradient(135deg, #F59E0B 0%, #D97706 100%));
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchSection {
+  margin-bottom: 2rem;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.searchIcon {
+  margin-right: 0.75rem;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary, #F1F5F9);
+  font-size: 1rem;
+  width: 100%;
+  outline: none;
+}
+
+.clearSearch {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.filtersBar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 10px;
+  color: var(--color-text-primary, #F1F5F9);
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.resetFiltersBtn {
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #EF4444;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Cards Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  border-color: var(--color-primary-light, #34D399);
+  transform: translateY(-2px);
+}
+
+.bookedCard {
+  border-color: var(--color-primary, #10B981);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.routeGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.arrow {
+  color: var(--color-primary, #10B981);
+}
+
+.badgesGroup {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.badgeUrgent {
+  padding: 2px 8px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.badgeBookNow {
+  padding: 2px 8px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.cargoInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.truckTag {
+  padding: 2px 8px;
+  background: var(--color-bg-tertiary, #334155);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+.priceSection {
+  background: rgba(15, 23, 42, 0.4);
+  padding: 0.85rem;
+  border-radius: 12px;
+}
+
+.priceMain {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary, #10B981);
+}
+
+.priceSub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+.shipperRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-top: 0.75rem;
+}
+
+.shipperMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.shipperName {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.shipperRating {
+  font-size: 0.75rem;
+  color: var(--color-secondary, #F59E0B);
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btnDetails {
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  color: var(--color-text-primary, #F1F5F9);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.btnApply {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Modal */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 650px;
+  padding: 2rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 1rem;
+}
+
+.loadIdTag {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+  font-family: monospace;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #94A3B8);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.routeSpecBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-bg-secondary, #1E293B);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.specItem {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reqsBox {
+  margin-bottom: 1.5rem;
+}
+
+.reqChips {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reqChip {
+  padding: 4px 10px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-primary, #10B981);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.actionTabsBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.instantBookingBox, .biddingBox {
+  padding: 1.25rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+}
+
+.priceDisplay {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary, #10B981);
+  margin: 0.75rem 0;
+}
+
+.successBox {
+  text-align: center;
+  padding: 2rem;
+}
+
+.successActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .grid, .actionTabsBox {
+    grid-template-columns: 1fr;
+  }
+}

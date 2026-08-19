@@ -1,0 +1,224 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.supportBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-info, #3B82F6);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.supportGrid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.queuePanel {
+  padding: 1.5rem;
+  border-radius: 16px;
+}
+
+.queueHeader h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 0.75rem;
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.queueCard {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.queueCard:hover {
+  border-color: var(--color-primary-light, #34D399);
+}
+
+.selectedCard {
+  border-color: var(--color-primary, #10B981);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.queueTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.queueMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+.timeText {
+  font-size: 0.75rem;
+  color: var(--color-text-disabled, #64748B);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Inspection Panel */
+.inspectPanel {
+  padding: 2rem;
+  border-radius: 16px;
+}
+
+.inspectHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 1rem;
+}
+
+.kycIdTag {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+  font-family: monospace;
+}
+
+.actionRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.infoSection {
+  margin-bottom: 1.5rem;
+  background: var(--color-bg-secondary, #1E293B);
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+}
+
+.infoSection h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-primary, #F1F5F9);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.warningText {
+  color: var(--color-warning, #F59E0B);
+}
+
+.ownerBox {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+}
+
+.warningTitle {
+  color: var(--color-warning, #F59E0B);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.docsSection h4 {
+  margin-bottom: 1rem;
+}
+
+.docsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.docCard, .docCardWarning {
+  padding: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.docCardWarning {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.docPreview {
+  padding: 1.5rem;
+  background: var(--color-bg-tertiary, #334155);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--color-text-primary, #F1F5F9);
+}
+
+.notesSection {
+  margin-top: 1.5rem;
+}
+
+.notesSection label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .supportGrid {
+    grid-template-columns: 1fr;
+  }
+  .infoGrid, .docsGrid {
+    grid-template-columns: 1fr;
+  }
+}

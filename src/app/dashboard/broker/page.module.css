@@ -1,0 +1,131 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.brokerBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-secondary, #F59E0B);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin: 0;
+}
+
+.headerRight {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tabsNav {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tabBtn {
+  padding: 0.85rem 1.4rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activeTab {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-color: var(--color-primary, #10B981);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.panelCard {
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panelHeader {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.availGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.availCard {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.availHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.destBox {
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 1024px) {
+  .statsGrid, .availGrid {
+    grid-template-columns: 1fr;
+  }
+}

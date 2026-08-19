@@ -1,0 +1,317 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.tripBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-primary, #10B981);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.broadcastBanner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.broadcastInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.broadcastDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 12px #10B981;
+  animation: pulse-ring 1s infinite;
+}
+
+.broadcastSub {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.destToggleRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.destBtn {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 10px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+[dir="rtl"] .destBtn {
+  text-align: right;
+}
+
+.activeDestBtn {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--color-primary, #10B981);
+  color: var(--color-primary, #10B981);
+}
+
+.tripsGrid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.tripsList h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.tripCard {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tripCard:hover {
+  border-color: var(--color-primary-light, #34D399);
+}
+
+.selectedTripCard {
+  border-color: var(--color-primary, #10B981);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.tripCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tripCardBody p {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #CBD5E1);
+  margin-bottom: 0.5rem;
+}
+
+.priceMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.priceMeta strong {
+  color: var(--color-primary, #10B981);
+}
+
+/* Detail Panel */
+.tripDetailPanel {
+  padding: 2rem;
+  border-radius: 16px;
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 1rem;
+}
+
+.loadIdTag {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+  font-family: monospace;
+}
+
+.pricePill {
+  padding: 0.5rem 1.25rem;
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 800;
+  border-radius: 12px;
+}
+
+.specsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.specsRow div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statusSection {
+  margin-bottom: 2rem;
+}
+
+.statusSection h4 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.statusBtnsRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.statusBtn {
+  flex: 1;
+  padding: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activeStatusBtn {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-color: var(--color-primary, #10B981);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.actionBoxRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.actionBox {
+  padding: 1.5rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actionBox h5 {
+  font-size: 0.95rem;
+}
+
+.actionBox p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+/* Modal */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 580px;
+  padding: 2rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .tripsGrid, .actionBoxRow, .specsRow {
+    grid-template-columns: 1fr;
+  }
+}

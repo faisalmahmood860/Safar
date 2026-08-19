@@ -1,0 +1,494 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.headerTitleGroup h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin-top: 0.25rem;
+}
+
+.headerBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-primary, #10B981);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Voice Card */
+.voiceCard {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.voiceContent {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.micButton {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gradient-secondary, linear-gradient(135deg, #F59E0B 0%, #D97706 100%));
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.micButton:hover {
+  transform: scale(1.08);
+}
+
+.recording {
+  animation: pulse-ring 1.2s infinite;
+  background: var(--gradient-accent, linear-gradient(135deg, #EF4444 0%, #DC2626 100%));
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+}
+
+.listeningBadge {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-secondary, #F59E0B);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.pulseDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-secondary, #F59E0B);
+  animation: pulse-ring 1s infinite;
+}
+
+/* Bids Section */
+.bidsSection {
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.bidsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.bidsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.bidCard {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.acceptedBid {
+  border-color: var(--color-primary, #10B981);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.bidCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bidRating {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-secondary, #F59E0B);
+}
+
+.bidPriceTag {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary, #10B981);
+  text-align: right;
+}
+
+.bidPriceTag small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.bidMeta p {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.bidMsg {
+  font-style: italic;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.bidActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Driver Return Availability Radar */
+.availSection {
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.availHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.availGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.availCard {
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.availHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.availCity {
+  font-size: 0.75rem;
+  color: var(--color-primary, #10B981);
+  margin-top: 2px;
+}
+
+.prefRouteBox {
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.destText {
+  color: var(--color-secondary, #F59E0B);
+  display: block;
+  margin-top: 2px;
+}
+
+.availMetaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.availActionRow {
+  margin-top: 0.25rem;
+}
+
+/* Main Form Grid */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.formCard {
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wizardSteps {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted, #94A3B8);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.stepItem span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-bg-tertiary, #334155);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.activeStep {
+  color: var(--color-primary, #10B981);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.activeStep span {
+  background: var(--color-primary, #10B981);
+  color: white;
+}
+
+.stepTitle {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary, #F1F5F9);
+}
+
+.rowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #CBD5E1);
+}
+
+.truckRadioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.truckChip {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.truckChip:hover {
+  border-color: var(--color-primary-light, #34D399);
+}
+
+.selectedTruck {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--color-primary, #10B981);
+  color: var(--color-primary, #10B981);
+  font-weight: 700;
+}
+
+.inclusionsSection {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.checkboxItem input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary, #10B981);
+}
+
+.btnRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.pricingToggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.toggleTab {
+  flex: 1;
+  padding: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 12px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activeTab {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-color: var(--color-primary, #10B981);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.biddingNotice {
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  color: var(--color-info, #3B82F6);
+  margin-bottom: 1.5rem;
+}
+
+/* Success Card */
+.successCard {
+  text-align: center;
+  padding: 3rem 2rem;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.successMeta {
+  display: flex;
+  justify-content: space-around;
+  margin: 2rem 0;
+  padding: 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border-radius: 12px;
+}
+
+.successActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Sidebar */
+.summaryAside {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.summaryCard {
+  padding: 1.5rem;
+  border-radius: 16px;
+}
+
+.summaryCard h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 0.75rem;
+}
+
+.summaryStat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.highlightGreen {
+  color: var(--color-primary, #10B981);
+}
+
+@media (max-width: 1024px) {
+  .mainGrid, .bidsGrid, .availGrid, .checkboxGrid {
+    grid-template-columns: 1fr;
+  }
+  .rowGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,229 @@
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.financeBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--color-success, #22C55E);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary, #F1F5F9);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.panel {
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filterTabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border-radius: 10px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.activeFilter {
+  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
+  color: white;
+  border-color: var(--color-primary, #10B981);
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+}
+
+[dir="rtl"] .table th, [dir="rtl"] .table td {
+  text-align: right;
+}
+
+.overdueRow {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.commissionText {
+  color: var(--color-primary, #10B981);
+}
+
+.actionBtns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Modal Invoice */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 720px;
+  padding: 2.5rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  padding-bottom: 1rem;
+}
+
+.invNumber {
+  font-family: monospace;
+  color: var(--color-primary, #10B981);
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #94A3B8);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.invoiceMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background: var(--color-bg-secondary, #1E293B);
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+.invoiceMetaGrid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.invoiceTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.invoiceTable th, .invoiceTable td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  text-align: left;
+}
+
+.invoiceTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.grandTotal h3 {
+  color: var(--color-primary, #10B981);
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.greenText { color: var(--color-success, #22C55E); }
+.redText { color: var(--color-danger, #EF4444); }
+
+.invoiceFooterNotes {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #94A3B8);
+  margin-bottom: 2rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
