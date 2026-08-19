@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "SafarLoad Logistics",
+    "slug": "safarload-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0F172A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "pk.safarload.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SafarLoad requires camera access for CNIC verification and Bilty uploads.",
+        "NSMicrophoneUsageDescription": "SafarLoad requires microphone access for Urdu Voice Load posting.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SafarLoad tracks truck GPS location for real-time shipment radar."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F172A"
+      },
+      "package": "pk.safarload.app",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "safarload-logistics-pk"
+      }
+    }
+  }
+}
