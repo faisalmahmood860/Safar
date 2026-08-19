@@ -75,8 +75,8 @@ export default function FinancialManagerPage() {
         <div className="stat-card">
           <div className="stat-card-icon">💰</div>
           <div className="stat-card-value">Rs. {totalCommissionEarned.toLocaleString()}</div>
-          <div className="stat-card-label">Total Commission Earned</div>
-          <div className="stat-card-change positive">↑ 4.0% Platform Margin</div>
+          <div className="stat-card-label">Total Model 3 Revenue</div>
+          <div className="stat-card-change positive">↑ 5.0% Dual Margin (2% Shipper + 3% Driver)</div>
         </div>
 
         <div className="stat-card">

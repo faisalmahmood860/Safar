@@ -117,8 +117,9 @@ export default function SuperAdminPage() {
     securityPin: '786-921',
   };
 
-  // Global Commission & Monetization State
-  const [defaultCommission, setDefaultCommission] = useState(4.0);
+  // Global Commission & Monetization State (Model 3: Dual-Sided Marketplace Commission)
+  const [shipperCommissionRate, setShipperCommissionRate] = useState(2.0); // 2.0% Added to Shipper
+  const [driverCommissionRate, setDriverCommissionRate] = useState(3.0);   // 3.0% Deducted from Driver
   const [subscriptionPricePro, setSubscriptionPricePro] = useState(10000);
   const [subscriptionPriceEnterprise, setSubscriptionPriceEnterprise] = useState(50000);
 
@@ -276,9 +277,9 @@ export default function SuperAdminPage() {
 
         <div className="stat-card">
           <div className="stat-card-icon">💰</div>
-          <div className="stat-card-value">{defaultCommission}%</div>
-          <div className="stat-card-label">Default Platform Commission</div>
-          <div className="stat-card-change positive">Customizable Per Org</div>
+          <div className="stat-card-value">{shipperCommissionRate + driverCommissionRate}%</div>
+          <div className="stat-card-label">Model 3 Combined Margin</div>
+          <div className="stat-card-change positive">Shipper {shipperCommissionRate}% + Driver {driverCommissionRate}%</div>
         </div>
 
         <div className="stat-card">
@@ -501,7 +502,7 @@ export default function SuperAdminPage() {
             <div className={styles.matrixCard}>
               <h4>💳 Monetization Breakdown</h4>
               <ul>
-                <li>Default Platform Commission: <strong>{defaultCommission}%</strong></li>
+                <li>Model 3 Dual Commission: <strong>{shipperCommissionRate}% Shipper + {driverCommissionRate}% Driver</strong></li>
                 <li>Pro Tier Subscription: <strong>Rs. {subscriptionPricePro.toLocaleString()}/month</strong></li>
                 <li>Enterprise Tier Subscription: <strong>Rs. {subscriptionPriceEnterprise.toLocaleString()}/month</strong></li>
                 <li>Total Gross Escrow Cleared: <strong>Rs. 206,700,000</strong></li>
@@ -631,7 +632,7 @@ export default function SuperAdminPage() {
                     <td>
                       <strong>{s.customCommission}%</strong>
                       <br />
-                      <small>(Default: {defaultCommission}%)</small>
+                      <small>(Model 3: {shipperCommissionRate}% + {driverCommissionRate}%)</small>
                     </td>
                     <td>Rs. {(s.totalSpent / 1000000).toFixed(1)} Million ({s.totalLoads} Loads)</td>
                     <td>
@@ -668,19 +669,35 @@ export default function SuperAdminPage() {
 
           <div className={styles.settingsGrid}>
             <div className={styles.settingCard}>
-              <h4>📊 Default Platform Commission Rate</h4>
-              <p>Applied by default on every load transaction unless overridden per organization.</p>
+              <h4>🏢 Shipper Escrow Service Fee (Model 3)</h4>
+              <p>Added on top of Shipper bill for escrow clearing, satellite tracking & guaranteed cargo insurance.</p>
               <div className={styles.inputRow}>
                 <input
                   type="number"
                   step="0.1"
-                  value={defaultCommission}
-                  onChange={(e) => setDefaultCommission(Number(e.target.value))}
+                  value={shipperCommissionRate}
+                  onChange={(e) => setShipperCommissionRate(Number(e.target.value))}
                   className="input input-lg"
                 />
-                <span className={styles.unitTag}>%</span>
+                <span className={styles.unitTag}>% Shipper Fee</span>
               </div>
-              <small className={styles.hint}>Current industry standard: 3.5% - 5.0%</small>
+              <small className={styles.hint}>Added to Shipper gross bill (e.g. +Rs. 3,000 on Rs. 150k)</small>
+            </div>
+
+            <div className={styles.settingCard}>
+              <h4>🚛 Driver QuickPay Processing Fee (Model 3)</h4>
+              <p>Deducted from gross freight rate for instant JazzCash/Easypaisa fuel advance payouts.</p>
+              <div className={styles.inputRow}>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={driverCommissionRate}
+                  onChange={(e) => setDriverCommissionRate(Number(e.target.value))}
+                  className="input input-lg"
+                />
+                <span className={styles.unitTag}>% Driver Fee</span>
+              </div>
+              <small className={styles.hint}>Deducted from Driver gross rate (e.g. -Rs. 4,500 on Rs. 150k)</small>
             </div>
 
             <div className={styles.settingCard}>

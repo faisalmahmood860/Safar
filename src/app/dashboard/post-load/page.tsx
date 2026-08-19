@@ -776,16 +776,35 @@ export default function PostLoadPage() {
 
                   {pricingType === 'fixed' ? (
                     <div className={styles.inputGroup}>
-                      <label>💰 {lang === 'ur' ? 'پیش کردہ خالص کرایہ (روپے میں - کمیشن کے بغیر)' : 'Offered Base Freight Rate (PKR - Excluding Commission)'}</label>
+                      <label>💰 {lang === 'ur' ? 'بنیادی کرایہ (پیش کردہ رقم روپے میں)' : 'Base Offered Freight Budget (PKR)'}</label>
                       <input
                         type="number"
                         value={offeredPrice}
                         onChange={(e) => setOfferedPrice(e.target.value)}
                         className="input input-lg"
                       />
-                      <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                        * SafarLoad 4.0% Platform Commission (Rs. {(Number(offeredPrice) * 0.04).toLocaleString()}) is added to final billing after deal confirmation.
-                      </span>
+                      
+                      {/* MODEL 3 DUAL-SIDED COMMISSION BREAKDOWN BOX */}
+                      <div style={{ marginTop: '0.75rem', padding: '1rem', background: 'var(--color-bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>🌐 Model 3 Dual-Sided Marketplace Settlement:</span>
+                          <span className="badge badge-success">Model 3 Active</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', color: 'var(--color-text-secondary)' }}>
+                          <div>• Base Freight Budget: <strong>Rs. {Number(offeredPrice).toLocaleString()}</strong></div>
+                          <div>• Shipper Service Fee (+2.0%): <strong style={{ color: 'var(--color-primary)' }}>+ Rs. {(Number(offeredPrice) * 0.02).toLocaleString()}</strong></div>
+                          <div>• 💳 <strong>Total Shipper Escrow Deposit:</strong></div>
+                          <div><strong style={{ color: '#10B981', fontSize: '1rem' }}>Rs. {(Number(offeredPrice) * 1.02).toLocaleString()}</strong></div>
+                          <div>• Driver QuickPay Processing (-3.0%): <strong style={{ color: '#EF4444' }}>- Rs. {(Number(offeredPrice) * 0.03).toLocaleString()}</strong></div>
+                          <div>• 🚛 <strong>Net Driver Take-Home Payout:</strong></div>
+                          <div><strong style={{ color: '#10B981', fontSize: '1rem' }}>Rs. {(Number(offeredPrice) * 0.97).toLocaleString()}</strong></div>
+                          <div>• ⛽ 30% JazzCash Fuel Advance: <strong>Rs. {(Number(offeredPrice) * 0.97 * 0.3).toLocaleString()}</strong></div>
+                          <div>• 🧾 70% Final Bilty Settlement: <strong>Rs. {(Number(offeredPrice) * 0.97 * 0.7).toLocaleString()}</strong></div>
+                        </div>
+                        <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                          💡 <em>SafarLoad Combined Platform Revenue: <strong>Rs. {(Number(offeredPrice) * 0.05).toLocaleString()}</strong> (Rs. {(Number(offeredPrice) * 0.02).toLocaleString()} from Shipper + Rs. {(Number(offeredPrice) * 0.03).toLocaleString()} from Driver).</em>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className={styles.biddingNotice}>
