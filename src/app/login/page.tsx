@@ -221,19 +221,6 @@ export default function LoginPage() {
               🔐 Log In to {selectedRole.toUpperCase()} System →
             </button>
           </form>
-
-          {/* Credential Reference Box */}
-          <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--color-bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}>
-            <strong style={{ color: 'var(--color-primary)' }}>🔑 Registered Account Credentials:</strong>
-            <ul style={{ margin: '4px 0 0', paddingLeft: '1.25rem', color: 'var(--color-text-secondary)' }}>
-              <li><strong>Driver:</strong> driver@safarload.pk / <code>Driver@123</code></li>
-              <li><strong>Shipper:</strong> shipper@safarload.pk / <code>Shipper@123</code></li>
-              <li><strong>Fleet Manager:</strong> fleet@safarload.pk / <code>Fleet@123</code></li>
-              <li><strong>KYC Support:</strong> support@safarload.pk / <code>Support@123</code></li>
-              <li><strong>Finance Desk:</strong> finance@safarload.pk / <code>Finance@123</code></li>
-              <li><strong>Super Admin:</strong> admin@safarload.pk / <code>SafarLoad@2026#Admin</code></li>
-            </ul>
-          </div>
         </div>
 
         <div className={styles.footerTerms}>

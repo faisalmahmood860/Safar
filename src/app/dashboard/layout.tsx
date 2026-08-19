@@ -163,31 +163,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
 
-        {/* Quick Role Switcher (For Demo & Testing) */}
-        <div className={styles.roleSwitchBox}>
-          <span className={styles.roleSwitchLabel}>View Mode:</span>
-          <div className={styles.roleBtnGroup}>
-            <button
-              onClick={() => handleRoleChange('driver')}
-              className={`${styles.miniRoleBtn} ${role === 'driver' ? styles.activeMiniRole : ''}`}
-            >
-              🚛 Driver
-            </button>
-            <button
-              onClick={() => handleRoleChange('shipper')}
-              className={`${styles.miniRoleBtn} ${role === 'shipper' ? styles.activeMiniRole : ''}`}
-            >
-              🏢 Shipper
-            </button>
-            <button
-              onClick={() => handleRoleChange('admin')}
-              className={`${styles.miniRoleBtn} ${role === 'admin' ? styles.activeMiniRole : ''}`}
-            >
-              👑 Admin
-            </button>
-          </div>
-        </div>
-
         <div className={styles.sidebarFooter}>
           <Link href="/login" className={styles.logoutBtn}>
             <span className={styles.navIcon}>🚪</span>
