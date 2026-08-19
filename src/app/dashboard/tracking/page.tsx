@@ -9,15 +9,29 @@ interface ChatMessage {
   sender: 'driver' | 'shipper';
   text: string;
   time: string;
+  isLocationPin?: boolean;
+  gpsCoordinates?: { lat: number; lng: number; address: string };
 }
 
 export default function LiveTrackingPage() {
   const [userRole, setUserRole] = useState<'shipper' | 'driver'>('shipper');
   const [showChatDrawer, setShowChatDrawer] = useState(false);
+  const [currentEta, setCurrentEta] = useState('5h 30m');
+  const [destinationAddress, setDestinationAddress] = useState('Gate 3, Port Qasim, Bin Qasim Town, Karachi');
+  const [routeProgress, setRouteProgress] = useState(65);
+
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: '1', sender: 'driver', text: 'Assalam-o-Alaikum! Freight loaded from Multan factory. On the way to Karachi.', time: '02:15 PM' },
     { id: '2', sender: 'shipper', text: 'Walaikum Assalam Muhammad Aslam sahib! Please make sure tarpaulin is secured properly.', time: '02:18 PM' },
     { id: '3', sender: 'driver', text: 'Ji bilkul! Double belts applied. Reached Nooriabad now, ETA Karachi 5:30 PM.', time: '03:45 PM' },
+    {
+      id: '4',
+      sender: 'shipper',
+      text: '📍 Shared Warehouse GPS Location: Port Qasim Industrial Area Gate 3, Karachi',
+      time: '03:48 PM',
+      isLocationPin: true,
+      gpsCoordinates: { lat: 24.7732, lng: 67.3481, address: 'Port Qasim Gate 3 Warehouse, Karachi' },
+    },
   ]);
   const [newMessage, setNewMessage] = useState('');
 
@@ -29,8 +43,8 @@ export default function LiveTrackingPage() {
     truckNumber: 'LHR-5678',
     truckType: 'Trailer (25 Tons)',
     speed: '85 km/h',
-    eta: '5h 30m',
-    progress: 65,
+    eta: currentEta,
+    progress: routeProgress,
     lastLocation: 'Nooriabad M-9 Highway',
 
     // Driver Details (Shown to Shipper)
@@ -44,7 +58,7 @@ export default function LiveTrackingPage() {
     shipperName: 'Noor Textile Mills Ltd',
     shipperContact: 'Tariq Hussain (Manager)',
     shipperPhone: '+92 42 35789000',
-    dropoffWarehouse: 'Gate 3, Port Qasim, Bin Qasim Town, Karachi',
+    dropoffWarehouse: destinationAddress,
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -61,6 +75,31 @@ export default function LiveTrackingPage() {
       },
     ]);
     setNewMessage('');
+  };
+
+  const handleShareLocationPin = () => {
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const locationMsg: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'shipper',
+      text: '📍 Shared Live GPS Warehouse Pin: Gate 3, Port Qasim Industrial Zone, Karachi',
+      time: timeStr,
+      isLocationPin: true,
+      gpsCoordinates: { lat: 24.7732, lng: 67.3481, address: 'Gate 3, Port Qasim Industrial Zone, Karachi' },
+    };
+
+    setChatMessages((prev) => [...prev, locationMsg]);
+    alert('📍 Exact Warehouse GPS Coordinates Shared with Driver!');
+  };
+
+  const handleSetDestinationFromChat = (pinAddress: string) => {
+    setDestinationAddress(pinAddress);
+    setCurrentEta('3h 45m (Expected 07:15 PM)');
+    setRouteProgress(78);
+
+    alert(
+      `🗺️ Navigation Route Updated on SafarLoad App!\nNew Destination: ${pinAddress}\n\nETA Arrival Time recalculated: 3h 45m (Expected Arrival: 07:15 PM Today). Shipper and Driver dashboards synced!`
+    );
   };
 
   return (
@@ -218,12 +257,37 @@ export default function LiveTrackingPage() {
                   className={`${styles.chatBubble} ${msg.sender === userRole ? styles.sentBubble : styles.receivedBubble}`}
                 >
                   <div className={styles.bubbleText}>{msg.text}</div>
+
+                  {/* SPECIAL LOCATION PIN CARD WITH DESTINATION RECALCULATION */}
+                  {msg.isLocationPin && msg.gpsCoordinates && (
+                    <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10B981' }}>
+                        📍 Verified Warehouse Pin ({msg.gpsCoordinates.lat}, {msg.gpsCoordinates.lng})
+                      </div>
+                      <button
+                        onClick={() => handleSetDestinationFromChat(msg.gpsCoordinates!.address)}
+                        className="btn btn-primary btn-sm"
+                        style={{ marginTop: '0.5rem', width: '100%', fontSize: '0.75rem' }}
+                      >
+                        🗺️ Set as Destination / Recalculate ETA (روٹ اور وقت اپڈیٹ کریں)
+                      </button>
+                    </div>
+                  )}
+
                   <span className={styles.bubbleTime}>{msg.time}</span>
                 </div>
               ))}
             </div>
 
-            {/* Input Form */}
+            {/* Input Form & Location Pin Button */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              {userRole === 'shipper' && (
+                <button onClick={handleShareLocationPin} type="button" className="btn btn-glass btn-sm" style={{ width: '100%', fontSize: '0.8rem' }}>
+                  📍 Share Warehouse GPS Location Pin (شپر مقام بھیجیں)
+                </button>
+              )}
+            </div>
+
             <form onSubmit={handleSendMessage} className={styles.chatInputRow}>
               <input
                 type="text"
