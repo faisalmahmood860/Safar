@@ -488,8 +488,57 @@ export default function PostLoadPage() {
             </form>
           </div>
 
-          {/* Right Sidebar Summary */}
+          {/* Right Sidebar Summary & Incoming Bids Panel */}
           <aside className={styles.summaryAside}>
+            {/* DEDICATED INCOMING DRIVER COUNTER BIDS CARD */}
+            <div className={`${styles.sidebarBidsCard} glass-card`}>
+              <div className={styles.sidebarBidsHeader}>
+                <h3>🏷️ {lang === 'ur' ? 'موصول شدہ کاؤنٹر بولیاں' : 'Incoming Driver Bids'}</h3>
+                <span className="badge badge-warning">{bids.filter(b => b.status === 'pending').length} New</span>
+              </div>
+
+              <div className={styles.sidebarBidsList}>
+                {bids.map((b) => (
+                  <div key={b.id} className={`${styles.sidebarBidItem} ${b.status === 'accepted' ? styles.acceptedSidebarBid : ''}`}>
+                    <div className={styles.sidebarBidTop}>
+                      <div>
+                        <strong>👨‍✈️ {b.driverName}</strong>
+                        <div className={styles.bidVehicle}>{b.truckNumber} ({b.truckType})</div>
+                      </div>
+                      <div className={styles.sidebarPricePill}>
+                        Rs. {b.offeredBidPrice.toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className={styles.sidebarRouteInfo}>
+                      <span>📍 {b.route}</span>
+                      <span>⭐ {b.driverRating}</span>
+                    </div>
+
+                    <p className={styles.sidebarBidMsg}>💬 "{b.bidMessage}"</p>
+
+                    <div className={styles.sidebarBidActions}>
+                      {b.status === 'pending' ? (
+                        <>
+                          <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
+                            ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept & Lock Escrow'}
+                          </button>
+                          <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
+                            ❌
+                          </button>
+                        </>
+                      ) : (
+                        <span className="badge badge-success" style={{ width: '100%', textAlign: 'center' }}>
+                          ✅ Bid Accepted — Escrow Locked!
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Account Summary Stats */}
             <div className={`${styles.summaryCard} glass-card`}>
               <h3>📊 {lang === 'ur' ? 'شپر خلاصہ' : 'Shipper Summary'}</h3>
               <div className={styles.summaryStat}>
