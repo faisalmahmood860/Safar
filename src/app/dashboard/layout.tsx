@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './layout.module.css';
-import WhatsAppChatbot from '@/components/WhatsAppChatbot';
 
 export type UserRole = 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
 
@@ -239,9 +238,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className={styles.pageBody}>{children}</div>
       </main>
-
-      {/* Global WhatsApp Chatbot Assistant */}
-      <WhatsAppChatbot />
     </div>
   );
 }
