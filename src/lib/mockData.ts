@@ -125,6 +125,11 @@ export interface DriverAvailabilityBroadcast {
   driverNameUr: string;
   driverPhone: string;
   driverRating: number;
+  completedTrips: number;
+  healthStatus: string;
+  isFleetManaged: boolean;
+  fleetCompanyName?: string;
+  fleetManager?: string;
   truckNumber: string;
   truckType: string;
   currentCity: string;
@@ -222,7 +227,12 @@ export const mockDriverAvailabilities: DriverAvailabilityBroadcast[] = [
     driverName: 'Muhammad Aslam',
     driverNameUr: 'محمد اسلم',
     driverPhone: '+92 301 2345678',
-    driverRating: 4.8,
+    driverRating: 4.9,
+    completedTrips: 184,
+    healthStatus: 'Medical Fitness Verified ✅ (Eye Vision 6/6, BP Normal, Drug Free)',
+    isFleetManaged: true,
+    fleetCompanyName: 'Al-Farooq Transport Co. (SECP NTN Verified)',
+    fleetManager: 'Ahmad Farooq (Manager)',
     truckNumber: 'LHR-5678',
     truckType: 'Trailer (25 Tons)',
     currentCity: 'Karachi',
@@ -241,6 +251,11 @@ export const mockDriverAvailabilities: DriverAvailabilityBroadcast[] = [
     driverNameUr: 'خان محمد',
     driverPhone: '+92 300 1122334',
     driverRating: 4.7,
+    completedTrips: 92,
+    healthStatus: 'Medical Fitness Verified ✅ (Fit for Long-Haul Night Trips)',
+    isFleetManaged: true,
+    fleetCompanyName: 'Khyber Freight Logistics Ltd (Verified Fleet)',
+    fleetManager: 'Gul Khan (Dispatch Supervisor)',
     truckNumber: 'PSH-7890',
     truckType: 'Bedford (15 Tons)',
     currentCity: 'Lahore',
@@ -258,7 +273,12 @@ export const mockDriverAvailabilities: DriverAvailabilityBroadcast[] = [
     driverName: 'Shahbaz Ali',
     driverNameUr: 'شہباز علی',
     driverPhone: '+92 321 4455667',
-    driverRating: 4.9,
+    driverRating: 4.8,
+    completedTrips: 110,
+    healthStatus: 'Medical Fitness Verified ✅ (Fit for Duty, Eye Vision 6/6)',
+    isFleetManaged: true,
+    fleetCompanyName: 'Khyber Freight Logistics (SECP NTN Verified)',
+    fleetManager: 'Gul Khan (Dispatch Supervisor)',
     truckNumber: 'RWP-2345',
     truckType: 'Mazda (10 Tons)',
     currentCity: 'Peshawar',
