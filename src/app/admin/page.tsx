@@ -120,8 +120,13 @@ export default function SuperAdminPage() {
   // Global Commission & Monetization State (Model 3: Dual-Sided Marketplace Commission)
   const [shipperCommissionRate, setShipperCommissionRate] = useState(2.0); // 2.0% Added to Shipper
   const [driverCommissionRate, setDriverCommissionRate] = useState(3.0);   // 3.0% Deducted from Driver
-  const [subscriptionPricePro, setSubscriptionPricePro] = useState(10000);
-  const [subscriptionPriceEnterprise, setSubscriptionPriceEnterprise] = useState(50000);
+  
+  // Trip-Based Usage & Per-Truck Subscription Pricing Model
+  const [perTripSaaSPrice, setPerTripSaaSPrice] = useState(500);       // Rs. 500 per completed trip
+  const [perTruckSaaSPrice, setPerTruckSaaSPrice] = useState(1000);     // Rs. 1,000 per active truck / month
+  const [tripPack20, setTripPack20] = useState(5000);                  // Rs. 5,000 (20 Trips)
+  const [tripPack50, setTripPack50] = useState(15000);                 // Rs. 15,000 (50 Trips)
+  const [tripPack150, setTripPack150] = useState(40000);               // Rs. 40,000 (150 Trips)
 
   // New Organization Modal Form State
   const [showOrgModal, setShowOrgModal] = useState(false);
@@ -500,13 +505,10 @@ export default function SuperAdminPage() {
             </div>
 
             <div className={styles.matrixCard}>
-              <h4>💳 Monetization Breakdown</h4>
-              <ul>
                 <li>Model 3 Dual Commission: <strong>{shipperCommissionRate}% Shipper + {driverCommissionRate}% Driver</strong></li>
-                <li>Pro Tier Subscription: <strong>Rs. {subscriptionPricePro.toLocaleString()}/month</strong></li>
-                <li>Enterprise Tier Subscription: <strong>Rs. {subscriptionPriceEnterprise.toLocaleString()}/month</strong></li>
+                <li>Trip-Based Usage SaaS: <strong>Rs. {perTripSaaSPrice}/trip (or Rs. {perTruckSaaSPrice}/truck/mo)</strong></li>
+                <li>Trip Wallet Bundles: <strong>50 Trips (Rs. {tripPack50.toLocaleString()}) | 150 Trips (Rs. {tripPack150.toLocaleString()})</strong></li>
                 <li>Total Gross Escrow Cleared: <strong>Rs. 206,700,000</strong></li>
-              </ul>
             </div>
           </div>
         </div>
@@ -701,30 +703,57 @@ export default function SuperAdminPage() {
             </div>
 
             <div className={styles.settingCard}>
-              <h4>💳 Fleet Pro Monthly Subscription</h4>
-              <p>Fixed monthly fee for mid-sized transport companies & fleet managers.</p>
+              <h4>🎫 Micro Per-Trip SaaS Fee</h4>
+              <p>Direct usage-based fee deducted per completed trip execution.</p>
               <div className={styles.inputRow}>
                 <input
                   type="number"
-                  value={subscriptionPricePro}
-                  onChange={(e) => setSubscriptionPricePro(Number(e.target.value))}
+                  value={perTripSaaSPrice}
+                  onChange={(e) => setPerTripSaaSPrice(Number(e.target.value))}
                   className="input input-lg"
                 />
-                <span className={styles.unitTag}>PKR / mo</span>
+                <span className={styles.unitTag}>PKR / Trip</span>
               </div>
+              <small className={styles.hint}>e.g. 50 Trips = Rs. 25,000 | 100 Trips = Rs. 50,000</small>
             </div>
 
             <div className={styles.settingCard}>
-              <h4>🏢 Enterprise Logistics System Subscription</h4>
-              <p>Monthly fee for nationwide enterprises with custom API integrations and dedicated brokers.</p>
+              <h4>🚛 Per-Truck Active Fleet SaaS Rate</h4>
+              <p>Monthly subscription charged per registered active truck in fleet.</p>
               <div className={styles.inputRow}>
                 <input
                   type="number"
-                  value={subscriptionPriceEnterprise}
-                  onChange={(e) => setSubscriptionPriceEnterprise(Number(e.target.value))}
+                  value={perTruckSaaSPrice}
+                  onChange={(e) => setPerTruckSaaSPrice(Number(e.target.value))}
                   className="input input-lg"
                 />
-                <span className={styles.unitTag}>PKR / mo</span>
+                <span className={styles.unitTag}>PKR / Truck / mo</span>
+              </div>
+              <small className={styles.hint}>e.g. 10 Trucks = Rs. 10k/mo | 50 Trucks = Rs. 50k/mo</small>
+            </div>
+
+            <div className={styles.settingCard}>
+              <h4>📦 Fleet Trip Bundle Packs (50 & 150 Trips)</h4>
+              <p>Prepaid discounted trip bundles for high-frequency transport companies.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem' }}>50 Trips Pack:</label>
+                  <input
+                    type="number"
+                    value={tripPack50}
+                    onChange={(e) => setTripPack50(Number(e.target.value))}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem' }}>150 Trips Pack:</label>
+                  <input
+                    type="number"
+                    value={tripPack150}
+                    onChange={(e) => setTripPack150(Number(e.target.value))}
+                    className="input"
+                  />
+                </div>
               </div>
             </div>
           </div>

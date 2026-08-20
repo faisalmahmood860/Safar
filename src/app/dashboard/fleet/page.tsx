@@ -87,10 +87,10 @@ export default function FleetDashboard() {
         </div>
 
         <div className="stat-card">
-          <div className="stat-card-icon">⛽</div>
-          <div className="stat-card-value">Rs. 420,000</div>
-          <div className="stat-card-label">Fuel Advances Claimed</div>
-          <div className="stat-card-change positive">JazzCash Escrow</div>
+          <div className="stat-card-icon">🎫</div>
+          <div className="stat-card-value">42 / 50 Trips</div>
+          <div className="stat-card-label">Trip SaaS Pack Usage</div>
+          <div className="stat-card-change positive">8 Trips Remaining (Rs. 15,000 / 50 Pack)</div>
         </div>
       </div>
 
