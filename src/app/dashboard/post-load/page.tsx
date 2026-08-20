@@ -835,6 +835,30 @@ export default function PostLoadPage() {
                         <span>⛽ 30% JazzCash Fuel Advance (ڈیزل ایڈوانس شامل ہے)</span>
                       </label>
                     </div>
+
+                    {/* CARGO TRANSIT INSURANCE PROTECTION SELECTOR */}
+                    <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.08)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <strong style={{ color: 'var(--color-primary)' }}>🛡️ Mandatory Cargo Transit Theft & Absconding Insurance</strong>
+                        <span className="badge badge-success">EFU / Adamjee Partnered</span>
+                      </div>
+                      <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', margin: 0 }}>
+                        Guarantees 100% loss coverage to Shipper in case of transit theft, robbery, accidents, or driver absconding.
+                      </p>
+                      <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                        <label style={{ cursor: 'pointer' }}>
+                          <input type="radio" name="cargoInsurance" defaultChecked /> 🛡️ Standard Comprehensive Cover (Rs. 750 / shipment)
+                        </label>
+                        <label style={{ cursor: 'pointer' }}>
+                          <input type="radio" name="cargoInsurance" /> 👑 High-Value Special Risk Cover (Rs. 1,500 / shipment)
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* LEGAL MARKETPLACE DISCLAIMER BOX */}
+                    <div style={{ marginTop: '0.75rem', padding: '0.75rem 1rem', background: 'var(--color-bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
+                      ⚖️ <strong>Legal Disclaimer:</strong> SafarLoad operates as a digital technology marketplace connecting shippers with verified drivers. Drivers are independent contractors who undergo NADRA Biometric CNIC, CCT Police Clearance, and Guarantor verification before accepting loads.
+                    </div>
                   </div>
 
                   <div className={styles.btnRow}>

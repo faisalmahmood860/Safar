@@ -137,6 +137,28 @@ export default function LiveTrackingPage() {
             <div className={styles.etaPill}>ETA: {activeShipment.eta}</div>
           </div>
 
+          {/* ANTI-TAMPER GEOFENCING SECURITY BAR */}
+          <div style={{ margin: '0.75rem 1.25rem 0', padding: '0.75rem 1rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>🔒</span>
+              <div>
+                <strong style={{ color: '#10B981', display: 'block' }}>Android & iOS Anti-Tamper Geofencing Lock Active</strong>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Mobile Data & Location Service lock active on Driver App. App running as High-Priority Foreground Service.</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <span className="badge badge-success">🛰️ Hardwired OBD GPS Live</span>
+              <button
+                type="button"
+                onClick={() => alert('🚨 SIREN ALERT TEST TRIGGERED!\n\nSimulated Mobile Data / GPS Disconnection!\n\n1️⃣ High-Volume Warning Alarm sounds on Driver Phone.\n2️⃣ Automatic Alert flagged at Support Desk (/dashboard/support).\n3️⃣ Emergency Police CPLC Incident Dispatch package generated.')}
+                className="btn btn-accent btn-sm"
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
+              >
+                🚨 Test Signal Tamper Alert
+              </button>
+            </div>
+          </div>
+
           <div className={styles.simulatedMap}>
             <div className={styles.roadLine}></div>
             <div className={styles.pulseRadar} style={{ left: '65%' }}>

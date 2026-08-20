@@ -300,6 +300,14 @@ export default function SupportDeskPage() {
                     </button>
                   </div>
                 )}
+                <button
+                  type="button"
+                  onClick={() => alert(`🚨 EMERGENCY CPLC POLICE FIR COMPLAINT PACKAGE GENERATED!\n\nApplicant: ${selectedKyc.applicantName}\nApplication ID: ${selectedKyc.id}\nPhone: ${selectedKyc.phone}\nAddress: ${selectedKyc.permanentAddress}\nGuarantor: Verified On File\nLast Known GPS: Captured on Live Map\n\n📄 Document Package exported for Police/CPLC Incident Desk!`)}
+                  className="btn btn-glass btn-sm"
+                  style={{ marginTop: '0.5rem', color: '#EF4444', borderColor: '#EF4444' }}
+                >
+                  🚨 Dispatch Police CPLC FIR Package
+                </button>
               </div>
             </div>
 
