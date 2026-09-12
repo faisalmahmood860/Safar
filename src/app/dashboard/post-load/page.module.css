@@ -37,6 +37,90 @@
   gap: 0.75rem;
 }
 
+/* Executive Metrics Bar */
+.metricsRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.metricChip {
+  flex: 1;
+  min-width: 200px;
+  background: var(--color-bg-secondary, #1E293B);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metricIcon {
+  font-size: 2rem;
+  background: rgba(16, 185, 129, 0.12);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metricVal {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text-primary, #FFFFFF);
+}
+
+.metricSub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #94A3B8);
+}
+
+/* 5-Tab Workspace Header Bar */
+.navTabRow {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  padding: 0.4rem;
+  border-radius: 16px;
+  margin-bottom: 1.75rem;
+  overflow-x: auto;
+  backdrop-filter: blur(8px);
+}
+
+.workspaceTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.workspaceTab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+}
+
+.activeWorkspaceTab {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
 /* Voice Card */
 .voiceCard {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);

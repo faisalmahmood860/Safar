@@ -7,6 +7,7 @@ import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
 import { mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
 import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from '@/lib/notificationSystem';
+import { initiateVoIPCall } from '@/lib/voipCallSystem';
 
 export default function PostLoadPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
@@ -40,6 +41,7 @@ export default function PostLoadPage() {
     });
   };
   const [formStep, setFormStep] = useState<1 | 2 | 3>(1);
+  const [workspaceTab, setWorkspaceTab] = useState<'post' | 'bids' | 'booked' | 'escrow' | 'radar'>('post');
   const [voicePosting, setVoicePosting] = useState(false);
   const [loadPostedSuccess, setLoadPostedSuccess] = useState(false);
   const [bids, setBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
@@ -287,65 +289,246 @@ export default function PostLoadPage() {
         </div>
       </header>
 
-      {/* Voice Posting Hero Prompt */}
-      <div className={styles.voiceCard}>
-        <div className={styles.voiceContent}>
-          <div className={styles.voiceIconContainer}>
-            <button
-              onClick={handleVoiceRecord}
-              className={`${styles.micButton} ${voicePosting ? styles.recording : ''}`}
-            >
-              🎤
-            </button>
-          </div>
+      {/* Executive Metrics Overview Bar */}
+      <div className={styles.metricsRow}>
+        <div className={styles.metricChip}>
+          <div className={styles.metricIcon}>🏢</div>
           <div>
-            <h3>{lang === 'ur' ? '🗣️ اردو وائس پوسٹنگ (آواز سے لوڈ بنائیں)' : '🗣️ Urdu Voice Load Posting'}</h3>
-            <p>
-              {lang === 'ur'
-                ? 'مائیک پر کلک کریں اور بولیں: "مجھے ملتان سے کراچی کے لیے 25 ٹن کا ٹریلر چاہیے"'
-                : 'Click mic and speak in Urdu: "I need a 25-ton trailer from Multan to Karachi"'}
-            </p>
-            {voicePosting && (
-              <div className={styles.listeningBadge}>
-                <span className={styles.pulseDot}></span> Listening to Urdu audio... (سن رہا ہے)
-              </div>
-            )}
+            <div className={styles.metricVal}>Noor Textile Mills</div>
+            <div className={styles.metricSub}>Enterprise Verified Shipper</div>
+          </div>
+        </div>
+
+        <div className={styles.metricChip}>
+          <div className={styles.metricIcon}>🛡️</div>
+          <div>
+            <div className={styles.metricVal}>Rs. 420,000</div>
+            <div className={styles.metricSub}>Active Escrow Vault Protection</div>
+          </div>
+        </div>
+
+        <div className={styles.metricChip}>
+          <div className={styles.metricIcon}>🏷️</div>
+          <div>
+            <div className={styles.metricVal}>
+              {bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length} Pending
+            </div>
+            <div className={styles.metricSub}>Driver Counter Bids Received</div>
+          </div>
+        </div>
+
+        <div className={styles.metricChip}>
+          <div className={styles.metricIcon}>🚛</div>
+          <div>
+            <div className={styles.metricVal}>
+              {bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length} En-Route
+            </div>
+            <div className={styles.metricSub}>Booked Trips & Active Bilty</div>
           </div>
         </div>
       </div>
 
-      {/* INCOMING DRIVER COUNTER BIDS SECTION & BOOKED TRIPS */}
-      <section className={`${styles.bidsSection} glass-card`}>
-        <div className={styles.bidsHeader}>
-          <div>
-            <h3>🏢 {currentShipperName} — Freight Bids & Booked Shipments</h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--color-primary)' }}>Scoped strictly to {currentShipperName} loads</span>
-          </div>
+      {/* 5-Tab Workspace Header Bar */}
+      <nav className={styles.navTabRow}>
+        <button
+          onClick={() => setWorkspaceTab('post')}
+          className={`${styles.workspaceTab} ${workspaceTab === 'post' ? styles.activeWorkspaceTab : ''}`}
+        >
+          ➕ {lang === 'ur' ? 'کارگو پوسٹ کریں' : 'Post Cargo Load'}
+        </button>
+        <button
+          onClick={() => setWorkspaceTab('bids')}
+          className={`${styles.workspaceTab} ${workspaceTab === 'bids' ? styles.activeWorkspaceTab : ''}`}
+        >
+          🏷️ {lang === 'ur' ? 'ڈرائیور بولیاں' : 'Live Driver Bids'} ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})
+        </button>
+        <button
+          onClick={() => setWorkspaceTab('booked')}
+          className={`${styles.workspaceTab} ${workspaceTab === 'booked' ? styles.activeWorkspaceTab : ''}`}
+        >
+          🚛 {lang === 'ur' ? 'بک شدہ سفر' : 'Booked Shipments'} ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length})
+        </button>
+        <button
+          onClick={() => setWorkspaceTab('escrow')}
+          className={`${styles.workspaceTab} ${workspaceTab === 'escrow' ? styles.activeWorkspaceTab : ''}`}
+        >
+          🛡️ {lang === 'ur' ? 'ایسکرو والٹ' : 'Escrow Vault Hub'}
+        </button>
+        <button
+          onClick={() => setWorkspaceTab('radar')}
+          className={`${styles.workspaceTab} ${workspaceTab === 'radar' ? styles.activeWorkspaceTab : ''}`}
+        >
+          🟢 {lang === 'ur' ? 'ڈرائیور رڈار' : 'Driver Return Radar'} ({availabilities.length})
+        </button>
+      </nav>
 
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setShipperTab('pending')}
-              className={`btn ${shipperTab === 'pending' ? 'btn-primary' : 'btn-glass'} btn-sm`}
-            >
-              🏷️ Pending Bids ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})
-            </button>
-            <button
-              onClick={() => setShipperTab('booked')}
-              className={`btn ${shipperTab === 'booked' ? 'btn-primary' : 'btn-glass'} btn-sm`}
-            >
-              ✅ Booked & En Route ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length})
-            </button>
-            <button
-              onClick={() => setShipperTab('escrow')}
-              className={`btn ${shipperTab === 'escrow' ? 'btn-primary' : 'btn-glass'} btn-sm`}
-            >
-              🛡️ Escrow Hub (ایسکرو ہب)
-            </button>
+      {/* WORKSPACE TAB 1: POST CARGO LOAD & VOICE AI HERO */}
+      {workspaceTab === 'post' && (
+        <div className="animate-fadeIn">
+          {/* Voice Posting Hero Prompt */}
+          <div className={styles.voiceCard}>
+            <div className={styles.voiceContent}>
+              <div className={styles.voiceIconContainer}>
+                <button
+                  onClick={handleVoiceRecord}
+                  className={`${styles.micButton} ${voicePosting ? styles.recording : ''}`}
+                >
+                  🎤
+                </button>
+              </div>
+              <div>
+                <h3>{lang === 'ur' ? '🗣️ اردو وائس پوسٹنگ (آواز سے لوڈ بنائیں)' : '🗣️ Urdu Voice Load Posting'}</h3>
+                <p>
+                  {lang === 'ur'
+                    ? 'مائیک پر کلک کریں اور بولیں: "مجھے ملتان سے کراچی کے لیے 25 ٹن کا ٹریلر چاہیے"'
+                    : 'Click mic and speak in Urdu: "I need a 25-ton trailer from Multan to Karachi"'}
+                </p>
+                {voicePosting && (
+                  <div className={styles.listeningBadge}>
+                    <span className={styles.pulseDot}></span> Listening to Urdu audio... (سن رہا ہے)
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {shipperTab === 'escrow' ? (
-          /* SHIPPER ESCROW CONTROL HUB PANEL */
+      {/* WORKSPACE TAB 2: LIVE DRIVER BIDS & COUNTER-OFFERS */}
+      {workspaceTab === 'bids' && (
+        <section className={`${styles.bidsSection} glass-card animate-fadeIn`}>
+          <div className={styles.bidsHeader}>
+            <div>
+              <h3>🏷️ Pending Driver Counter Bids ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                Review driver offers, initiate direct voice calls, send counter offers, or accept deal.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.bidsGrid}>
+            {bids
+              .filter((b) => b.shipperName === currentShipperName && b.status === 'pending')
+              .map((b) => (
+                <div key={b.id} className={styles.bidCard}>
+                  <div className={styles.bidCardHeader}>
+                    <div>
+                      <strong>{b.driverName} ({b.driverNameUr})</strong>
+                      <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
+                    </div>
+                    <div className={styles.bidPriceTag}>
+                      Rs. {b.offeredBidPrice.toLocaleString()}
+                      <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
+                    </div>
+                  </div>
+
+                  <div className={styles.bidMeta}>
+                    <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
+                    <p>📍 <strong>Route:</strong> {b.route}</p>
+                    <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
+                  </div>
+
+                  <div className={styles.bidActions}>
+                    <button
+                      onClick={() =>
+                        initiateVoIPCall({
+                          id: b.id,
+                          name: b.driverName,
+                          phone: b.driverPhone,
+                          truck: `${b.truckNumber} (${b.truckType})`,
+                          role: 'driver',
+                        })
+                      }
+                      className="btn btn-glass btn-sm"
+                    >
+                      📞 {lang === 'ur' ? 'کال ڈرائیور' : 'Call Driver'}
+                    </button>
+                    <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
+                      ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
+                    </button>
+                    <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
+                      🔄 {lang === 'ur' ? 'جوابی آفر' : 'Counter Back'}
+                    </button>
+                    <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
+                      ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
+
+      {/* WORKSPACE TAB 3: BOOKED SHIPMENTS & EN-ROUTE TRIPS */}
+      {workspaceTab === 'booked' && (
+        <section className={`${styles.bidsSection} glass-card animate-fadeIn`}>
+          <div className={styles.bidsHeader}>
+            <div>
+              <h3>🚛 Active Booked Shipments & En-Route Drivers</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                Track en-route trucks, contact drivers via VoIP call, and inspect Digital Bilty.
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.bidsGrid}>
+            {bids
+              .filter((b) => b.shipperName === currentShipperName && b.status === 'accepted')
+              .map((b) => (
+                <div key={b.id} className={`${styles.bidCard} ${styles.acceptedBid}`}>
+                  <div className={styles.bidCardHeader}>
+                    <div>
+                      <strong>👨‍✈️ {b.driverName} ({b.driverNameUr})</strong>
+                      <span className={styles.bidRating}>⭐ {b.driverRating} • 🚛 {b.truckNumber}</span>
+                    </div>
+                    <div className={styles.bidPriceTag}>
+                      Rs. {b.offeredBidPrice.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <div className={styles.bidMeta}>
+                    <p>📍 <strong>Route:</strong> {b.route}</p>
+                    <p>📦 <strong>Shipment:</strong> {b.loadTitle}</p>
+                    <span className="badge badge-success" style={{ marginTop: '4px', display: 'inline-block' }}>
+                      ● En Route / راستے میں (Escrow Protected)
+                    </span>
+                  </div>
+
+                  <div className={styles.bidActions} style={{ flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                      <button
+                        onClick={() =>
+                          initiateVoIPCall({
+                            id: b.id,
+                            name: b.driverName,
+                            phone: b.driverPhone,
+                            truck: `${b.truckNumber} (${b.truckType})`,
+                            role: 'driver',
+                          })
+                        }
+                        className="btn btn-primary btn-sm"
+                        style={{ flex: 1 }}
+                      >
+                        📞 Call Driver Direct
+                      </button>
+                      <button onClick={() => setChatTargetDriver(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                        💬 Chat
+                      </button>
+                    </div>
+
+                    <button onClick={() => handleOpenBilty(b)} className="btn btn-outline btn-sm" style={{ width: '100%' }}>
+                      📜 {lang === 'ur' ? 'ڈیجیٹل بلٹی دیکھیں' : 'View Digital Bilty'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
+
+      {/* WORKSPACE TAB 4: ESCROW VAULT HUB */}
+      {workspaceTab === 'escrow' && (
+        <section className={`${styles.bidsSection} glass-card animate-fadeIn`}>
           <div className="animate-fadeIn" style={{ padding: '0.5rem 0' }}>
             {/* ESCROW STATS OVERVIEW CARDS */}
             <div className={styles.rowGrid} style={{ marginBottom: '1.5rem' }}>
@@ -450,122 +633,86 @@ export default function PostLoadPage() {
               </table>
             </div>
           </div>
-        ) : (
-          <div className={styles.bidsGrid}>
-            {bids
-              .filter((b) => b.shipperName === currentShipperName && (shipperTab === 'pending' ? b.status === 'pending' : b.status === 'accepted'))
-              .map((b) => (
-                <div key={b.id} className={`${styles.bidCard} ${b.status === 'accepted' ? styles.acceptedBid : ''}`}>
-                  <div className={styles.bidCardHeader}>
-                    <div>
-                      <strong>{b.driverName} ({b.driverNameUr})</strong>
-                      <span className={styles.bidRating}>⭐ {b.driverRating} ({b.driverTrips} trips)</span>
-                    </div>
-                    <div className={styles.bidPriceTag}>
-                      Rs. {b.offeredBidPrice.toLocaleString()}
-                      <small>Original: Rs. {b.originalPrice.toLocaleString()}</small>
-                    </div>
-                  </div>
+        </section>
+      )}
 
-                  <div className={styles.bidMeta}>
-                    <p>🚛 <strong>Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
-                    <p>📍 <strong>Route:</strong> {b.route}</p>
-                    <p className={styles.bidMsg}>💬 "{b.bidMessage}"</p>
-                  </div>
-
-                  <div className={styles.bidActions}>
-                    {b.status === 'pending' && (
-                      <>
-                        <button onClick={() => handleAcceptBid(b.id)} className="btn btn-primary btn-sm">
-                          ✅ {lang === 'ur' ? 'بولی قبول کریں' : 'Accept Bid'}
-                        </button>
-                        <button onClick={() => handleOpenCounterBackModal(b)} className="btn btn-secondary btn-sm">
-                          🔄 {lang === 'ur' ? 'جوابی آفر بھیجیں' : 'Counter Back'}
-                        </button>
-                        <button onClick={() => handleRejectBid(b.id)} className="btn btn-accent btn-sm">
-                          ❌ {lang === 'ur' ? 'مسترد' : 'Reject'}
-                        </button>
-                      </>
-                    )}
-                    {b.status === 'accepted' && (
-                      <div style={{ display: 'flex', gap: '0.5rem', width: '100%', flexWrap: 'wrap' }}>
-                        <span className="badge badge-success" style={{ flex: 1, textAlign: 'center' }}>✅ Booked & Escrow Locked!</span>
-                        <button onClick={() => setChatTargetDriver(b)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-                          💬 Chat with Driver ({b.driverName})
-                        </button>
-                        <button onClick={() => handleOpenBilty(b)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
-                          📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
-      </section>
-
-      {/* DRIVER AVAILABILITY STREAM (RETURN TRIPS RADAR - AI & AGENT MATCHING) */}
-      <section className={`${styles.availSection} glass-card`}>
-        <div className={styles.availHeader}>
-          <div>
-            <h3>🟢 {lang === 'ur' ? 'خالی گاڑی اور ریٹرن روٹ ڈرائیور رڈار' : 'Available Driver Return Radar Stream'}</h3>
-            <p>{lang === 'ur' ? 'ہماری AI یا سفرلوڈ ایجنٹ کے ذریعے ڈرائیور سے محفوظ ڈیل کریں (براہ راست نمبر افشا نہیں ہوتا)' : 'Protected negotiation via SafarLoad AI System & Dispatcher Agent.'}</p>
-          </div>
-          <span className="badge badge-success">3 Ready Drivers Streamed</span>
-        </div>
-
-        <div className={styles.availGrid}>
-          {availabilities.map((a) => (
-            <div key={a.id} className={styles.availCard}>
-              <div className={styles.availHeaderRow}>
-                <div>
-                  <strong>{a.driverName} ({a.driverNameUr})</strong>
-                  <div style={{ fontSize: '0.8rem', color: '#F59E0B', fontWeight: 700, marginTop: '2px' }}>
-                    ⭐ {a.driverRating || 4.8} / 5.0 ({a.completedTrips || 120} Completed Trips)
-                  </div>
-                  <div className={styles.availCity}>📍 At: {a.currentLocation}</div>
-                </div>
-                <span className="badge badge-info">{a.truckType}</span>
-              </div>
-
-              {/* DRIVER HEALTH & MEDICAL CLEARANCE BADGE */}
-              <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', margin: '0.5rem 0', fontSize: '0.78rem' }}>
-                <span style={{ color: '#10B981', fontWeight: 700, display: 'block' }}>🩺 {a.healthStatus || 'Medical Fitness Verified ✅ (Eye Vision 6/6, Drug Free)'}</span>
-              </div>
-
-              {/* REGISTERED FLEET COMPANY VERIFICATION GUARANTEE */}
-              {a.isFleetManaged && (
-                <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(59, 130, 246, 0.08)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', margin: '0.5rem 0', fontSize: '0.78rem' }}>
-                  <span style={{ color: '#3B82F6', fontWeight: 700, display: 'block' }}>🏢 Registered Fleet Company Backed:</span>
-                  <strong style={{ color: 'var(--color-text-primary)' }}>{a.fleetCompanyName || 'Al-Farooq Transport Co. (SECP NTN Verified)'}</strong>
-                  <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>Manager: {a.fleetManager || 'Ahmad Farooq (Verified Owner)'}</span>
-                </div>
-              )}
-
-              <div className={styles.prefRouteBox}>
-                <span>🎯 {lang === 'ur' ? 'مطلوبہ واپسی کا روٹ:' : 'Preferred Next Route:'}</span>
-                <strong className={styles.destText}>{a.preferredDestination}</strong>
-              </div>
-
-              <div className={styles.availMetaRow}>
-                <span>⚖️ Capacity: {a.availableCapacityTons} Tons</span>
-                <span>⏱️ Departure: {a.departureTime}</span>
-              </div>
-
-              <div className={styles.availActionRow}>
-                <button
-                  onClick={() => setAgentDealTarget(a)}
-                  className="btn btn-primary btn-sm"
-                  style={{ width: '100%' }}
-                >
-                  🤖 {lang === 'ur' ? 'AI / ایجنٹ کے ذریعے ڈیل مکمل کریں' : 'AI & Agent Deal Lock'}
-                </button>
-              </div>
+      {/* WORKSPACE TAB 5: RETURN DRIVER RADAR */}
+      {workspaceTab === 'radar' && (
+        <section className={`${styles.availSection} glass-card animate-fadeIn`}>
+          <div className={styles.availHeader}>
+            <div>
+              <h3>🟢 {lang === 'ur' ? 'خالی گاڑی اور ریٹرن روٹ ڈرائیور رڈار' : 'Available Driver Return Radar Stream'}</h3>
+              <p>{lang === 'ur' ? 'ہماری AI یا سفرلوڈ ایجنٹ کے ذریعے ڈرائیور سے محفوظ ڈیل کریں (براہ راست نمبر افشا نہیں ہوتا)' : 'Protected negotiation via SafarLoad AI System & Dispatcher Agent.'}</p>
             </div>
-          ))}
-        </div>
-      </section>
+            <span className="badge badge-success">3 Ready Drivers Streamed</span>
+          </div>
+
+          <div className={styles.availGrid}>
+            {availabilities.map((a) => (
+              <div key={a.id} className={styles.availCard}>
+                <div className={styles.availHeaderRow}>
+                  <div>
+                    <strong>{a.driverName} ({a.driverNameUr})</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#F59E0B', fontWeight: 700, marginTop: '2px' }}>
+                      ⭐ {a.driverRating || 4.8} / 5.0 ({a.completedTrips || 120} Completed Trips)
+                    </div>
+                    <div className={styles.availCity}>📍 At: {a.currentLocation}</div>
+                  </div>
+                  <span className="badge badge-info">{a.truckType}</span>
+                </div>
+
+                {/* DRIVER HEALTH & MEDICAL CLEARANCE BADGE */}
+                <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', margin: '0.5rem 0', fontSize: '0.78rem' }}>
+                  <span style={{ color: '#10B981', fontWeight: 700, display: 'block' }}>🩺 {a.healthStatus || 'Medical Fitness Verified ✅ (Eye Vision 6/6, Drug Free)'}</span>
+                </div>
+
+                {/* REGISTERED FLEET COMPANY VERIFICATION GUARANTEE */}
+                {a.isFleetManaged && (
+                  <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(59, 130, 246, 0.08)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', margin: '0.5rem 0', fontSize: '0.78rem' }}>
+                    <span style={{ color: '#3B82F6', fontWeight: 700, display: 'block' }}>🏢 Registered Fleet Company Backed:</span>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>{a.fleetCompanyName || 'Al-Farooq Transport Co. (SECP NTN Verified)'}</strong>
+                    <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>Manager: {a.fleetManager || 'Ahmad Farooq (Verified Owner)'}</span>
+                  </div>
+                )}
+
+                <div className={styles.prefRouteBox}>
+                  <span>🎯 {lang === 'ur' ? 'مطلوبہ واپسی کا روٹ:' : 'Preferred Next Route:'}</span>
+                  <strong className={styles.destText}>{a.preferredDestination}</strong>
+                </div>
+
+                <div className={styles.availMetaRow}>
+                  <span>⚖️ Capacity: {a.availableCapacityTons} Tons</span>
+                  <span>⏱️ Departure: {a.departureTime}</span>
+                </div>
+
+                <div className={styles.availActionRow} style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() =>
+                      initiateVoIPCall({
+                        id: a.id,
+                        name: a.driverName,
+                        phone: a.driverPhone,
+                        truck: a.truckType,
+                        role: 'driver',
+                      })
+                    }
+                    className="btn btn-glass btn-sm"
+                  >
+                    📞 Call
+                  </button>
+                  <button
+                    onClick={() => setAgentDealTarget(a)}
+                    className="btn btn-primary btn-sm"
+                    style={{ flex: 1 }}
+                  >
+                    🤖 {lang === 'ur' ? 'AI / ایجنٹ ڈیل' : 'AI & Agent Deal Lock'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {loadPostedSuccess ? (
         <div className={`${styles.successCard} glass-card animate-scaleIn`}>
