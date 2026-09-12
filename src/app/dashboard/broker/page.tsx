@@ -71,9 +71,9 @@ export default function BrokerHubPage() {
 
         <div className="stat-card">
           <div className="stat-card-icon">💰</div>
-          <div className="stat-card-value">Rs. 168,000</div>
-          <div className="stat-card-label">Platform Daily Take Rate (4.0%)</div>
-          <div className="stat-card-change positive">↑ Escrow Protected</div>
+          <div className="stat-card-value">Rs. 210,000</div>
+          <div className="stat-card-label">Platform Daily Take Rate (5.0%)</div>
+          <div className="stat-card-change positive">↑ 2% Shipper + 3% Driver Dual Margin</div>
         </div>
       </div>
 

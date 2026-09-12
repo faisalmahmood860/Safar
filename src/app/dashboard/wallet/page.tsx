@@ -43,18 +43,90 @@ export default function WalletPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const filteredTransactions = mockTransactions.filter(txn => {
-    if (activeTab === 'all') return true;
-    return txn.type === activeTab;
-  });
+  const [transactionsList, setTransactionsList] = useState(mockTransactions);
 
   const handleQuickAmount = (amount: number | 'all') => {
     if (amount === 'all') {
-      setWithdrawAmount(dashboardStats.walletBalance.toString());
+      setWithdrawAmount(balance.toString());
     } else {
       setWithdrawAmount(amount.toString());
     }
   };
+
+  const handleAddMoney = () => {
+    const inputAmt = prompt('Enter Deposit Amount (PKR) to Add to Wallet:');
+    if (!inputAmt || isNaN(Number(inputAmt)) || Number(inputAmt) <= 0) return;
+
+    const amtNum = Number(inputAmt);
+    const newBal = balance + amtNum;
+    setBalance(newBal);
+
+    const newTxn = {
+      id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+      type: 'credit' as const,
+      description: 'Wallet Deposit / Escrow Topup',
+      descriptionUr: 'والٹ ڈیپازٹ / ایڈ فنڈز',
+      amount: amtNum,
+      date: new Date().toISOString(),
+      status: 'completed' as const,
+      method: 'Meezan Bank IBFT / JazzCash',
+      methodIcon: '💳',
+    };
+
+    setTransactionsList([newTxn, ...transactionsList]);
+    alert(`✅ Deposit Successful!\nAmount: Rs. ${amtNum.toLocaleString()}\nNew Wallet Balance: Rs. ${newBal.toLocaleString()}`);
+  };
+
+  const handleExecuteWithdrawal = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amtNum = Number(withdrawAmount);
+
+    if (!withdrawAmount || isNaN(amtNum) || amtNum <= 0) {
+      alert('Please enter a valid withdrawal amount!');
+      return;
+    }
+
+    if (amtNum > balance) {
+      alert(`⚠️ Insufficient Balance! Your available balance is Rs. ${balance.toLocaleString()}`);
+      return;
+    }
+
+    const newBal = balance - amtNum;
+    setBalance(newBal);
+
+    const methodName =
+      withdrawMethod === 'jazzcash'
+        ? 'JazzCash Wallet (+92 301 2345678)'
+        : withdrawMethod === 'easypaisa'
+        ? 'Easypaisa Wallet (+92 301 2345678)'
+        : 'HBL Corporate Account (****4567)';
+
+    const newTxn = {
+      id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+      type: 'debit' as const,
+      description: `Withdrawal via ${withdrawMethod.toUpperCase()}`,
+      descriptionUr: `والٹ سے رقم کا انخلا (${withdrawMethod})`,
+      amount: amtNum,
+      date: new Date().toISOString(),
+      status: 'completed' as const,
+      method: methodName,
+      methodIcon: withdrawMethod === 'jazzcash' ? '📱' : withdrawMethod === 'easypaisa' ? '💲' : '🏦',
+    };
+
+    setTransactionsList([newTxn, ...transactionsList]);
+
+    alert(
+      `💸 Withdrawal Request Disbursed Successfully!\n\nAmount: Rs. ${amtNum.toLocaleString()}\nDestination: ${methodName}\nRef TRX: TRX-${Date.now().toString().slice(-6)}\nStatus: Instant Disbursed ✅\nNew Wallet Balance: Rs. ${newBal.toLocaleString()}`
+    );
+
+    setWithdrawAmount('');
+    setShowWithdraw(false);
+  };
+
+  const filteredTransactions = transactionsList.filter((txn) => {
+    if (activeTab === 'all') return true;
+    return txn.type === activeTab;
+  });
 
   return (
     <div className={styles.container} dir={rtl ? 'rtl' : 'ltr'}>
@@ -77,7 +149,7 @@ export default function WalletPage() {
           </div>
           
           <div className={styles.cardButtons}>
-            <button className={styles.btnOutline}>
+            <button className={styles.btnOutline} onClick={handleAddMoney}>
               <span>➕</span> {getTranslation(lang, 'addMoney')}
             </button>
             <button 
@@ -91,7 +163,7 @@ export default function WalletPage() {
       </div>
 
       {/* Withdraw Section Inline */}
-      <div className={`${styles.withdrawSection} ${showWithdraw ? styles.open : ''}`}>
+      <form onSubmit={handleExecuteWithdrawal} className={`${styles.withdrawSection} ${showWithdraw ? styles.open : ''}`}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>
             Withdraw Funds <span className={styles.sectionTitleUr}>رقم نکالیں</span>
@@ -111,11 +183,11 @@ export default function WalletPage() {
             />
           </div>
           <div className={styles.quickAmounts}>
-            <button className={styles.quickAmountBtn} onClick={() => handleQuickAmount(5000)}>5,000</button>
-            <button className={styles.quickAmountBtn} onClick={() => handleQuickAmount(10000)}>10,000</button>
-            <button className={styles.quickAmountBtn} onClick={() => handleQuickAmount(25000)}>25,000</button>
-            <button className={styles.quickAmountBtn} onClick={() => handleQuickAmount(50000)}>50,000</button>
-            <button className={styles.quickAmountBtn} onClick={() => handleQuickAmount('all')}>All</button>
+            <button type="button" className={styles.quickAmountBtn} onClick={() => handleQuickAmount(5000)}>5,000</button>
+            <button type="button" className={styles.quickAmountBtn} onClick={() => handleQuickAmount(10000)}>10,000</button>
+            <button type="button" className={styles.quickAmountBtn} onClick={() => handleQuickAmount(25000)}>25,000</button>
+            <button type="button" className={styles.quickAmountBtn} onClick={() => handleQuickAmount(50000)}>50,000</button>
+            <button type="button" className={styles.quickAmountBtn} onClick={() => handleQuickAmount('all')}>All</button>
           </div>
         </div>
 
@@ -143,14 +215,14 @@ export default function WalletPage() {
           </div>
         </div>
 
-        <button className={styles.btnPrimary} style={{ maxWidth: '200px', margin: '0 auto' }}>
+        <button type="submit" className={styles.btnPrimary} style={{ maxWidth: '200px', margin: '0 auto' }}>
           Withdraw Now
         </button>
         
         <div className={styles.processingNote}>
           ℹ️ JazzCash/Easypaisa: Instant | Bank: 1-2 business days
         </div>
-      </div>
+      </form>
 
       {/* Quick Stats Row */}
       <div className={styles.statsGrid}>
