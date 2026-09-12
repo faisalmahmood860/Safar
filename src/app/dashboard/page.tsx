@@ -6,33 +6,25 @@ import styles from './page.module.css';
 import { pakistaniCities } from '@/lib/mockData';
 import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
-const mockLoads = [
-  { id: 1, routeEn: 'Multan → Karachi', routeUr: 'ملتان ← کراچی', type: 'Cotton Bales', typeIcon: '🧵', status: 'in_transit', statusEn: 'In Transit', statusUr: 'راستے میں', price: 'Rs. 185,000', progress: 65 },
-  { id: 2, routeEn: 'DG Khan → Lahore', routeUr: 'ڈی جی خان ← لاہور', type: 'Cement Bags', typeIcon: '🧱', status: 'picked_up', statusEn: 'Picked Up', statusUr: 'اٹھا لیا گیا', price: 'Rs. 95,000', progress: 20 },
-  { id: 3, routeEn: 'Larkana → Karachi', routeUr: 'لاڑکانہ ← کراچی', type: 'Rice Bags', typeIcon: '🌾', status: 'assigned', statusEn: 'Assigned', statusUr: 'مختص شدہ', price: 'Rs. 145,000', progress: 0 }
-];
+const mockLoads: any[] = [];
 
-const mockMessages = [
-  { id: 1, senderEn: 'Noor Textile Dispatch', senderUr: 'نور ٹیکسٹائل ڈسپیچ', avatar: 'NT', previewEn: 'When will you reach Karachi port?', previewUr: 'آپ کراچی پورٹ کب پہنچیں گے؟', time: '10:30 AM', unread: 2 },
-  { id: 2, senderEn: 'SafarLoad Support Desk', senderUr: 'سفرلوڈ سپورٹ ڈیسک', avatar: 'SD', previewEn: 'CNIC and Truck docs verified cleanly.', previewUr: 'شناختی کارڈ اور ٹرک کی تصدیق مکمل ہو گئی ہے۔', time: '09:15 AM', unread: 1 },
-  { id: 3, senderEn: 'JazzCash Clearing', senderUr: 'جاز کیش کلئیرنگ', avatar: 'JC', previewEn: 'Rs. 185,000 held in Escrow ready for POD.', previewUr: 'رقم ایسکرو میں محفوظ ہے۔', time: 'Yesterday', unread: 0 }
-];
+const mockMessages: any[] = [];
 
 const dashboardStats = {
-  activeLoads: 3,
-  completed: 456,
-  distance: '125,430',
-  rating: 4.8
+  activeLoads: 0,
+  completed: 0,
+  distance: '0',
+  rating: 5.0
 };
 
 const weeklyEarnings = [
-  { dayEn: 'Mon', dayUr: 'پیر', amount: 35000, height: '55%' },
-  { dayEn: 'Tue', dayUr: 'منگل', amount: 42000, height: '65%' },
-  { dayEn: 'Wed', dayUr: 'بدھ', amount: 28000, height: '40%' },
-  { dayEn: 'Thu', dayUr: 'جمعرات', amount: 55000, height: '85%' },
-  { dayEn: 'Fri', dayUr: 'جمعہ', amount: 48000, height: '75%' },
-  { dayEn: 'Sat', dayUr: 'ہفتہ', amount: 62000, height: '95%' },
-  { dayEn: 'Sun', dayUr: 'اتوار', amount: 38000, height: '60%' },
+  { dayEn: 'Mon', dayUr: 'پیر', amount: 0, height: '0%' },
+  { dayEn: 'Tue', dayUr: 'منگل', amount: 0, height: '0%' },
+  { dayEn: 'Wed', dayUr: 'بدھ', amount: 0, height: '0%' },
+  { dayEn: 'Thu', dayUr: 'جمعرات', amount: 0, height: '0%' },
+  { dayEn: 'Fri', dayUr: 'جمعہ', amount: 0, height: '0%' },
+  { dayEn: 'Sat', dayUr: 'ہفتہ', amount: 0, height: '0%' },
+  { dayEn: 'Sun', dayUr: 'اتوار', amount: 0, height: '0%' },
 ];
 
 export default function DashboardPage() {

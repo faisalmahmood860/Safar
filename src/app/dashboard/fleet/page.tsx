@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { mockFleetTrucks, mockLoads, mockDrivers } from '@/lib/mockData';
 import { initiateVoIPCall, triggerIncomingDriverCall } from '@/lib/voipCallSystem';
+import { apiClient } from '@/lib/apiClient';
 
 export default function FleetDashboard() {
   const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers' | 'my-bids'>('my-bids');
@@ -14,7 +15,17 @@ export default function FleetDashboard() {
   const [selectedLoad, setSelectedLoad] = useState<typeof mockLoads[0] | null>(null);
   const [submittedBids, setSubmittedBids] = useState<any[]>([]);
 
-  const loadSubmittedBids = () => {
+  const loadSubmittedBids = async () => {
+    try {
+      const res = await apiClient.getBids();
+      if (res && res.success && res.data && res.data.length > 0) {
+        setSubmittedBids(res.data);
+        return;
+      }
+    } catch {
+      // fallback to localStorage
+    }
+
     if (typeof window === 'undefined') return;
     try {
       const stored = localStorage.getItem('safarload_global_bids');
@@ -90,6 +101,10 @@ export default function FleetDashboard() {
     };
 
     try {
+      // Persist to SQLite Database via Backend API
+      apiClient.createBid(newFleetBid).catch(console.error);
+      apiClient.updateLoadStatus(selectedLoad.id, 'booked').catch(console.error);
+
       // Save bid record
       const storedBidsStr = localStorage.getItem('safarload_global_bids');
       let bidsList = storedBidsStr ? JSON.parse(storedBidsStr) : [];
@@ -116,6 +131,9 @@ export default function FleetDashboard() {
 
   const handleFleetAcceptShipperCounter = (bidId: string) => {
     try {
+      // Persist update in SQLite Database
+      apiClient.updateBid(bidId, { status: 'accepted' }).catch(console.error);
+
       const stored = localStorage.getItem('safarload_global_bids');
       let list = stored ? JSON.parse(stored) : [];
       list = list.map((b: any) =>

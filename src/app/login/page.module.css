@@ -94,6 +94,154 @@
   margin-top: 2rem;
 }
 
+/* 3D Pakistani Driver Character Container */
+.driver3DContainer {
+  position: relative;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 460px;
+  perspective: 1000px;
+  animation: slideInDriverFromLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInDriverFromLeft {
+  0% {
+    transform: translateX(-120%) rotateY(-15deg) scale(0.85);
+    opacity: 0;
+  }
+  70% {
+    transform: translateX(5%) rotateY(5deg) scale(1.02);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(0) rotateY(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.driver3DCard {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(16, 185, 129, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.3);
+  background: #0F172A;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: floatDriver3D 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatDriver3D {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+.driver3DCard:hover {
+  transform: translateY(-12px) scale(1.02) rotateY(4deg);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(245, 158, 11, 0.4);
+}
+
+.driverImage {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.driverOverlayInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.6) 70%, transparent 100%);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.driverSpeechBubble {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.7);
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #F59E0B;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: pulseBubble 2s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@keyframes pulseBubble {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.driverBadgeText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.driverName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.driverTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #10B981;
+}
+
+.verifiedTag {
+  background: #10B981;
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.toggle3DBtn {
+  padding: 0.4rem 0.85rem;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10B981;
+  border-radius: 20px;
+  color: #10B981;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.toggle3DBtn:hover {
+  background: #10B981;
+  color: #0F172A;
+}
+
 /* Right Form Panel */
 .formPanel {
   width: 620px;

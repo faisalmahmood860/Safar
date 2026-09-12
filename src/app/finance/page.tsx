@@ -19,19 +19,28 @@ export interface LedgerEntry {
   runningBalance: number;
 }
 
-export const initialLedgerEntries: LedgerEntry[] = [
-  { id: 'TRX-901', timestamp: '2026-08-19 14:20', entityName: 'Noor Textile Mills Ltd', entityRole: 'shipper', loadId: 'LD-2026-001', transactionType: 'ESCROW_DEPOSIT', amount: 153000, paymentMethod: 'Meezan Bank IBFT', referenceId: 'IBFT-776612', status: 'cleared', runningBalance: 153000 },
-  { id: 'TRX-902', timestamp: '2026-08-19 14:35', entityName: 'Muhammad Aslam (Driver)', entityRole: 'driver', loadId: 'LD-2026-001', transactionType: 'ADVANCE_RELEASE', amount: 43650, paymentMethod: 'JazzCash Wallet', referenceId: 'JZ-998821', status: 'cleared', runningBalance: 43650 },
-  { id: 'TRX-903', timestamp: '2026-08-19 17:50', entityName: 'Muhammad Aslam (Driver)', entityRole: 'driver', loadId: 'LD-2026-001', transactionType: 'FINAL_SETTLEMENT', amount: 101850, paymentMethod: 'Raast IBFT', referenceId: 'RST-554433', status: 'cleared', runningBalance: 145500 },
-  { id: 'TRX-904', timestamp: '2026-08-19 18:10', entityName: 'DG Khan Cement Industry', entityRole: 'shipper', loadId: 'LD-2026-002', transactionType: 'ESCROW_DEPOSIT', amount: 408000, paymentMethod: 'HBL Corporate 1Bill', referenceId: '1BILL-990011', status: 'cleared', runningBalance: 408000 },
-  { id: 'TRX-905', timestamp: '2026-08-19 18:25', entityName: 'Abdul Rasheed (Driver)', entityRole: 'driver', loadId: 'LD-2026-002', transactionType: 'ADVANCE_RELEASE', amount: 116400, paymentMethod: 'Easypaisa Merchant', referenceId: 'EP-334411', status: 'cleared', runningBalance: 116400 },
-];
+export const initialLedgerEntries: LedgerEntry[] = [];
+
+export interface DepositSlip {
+  id: string;
+  timestamp: string;
+  shipperName: string;
+  paymentMethod: string;
+  referenceTxId: string;
+  amountPkr: number;
+  slipImageUrl?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+}
+
+export const initialDepositSlips: DepositSlip[] = [];
 
 export default function FinancialManagerPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
-  const [mainTab, setMainTab] = useState<'invoices' | 'ledgers' | 'clearing'>('invoices');
+  const [mainTab, setMainTab] = useState<'slips' | 'invoices' | 'ledgers' | 'clearing'>('slips');
   const [invoices, setInvoices] = useState<CommissionInvoice[]>(mockCommissionInvoices);
   const [ledgers, setLedgers] = useState<LedgerEntry[]>(initialLedgerEntries);
+  const [depositSlips, setDepositSlips] = useState<DepositSlip[]>(initialDepositSlips);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<CommissionInvoice | null>(null);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -43,6 +52,91 @@ export default function FinancialManagerPage() {
   const [cAmount, setCAmount] = useState('');
   const [cMethod, setCMethod] = useState('Meezan Bank IBFT');
   const [cRefId, setCRefId] = useState('');
+
+  // Sync deposit slips with localStorage
+  const loadSlipsFromStorage = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('safarload_deposit_slips');
+      if (stored) {
+        setDepositSlips(JSON.parse(stored));
+      } else {
+        localStorage.setItem('safarload_deposit_slips', JSON.stringify(initialDepositSlips));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  React.useEffect(() => {
+    loadSlipsFromStorage();
+
+    const handleSync = () => {
+      loadSlipsFromStorage();
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('safarload_deposit_slip_event', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('safarload_deposit_slip_event', handleSync);
+    };
+  }, []);
+
+  const saveSlipsToStorage = (updated: DepositSlip[]) => {
+    setDepositSlips(updated);
+    try {
+      localStorage.setItem('safarload_deposit_slips', JSON.stringify(updated));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_deposit_slip_event'));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleApproveDepositSlip = (slipId: string) => {
+    const slip = depositSlips.find((s) => s.id === slipId);
+    if (!slip) return;
+
+    const updated = depositSlips.map((s) => (s.id === slipId ? { ...s, status: 'approved' as const } : s));
+    saveSlipsToStorage(updated);
+
+    // Create a new cleared ledger entry for Shipper Escrow Deposit
+    const newTxId = `TRX-${Math.floor(100 + Math.random() * 900)}`;
+    const timeStr = new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+    const newLedger: LedgerEntry = {
+      id: newTxId,
+      timestamp: timeStr,
+      entityName: slip.shipperName,
+      entityRole: 'shipper',
+      loadId: 'ESCROW-VAULT',
+      transactionType: 'ESCROW_DEPOSIT',
+      amount: slip.amountPkr,
+      paymentMethod: slip.paymentMethod,
+      referenceId: slip.referenceTxId,
+      status: 'cleared',
+      runningBalance: slip.amountPkr,
+    };
+
+    setLedgers([newLedger, ...ledgers]);
+
+    alert(
+      `✅ Payment Slip Approved & Credited!\n\n🏢 Shipper: ${slip.shipperName}\n💰 Credited Amount: Rs. ${slip.amountPkr.toLocaleString()}\n🏦 Gateway: ${slip.paymentMethod}\n📌 Ref TRX: ${slip.referenceTxId}\n\nShipper wallet balance updated to reflect cleared deposit!`
+    );
+  };
+
+  const handleRejectDepositSlip = (slipId: string) => {
+    const slip = depositSlips.find((s) => s.id === slipId);
+    if (!slip) return;
+
+    const updated = depositSlips.map((s) =>
+      s.id === slipId ? { ...s, status: 'rejected' as const, rejectionReason: 'TRX Mismatch / Verification Failed' } : s
+    );
+    saveSlipsToStorage(updated);
+
+    alert(`⚠️ Payment Slip ${slipId} REJECTED!\nShipper notified of transaction reference mismatch.`);
+  };
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
@@ -179,7 +273,13 @@ export default function FinancialManagerPage() {
       </div>
 
       {/* NAVIGATION TABS FOR FINANCE MANAGER */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setMainTab('slips')}
+          className={`btn ${mainTab === 'slips' ? 'btn-primary' : 'btn-glass'}`}
+        >
+          🧾 Bank Deposit Slips Verification Queue ({depositSlips.filter((s) => s.status === 'pending').length} Pending)
+        </button>
         <button
           onClick={() => setMainTab('invoices')}
           className={`btn ${mainTab === 'invoices' ? 'btn-primary' : 'btn-glass'}`}
@@ -196,9 +296,98 @@ export default function FinancialManagerPage() {
           onClick={() => setMainTab('clearing')}
           className={`btn ${mainTab === 'clearing' ? 'btn-primary' : 'btn-glass'}`}
         >
-          💳 Manual Escrow & Tranche Release Console
+          💳 Manual Escrow Console
         </button>
       </div>
+
+      {/* TAB 0: SHIPPER PAYMENT DEPOSIT SLIPS VERIFICATION QUEUE */}
+      {mainTab === 'slips' && (
+        <div className={`${styles.panel} glass-card animate-fadeIn`}>
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>🧾 Bank & JazzCash Deposit Slips Verification Desk</h3>
+              <p>Verify bank statements / TRX reference IDs submitted by Shippers and credit their Escrow Vault Balance.</p>
+            </div>
+            <span className="badge badge-warning">
+              {depositSlips.filter((s) => s.status === 'pending').length} Pending Slips
+            </span>
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Slip ID / Time</th>
+                  <th>Shipper / Account Name</th>
+                  <th>Payment Method</th>
+                  <th>Reference TRX #</th>
+                  <th>Amount (PKR)</th>
+                  <th>Status</th>
+                  <th>Verification Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {depositSlips.map((s) => (
+                  <tr key={s.id}>
+                    <td>
+                      <strong>{s.id}</strong>
+                      <br />
+                      <small>{s.timestamp}</small>
+                    </td>
+                    <td>
+                      <strong>🏢 {s.shipperName}</strong>
+                    </td>
+                    <td>
+                      <strong>{s.paymentMethod}</strong>
+                    </td>
+                    <td>
+                      <code style={{ background: 'rgba(56, 189, 248, 0.15)', padding: '2px 8px', borderRadius: '4px', color: '#38bdf8' }}>
+                        {s.referenceTxId}
+                      </code>
+                    </td>
+                    <td>
+                      <strong style={{ fontSize: '1.1rem', color: '#10B981' }}>
+                        Rs. {s.amountPkr.toLocaleString()}
+                      </strong>
+                    </td>
+                    <td>
+                      {s.status === 'pending' && <span className="badge badge-warning">Pending ⏳</span>}
+                      {s.status === 'approved' && <span className="badge badge-success">Approved & Credited ✅</span>}
+                      {s.status === 'rejected' && <span className="badge badge-danger">Rejected ❌</span>}
+                    </td>
+                    <td>
+                      {s.status === 'pending' ? (
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleApproveDepositSlip(s.id)}
+                            className="btn btn-primary btn-sm"
+                          >
+                            🟢 Verify Bank & Credit Wallet
+                          </button>
+                          <button
+                            onClick={() => handleRejectDepositSlip(s.id)}
+                            className="btn btn-accent btn-sm"
+                          >
+                            🔴 Reject (TRX Mismatch)
+                          </button>
+                        </div>
+                      ) : s.status === 'approved' ? (
+                        <span style={{ fontSize: '0.8rem', color: '#10B981', fontWeight: 700 }}>
+                          ✅ Wallet Credited (TRX Cleared)
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.8rem', color: '#EF4444', fontWeight: 700 }}>
+                          ❌ Verification Failed ({s.rejectionReason})
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* TAB 1: COMMISSION INVOICES */}
       {mainTab === 'invoices' && (

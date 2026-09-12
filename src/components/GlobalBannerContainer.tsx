@@ -16,31 +16,7 @@ export interface PlatformBanner {
   createdAt: string;
 }
 
-export const initialPlatformBanners: PlatformBanner[] = [
-  {
-    id: 'BAN-101',
-    title: '🚀 NEW FEATURE: Pakistani Digital Bilty (گڈز رسید) System Live!',
-    message: 'Shippers & Drivers can now generate, inspect, and print official Pakistani Transport Bilty receipts with QR verification.',
-    bannerType: 'feature_update',
-    targetAudience: 'all',
-    actionText: '📜 Try Digital Bilty',
-    actionUrl: '/dashboard/trips',
-    status: 'active',
-    createdAt: '2026-08-19',
-  },
-  {
-    id: 'BAN-102',
-    title: '⚠️ OVERDUE PAYMENT NOTICE: Escrow Clearance Required',
-    message: 'Your account has an overdue platform fee of Rs. 14,500 for Multan → Karachi shipments. Please clear dues to avoid account lock.',
-    bannerType: 'payment_warning',
-    targetAudience: 'specific_user',
-    targetUserEmail: 'Noor Textile Mills',
-    actionText: '💳 Clear Overdue Dues',
-    actionUrl: '/dashboard/wallet',
-    status: 'active',
-    createdAt: '2026-08-19',
-  },
-];
+export const initialPlatformBanners: PlatformBanner[] = [];
 
 export default function GlobalBannerContainer() {
   const [banners, setBanners] = useState<PlatformBanner[]>(initialPlatformBanners);

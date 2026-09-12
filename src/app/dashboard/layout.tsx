@@ -17,48 +17,51 @@ interface NavItem {
   badge?: number;
 }
 
-// Role-Specific Navigation Definitions
+// Role-Specific Navigation Definitions (Users only see their authorized reports & tools)
 const roleNavItems: Record<UserRole, NavItem[]> = {
   driver: [
-    { path: '/dashboard', icon: '🏠', labelEn: 'Driver Dashboard', labelUr: 'ڈرائیور ڈیش بورڈ' },
-    { path: '/dashboard/loads', icon: '📋', labelEn: 'Find Loads', labelUr: 'لوڈ تلاش کریں' },
-    { path: '/dashboard/trips', icon: '🚛', labelEn: 'My Booked Trips', labelUr: 'میرے سفر' },
+    { path: '/dashboard', icon: '🏠', labelEn: 'Dashboard Overview', labelUr: 'ڈیش بورڈ اوورویو' },
+    { path: '/dashboard/loads', icon: '📋', labelEn: 'Load Marketplace', labelUr: 'لوڈ مارکیٹ' },
+    { path: '/dashboard/trips', icon: '🚛', labelEn: 'Booked Trips & Bilty', labelUr: 'میرے سفر اور بلٹی' },
     { path: '/dashboard/tracking', icon: '📍', labelEn: 'Live GPS Tracking', labelUr: 'لائیو ٹریکنگ' },
-    { path: '/dashboard/wallet', icon: '💰', labelEn: 'My Wallet', labelUr: 'میرا والٹ' },
+    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Wallet & Payouts', labelUr: 'والٹ اکاؤنٹس' },
   ],
   shipper: [
     { path: '/dashboard/post-load', icon: '🏢', labelEn: 'Post Cargo Load', labelUr: 'لوڈ پوسٹ کریں' },
-    { path: '/dashboard/loads', icon: '📦', labelEn: 'My Posted Shipments', labelUr: 'میرے کارگو' },
-    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Track Cargo Live', labelUr: 'شپمنٹ ٹریک کریں' },
-    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Shipper Escrow Hub', labelUr: 'ایسکرو پورٹل' },
+    { path: '/dashboard/loads', icon: '📋', labelEn: 'Load Marketplace', labelUr: 'لوڈ مارکیٹ' },
+    { path: '/dashboard/trips', icon: '🚛', labelEn: 'Booked Trips & Bilty', labelUr: 'میرے سفر اور بلٹی' },
+    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Live GPS Tracking', labelUr: 'لائیو ٹریکنگ' },
+    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Broker & Escrow Hub', labelUr: 'بروکر پورٹل' },
   ],
   fleet: [
-    { path: '/dashboard/fleet', icon: '🚛', labelEn: 'Fleet Command Center', labelUr: 'فلیٹ کمانڈ سینٹر' },
+    { path: '/dashboard/fleet', icon: '🚚', labelEn: 'Fleet Management', labelUr: 'فلیٹ مینجمنٹ' },
     { path: '/dashboard/loads', icon: '📋', labelEn: 'Load Marketplace', labelUr: 'لوڈ مارکیٹ' },
-    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Fleet Live GPS', labelUr: 'فلیٹ ٹریکنگ' },
-    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Fleet Settlements', labelUr: 'فلیٹ والیٹ' },
+    { path: '/dashboard/trips', icon: '🚛', labelEn: 'Booked Trips & Bilty', labelUr: 'میرے سفر اور بلٹی' },
+    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Live GPS Tracking', labelUr: 'لائیو ٹریکنگ' },
+    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Wallet & Payouts', labelUr: 'والٹ اکاؤنٹس' },
   ],
   support: [
     { path: '/dashboard/support', icon: '🎧', labelEn: 'KYC Document Desk', labelUr: 'کے وائی سی ڈیسک' },
-    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Broker Verification', labelUr: 'ڈسپیچ کنٹرول' },
-    { path: '/dashboard/loads', icon: '📋', labelEn: 'All Platform Loads', labelUr: 'تمام لوڈز' },
+    { path: '/dashboard/trips', icon: '🚛', labelEn: 'Booked Trips & Bilty', labelUr: 'میرے سفر اور بلٹی' },
+    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Live GPS Tracking', labelUr: 'لائیو ٹریکنگ' },
   ],
   finance: [
-    { path: '/dashboard/finance', icon: '💵', labelEn: 'Revenue & Tax Invoices', labelUr: 'ریونیو اور انوائسنگ' },
-    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Escrow Clearing', labelUr: 'ایسکرو کلئیرنگ' },
-    { path: '/dashboard/admin', icon: '⚙️', labelEn: 'Monetization Rules', labelUr: 'مونیٹائزیشن سیٹنگز' },
+    { path: '/dashboard/finance', icon: '💵', labelEn: 'Finance & Revenue', labelUr: 'فنانس اور ریونیو' },
+    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Wallet & Payouts', labelUr: 'والٹ اکاؤنٹس' },
+    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Broker & Escrow Hub', labelUr: 'بروکر پورٹل' },
   ],
   admin: [
+    { path: '/dashboard', icon: '🏠', labelEn: 'Dashboard Overview', labelUr: 'ڈیش بورڈ اوورویو' },
     { path: '/dashboard/admin', icon: '👑', labelEn: 'Super Admin System', labelUr: 'سپر ایڈمن' },
-    { path: '/dashboard', icon: '📊', labelEn: 'Operations Overview', labelUr: 'آپریشنز ڈیش بورڈ' },
-    { path: '/dashboard/loads', icon: '📋', labelEn: 'All Loads', labelUr: 'تمام لوڈز' },
-    { path: '/dashboard/post-load', icon: '🏢', labelEn: 'Post Cargo', labelUr: 'کارگو پوسٹ کریں' },
-    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Broker Hub', labelUr: 'بروکر پورٹل' },
-    { path: '/dashboard/fleet', icon: '🚛', labelEn: 'Fleet Management', labelUr: 'فلیٹ مینجمنٹ' },
-    { path: '/dashboard/support', icon: '🎧', labelEn: 'KYC Verification', labelUr: 'کے وائی سی ڈیسک' },
-    { path: '/dashboard/finance', icon: '💵', labelEn: 'Revenue System', labelUr: 'ریونیو سسٹم' },
-    { path: '/dashboard/tracking', icon: '📍', labelEn: 'GPS Map', labelUr: 'جی پی ایس میپ' },
-    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Wallet Accounts', labelUr: 'والٹ اکاؤنٹس' },
+    { path: '/dashboard/post-load', icon: '🏢', labelEn: 'Post Cargo Load', labelUr: 'لوڈ پوسٹ کریں' },
+    { path: '/dashboard/loads', icon: '📋', labelEn: 'Load Marketplace', labelUr: 'لوڈ مارکیٹ' },
+    { path: '/dashboard/trips', icon: '🚛', labelEn: 'Booked Trips & Bilty', labelUr: 'میرے سفر اور بلٹی' },
+    { path: '/dashboard/fleet', icon: '🚚', labelEn: 'Fleet Management', labelUr: 'فلیٹ مینجمنٹ' },
+    { path: '/dashboard/tracking', icon: '📍', labelEn: 'Live GPS Tracking', labelUr: 'لائیو ٹریکنگ' },
+    { path: '/dashboard/wallet', icon: '💰', labelEn: 'Wallet & Payouts', labelUr: 'والٹ اکاؤنٹس' },
+    { path: '/dashboard/broker', icon: '🛡️', labelEn: 'Broker & Escrow Hub', labelUr: 'بروکر پورٹل' },
+    { path: '/dashboard/support', icon: '🎧', labelEn: 'KYC Document Desk', labelUr: 'کے وائی سی ڈیسک' },
+    { path: '/dashboard/finance', icon: '💵', labelEn: 'Finance & Revenue', labelUr: 'فنانس اور ریونیو' },
   ],
 };
 
@@ -68,32 +71,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [lang, setLang] = useState('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [role, setRole] = useState<UserRole>('driver');
+  const [user, setUser] = useState<{ name: string; email: string; role: UserRole } | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Strict Authentication Guard
-    const loggedUserStr = localStorage.getItem('safarload_logged_user');
-    if (!loggedUserStr) {
+    const storedUser = localStorage.getItem('safarload_logged_user');
+    const savedRole = localStorage.getItem('safarload_user_role') as UserRole;
+
+    if (!storedUser && !savedRole) {
+      // Require Credentials: Redirect to Login if not authenticated
       router.push('/login');
       return;
     }
 
-    // Read saved user role from localStorage if available
-    const savedRole = localStorage.getItem('safarload_user_role') as UserRole;
-    if (savedRole && roleNavItems[savedRole]) {
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        setRole(parsed.role || 'driver');
+      } catch (err) {
+        console.error(err);
+        setRole(savedRole || 'driver');
+      }
+    } else if (savedRole) {
       setRole(savedRole);
-    } else if (pathname.includes('/support')) {
-      setRole('support');
-    } else if (pathname.includes('/finance')) {
-      setRole('finance');
-    } else if (pathname.includes('/admin')) {
-      setRole('admin');
-    } else if (pathname.includes('/post-load')) {
-      setRole('shipper');
-    } else if (pathname.includes('/fleet')) {
-      setRole('fleet');
     }
+    setIsAuthenticated(true);
   }, [pathname, router]);
 
   useEffect(() => {
@@ -103,9 +108,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [lang, theme, mounted]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('safarload_logged_user');
+    localStorage.removeItem('safarload_user_role');
+    router.push('/login');
+  };
+
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
     localStorage.setItem('safarload_user_role', newRole);
+    if (user) {
+      const updatedUser = { ...user, role: newRole };
+      setUser(updatedUser);
+      localStorage.setItem('safarload_logged_user', JSON.stringify(updatedUser));
+    }
   };
 
   const toggleLanguage = () => {
@@ -116,49 +132,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const currentNavItems = roleNavItems[role] || roleNavItems.driver;
+  if (!mounted || !isAuthenticated) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: '#0F172A', color: '#10B981', fontWeight: 800, fontSize: '1.2rem', gap: '0.75rem' }}>
+        🔒 {lang === 'en' ? 'Authenticating Session Credentials & Loading Portal...' : 'سیشن کی تصدیق ہو رہی ہے...'}
+      </div>
+    );
+  }
+
+  const currentNavItems = roleNavItems[role] || roleNavItems['driver'];
   const dir = lang === 'ur' ? 'rtl' : 'ltr';
 
   return (
     <div className={styles.layoutContainer} dir={dir} data-theme={theme} suppressHydrationWarning>
-      {/* Sidebar Navigation - Strictly Filtered By User Role */}
+      {/* Sidebar Navigation */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <Link href="/" className={styles.logo}>🚛 SafarLoad</Link>
+          <Link href="/dashboard" className={styles.logo}>🚛 SafarLoad</Link>
         </div>
 
-        {/* User Identity Box */}
+        {/* User Session Profile Header Box */}
         <div className={styles.userSection}>
           <div className={styles.avatar}>
-            {role === 'driver' && '👨‍✈️'}
-            {role === 'shipper' && '🏢'}
-            {role === 'fleet' && '🚚'}
-            {role === 'support' && '🎧'}
-            {role === 'finance' && '💵'}
-            {role === 'admin' && '👑'}
+            {role === 'driver' ? '👨‍✈️' : role === 'shipper' ? '🏢' : role === 'fleet' ? '🚚' : role === 'support' ? '🎧' : role === 'finance' ? '💵' : '👑'}
             <span className={styles.onlineDot}></span>
           </div>
           <div className={styles.userInfo}>
             <span className={styles.userName}>
-              {role === 'driver' && (lang === 'en' ? 'Muhammad Aslam' : 'محمد اسلم')}
-              {role === 'shipper' && 'Noor Textile Mills'}
-              {role === 'fleet' && 'Al-Farooq Transport'}
-              {role === 'support' && 'Ayesha (Support Staff)'}
-              {role === 'finance' && 'Salman (Finance Mgr)'}
-              {role === 'admin' && 'Super Admin'}
+              {user?.name || (lang === 'en' ? 'Authenticated User' : 'تصدیق شدہ صارف')}
             </span>
             <span className={styles.userRole}>
-              {role === 'driver' && 'Verified Driver (LHR-5678)'}
-              {role === 'shipper' && 'Enterprise Shipper'}
-              {role === 'fleet' && 'Fleet Operator'}
-              {role === 'support' && 'KYC Support Staff'}
-              {role === 'finance' && 'Revenue Manager'}
-              {role === 'admin' && 'System Super Admin'}
+              {role ? role.toUpperCase() : 'USER'} • {lang === 'en' ? 'Role-Filtered Access' : 'مخصوص رسائی'}
             </span>
           </div>
         </div>
 
-        {/* Navigation Items (Role Filtered) */}
+        {/* Role-Specific Navigation Items */}
         <nav className={styles.navLinks}>
           {currentNavItems.map((item) => (
             <Link
@@ -174,17 +183,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link
-            href="/login"
+          <button
+            type="button"
+            onClick={handleLogout}
             className={styles.logoutBtn}
-            onClick={() => {
-              localStorage.removeItem('safarload_logged_user');
-              localStorage.removeItem('safarload_user_role');
-            }}
+            style={{ width: '100%', justifyContent: 'center' }}
           >
             <span className={styles.navIcon}>🚪</span>
-            <span className={styles.navLabel}>{lang === 'en' ? 'Log Out' : 'لاگ آؤٹ'}</span>
-          </Link>
+            <span className={styles.navLabel}>{lang === 'en' ? 'Log Out' : 'سائن آؤٹ'}</span>
+          </button>
         </div>
       </aside>
 
@@ -209,6 +216,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div className={styles.headerActions}>
             <NotificationBell userRole={role} lang={lang as 'en' | 'ur'} />
+
+            {/* Quick Role Switcher Selector */}
+            <select
+              value={role}
+              onChange={(e) => handleRoleChange(e.target.value as UserRole)}
+              className={styles.langToggle}
+              style={{ fontWeight: 700, cursor: 'pointer', outline: 'none' }}
+              title="Switch View Mode by User Role"
+            >
+              <option value="driver">👨‍✈️ Driver View</option>
+              <option value="shipper">🏢 Shipper View</option>
+              <option value="fleet">🚚 Fleet View</option>
+              <option value="support">🎧 Support View</option>
+              <option value="finance">💵 Finance View</option>
+              <option value="admin">👑 Admin View</option>
+            </select>
 
             <button className={styles.langToggle} onClick={toggleTheme} title="Toggle Dark/Light Mode">
               {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}

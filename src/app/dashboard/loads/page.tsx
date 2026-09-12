@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import { mockLoads } from '@/lib/mockData';
 import { translations, Language } from '@/lib/translations';
 import { triggerBidSubmittedNotification, triggerDriverAvailableNotification } from '@/lib/notificationSystem';
+import { apiClient } from '@/lib/apiClient';
 
 export default function LoadsPage() {
   const [language, setLanguage] = useState<Language>('en');
@@ -30,30 +31,158 @@ export default function LoadsPage() {
     setLanguage(prev => prev === 'en' ? 'ur' : 'en');
   };
   
-  // Read booked loads from localStorage to exclude booked shipments from public board
-  React.useEffect(() => {
+  // Dynamic Loads State & Real-time Sync
+  const [allLoads, setAllLoads] = useState<any[]>(mockLoads);
+  const [editingLoadTarget, setEditingLoadTarget] = useState<any | null>(null);
+
+  const loadAllLoadsFromStorage = async () => {
     try {
-      const stored = localStorage.getItem('safarload_booked_loads');
-      if (stored) {
-        setBookedLoadIds(JSON.parse(stored));
+      const res = await apiClient.getLoads({ status: 'all', limit: 100 });
+      if (res && res.success && res.data && res.data.length > 0) {
+        setAllLoads(res.data);
+        return;
+      }
+    } catch {
+      // Fallback to localStorage if offline/local
+    }
+
+    try {
+      const stored = localStorage.getItem('safarload_global_posted_loads');
+      const deletedStr = localStorage.getItem('safarload_deleted_loads');
+      const deletedIds: string[] = deletedStr ? JSON.parse(deletedStr) : [];
+
+      const userLoads: any[] = stored ? JSON.parse(stored) : [];
+      const combinedMap = new Map<string, any>();
+      userLoads.forEach((l) => combinedMap.set(l.id, l));
+      mockLoads.forEach((l) => {
+        if (!combinedMap.has(l.id)) combinedMap.set(l.id, l);
+      });
+
+      const list = Array.from(combinedMap.values()).filter((l) => !deletedIds.includes(l.id));
+      setAllLoads(list);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  React.useEffect(() => {
+    loadAllLoadsFromStorage();
+
+    try {
+      const storedBooked = localStorage.getItem('safarload_booked_loads');
+      if (storedBooked) {
+        setBookedLoadIds(JSON.parse(storedBooked));
       }
     } catch (e) {
       console.error(e);
     }
+
+    const handleSyncLoads = () => {
+      loadAllLoadsFromStorage();
+      try {
+        const storedBooked = localStorage.getItem('safarload_booked_loads');
+        if (storedBooked) {
+          setBookedLoadIds(JSON.parse(storedBooked));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.addEventListener('storage', handleSyncLoads);
+    window.addEventListener('safarload_loads_change', handleSyncLoads);
+    return () => {
+      window.removeEventListener('storage', handleSyncLoads);
+      window.removeEventListener('safarload_loads_change', handleSyncLoads);
+    };
   }, []);
 
-  // Basic filtering (Hides booked shipments)
-  const filteredLoads = mockLoads.filter(load => {
+  const handleDeleteLoad = (loadId: string) => {
+    if (!confirm(`Are you sure you want to delete / cancel load posting ${loadId}?`)) return;
+
+    try {
+      // Async database deletion
+      apiClient.deleteLoad(loadId).catch(console.error);
+
+      const stored = localStorage.getItem('safarload_global_posted_loads');
+      let currentList = stored ? JSON.parse(stored) : [];
+      currentList = currentList.filter((l: any) => l.id !== loadId);
+      localStorage.setItem('safarload_global_posted_loads', JSON.stringify(currentList));
+
+      const deletedStr = localStorage.getItem('safarload_deleted_loads');
+      const deletedIds: string[] = deletedStr ? JSON.parse(deletedStr) : [];
+      if (!deletedIds.includes(loadId)) {
+        deletedIds.push(loadId);
+        localStorage.setItem('safarload_deleted_loads', JSON.stringify(deletedIds));
+      }
+
+      setAllLoads(prev => prev.filter(l => l.id !== loadId));
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_loads_change'));
+      }
+      alert(`🗑️ Load ${loadId} deleted successfully from the Load Board!`);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveEditedLoad = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLoadTarget) return;
+
+    try {
+      const stored = localStorage.getItem('safarload_global_posted_loads');
+      let currentList: any[] = stored ? JSON.parse(stored) : [...mockLoads];
+
+      let found = false;
+      const updatedList = currentList.map((l: any) => {
+        if (l.id === editingLoadTarget.id) {
+          found = true;
+          return {
+            ...l,
+            ...editingLoadTarget,
+            title: `${editingLoadTarget.cargoType} — ${editingLoadTarget.pickupCity} to ${editingLoadTarget.dropoffCity}`,
+            weight: `${editingLoadTarget.weightTons || editingLoadTarget.weight} Tons`,
+            price: Number(editingLoadTarget.price),
+          };
+        }
+        return l;
+      });
+
+      if (!found) {
+        updatedList.unshift({
+          ...editingLoadTarget,
+          title: `${editingLoadTarget.cargoType} — ${editingLoadTarget.pickupCity} to ${editingLoadTarget.dropoffCity}`,
+          weight: `${editingLoadTarget.weightTons || editingLoadTarget.weight} Tons`,
+          price: Number(editingLoadTarget.price),
+        });
+      }
+
+      localStorage.setItem('safarload_global_posted_loads', JSON.stringify(updatedList));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_loads_change'));
+      }
+
+      alert(`✏️ Load ${editingLoadTarget.id} updated successfully! Public Load Board updated.`);
+      setEditingLoadTarget(null);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Filtering (Hides booked shipments)
+  const filteredLoads = allLoads.filter(load => {
     if (bookedLoadIds.includes(load.id)) return false;
 
     const s = search.toLowerCase();
     const matchSearch = !search || 
       load.pickupCity.toLowerCase().includes(s) ||
-      load.pickupCityUr.includes(s) ||
+      (load.pickupCityUr && load.pickupCityUr.includes(s)) ||
       load.dropoffCity.toLowerCase().includes(s) ||
-      load.dropoffCityUr.includes(s) ||
+      (load.dropoffCityUr && load.dropoffCityUr.includes(s)) ||
       load.cargoType.toLowerCase().includes(s) ||
-      load.cargoTypeUr.includes(s);
+      (load.cargoTypeUr && load.cargoTypeUr.includes(s));
       
     const matchCityFrom = !filterCityFrom || load.pickupCity === filterCityFrom;
     const matchCityTo = !filterCityTo || load.dropoffCity === filterCityTo;
@@ -105,6 +234,10 @@ export default function LoadsPage() {
     };
 
     try {
+      // Persist to SQLite Database via API
+      apiClient.createBid(newAcceptedBid).catch(console.error);
+      apiClient.updateLoadStatus(selectedLoad.id, 'booked').catch(console.error);
+
       const existingBidsJson = localStorage.getItem('safarload_global_bids');
       let currentBids = existingBidsJson ? JSON.parse(existingBidsJson) : [];
       currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
@@ -159,6 +292,9 @@ export default function LoadsPage() {
 
     // Update global localStorage bids for Shipper sync
     try {
+      // Persist to SQLite Database via API
+      apiClient.createBid(newBidObj).catch(console.error);
+
       const existingBidsJson = localStorage.getItem('safarload_global_bids');
       let currentBids = existingBidsJson ? JSON.parse(existingBidsJson) : [];
       currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
@@ -331,20 +467,39 @@ export default function LoadsPage() {
                 {load.shipperVerified && <span className={styles.verifiedBadge} title="CNIC Verified">✅</span>}
               </div>
               
-              <div className={styles.cardActions}>
-                <button className={styles.btnDetails} onClick={() => handleOpenLoadModal(load)}>
+              <div className={styles.cardActions} style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <button className={styles.btnDetails} onClick={() => handleOpenLoadModal(load)} style={{ flex: 1 }}>
                   {isRtl ? 'تفصیلات دیکھیں' : 'View Details'}
                 </button>
-                
+
                 {isBooked ? (
                   <Link href="/dashboard/trips" className="btn btn-success btn-sm" style={{ flex: 1, textAlign: 'center' }}>
                     🚛 Track Trip →
                   </Link>
                 ) : (
-                  <button className={styles.btnApply} onClick={() => handleOpenLoadModal(load)}>
-                    ⚡ {isRtl ? 'ابھی بک کریں' : 'Book / Bid'}
+                  <button className={styles.btnApply} onClick={() => handleOpenLoadModal(load)} style={{ flex: 1 }}>
+                    ⚡ {isRtl ? 'بکنگ' : 'Book / Bid'}
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => setEditingLoadTarget(load)}
+                  className="btn btn-glass btn-sm"
+                  title="Edit Load"
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  ✏️
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteLoad(load.id)}
+                  className="btn btn-accent btn-sm"
+                  title="Delete Load"
+                  style={{ padding: '0.4rem 0.6rem' }}
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           );
@@ -481,6 +636,118 @@ export default function LoadsPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* EDIT LOAD MODAL FOR SHIPPER */}
+      {editingLoadTarget && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '650px', width: '90%' }}>
+            <div className={styles.modalHeader}>
+              <h3>✏️ Edit Load Details — {editingLoadTarget.id}</h3>
+              <button onClick={() => setEditingLoadTarget(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleSaveEditedLoad}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>📍 Pickup City:</label>
+                  <input
+                    type="text"
+                    value={editingLoadTarget.pickupCity || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, pickupCity: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>🏁 Delivery City:</label>
+                  <input
+                    type="text"
+                    value={editingLoadTarget.dropoffCity || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, dropoffCity: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>🏭 Pickup Address / Warehouse:</label>
+                <input
+                  type="text"
+                  value={editingLoadTarget.pickupAddress || ''}
+                  onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, pickupAddress: e.target.value })}
+                  className="input"
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>🏢 Dropoff Address / Destination:</label>
+                <input
+                  type="text"
+                  value={editingLoadTarget.dropoffAddress || ''}
+                  onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, dropoffAddress: e.target.value })}
+                  className="input"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>📦 Cargo Type:</label>
+                  <input
+                    type="text"
+                    value={editingLoadTarget.cargoType || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, cargoType: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>⚖️ Weight (Tons):</label>
+                  <input
+                    type="text"
+                    value={editingLoadTarget.weightTons || editingLoadTarget.weight || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, weightTons: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>🚛 Truck Type:</label>
+                  <input
+                    type="text"
+                    value={editingLoadTarget.truckType || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, truckType: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '4px' }}>💰 Offered Freight Price (PKR):</label>
+                  <input
+                    type="number"
+                    value={editingLoadTarget.price || ''}
+                    onChange={(e) => setEditingLoadTarget({ ...editingLoadTarget, price: e.target.value })}
+                    className="input input-lg"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button type="button" onClick={() => setEditingLoadTarget(null)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  💾 Save Changes & Update Board
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

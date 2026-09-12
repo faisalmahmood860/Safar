@@ -59,7 +59,7 @@ export default function GoogleLiveMap({
     if (!existingScript) {
       const script = document.createElement('script');
       script.id = 'safarload-google-maps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places,geometry,directions`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places,geometry`;
       script.async = true;
       script.defer = true;
       script.onload = () => {

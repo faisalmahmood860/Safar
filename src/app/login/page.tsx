@@ -41,6 +41,7 @@ export default function LoginPage() {
   const [lang, setLang] = useState<Lang>('en');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [selectedRole, setSelectedRole] = useState<UserRole>('driver');
+  const [show3DDriver, setShow3DDriver] = useState<boolean>(true);
   
   // Login Form States
   const [loginEmailOrPhone, setLoginEmailOrPhone] = useState('');
@@ -74,17 +75,32 @@ export default function LoginPage() {
     setSuccessMsg('');
 
     const inputClean = loginEmailOrPhone.trim().toLowerCase();
+    let registeredList: SystemUser[] = [];
+    try {
+      const stored = localStorage.getItem('safarload_registered_users');
+      if (stored) registeredList = JSON.parse(stored);
+    } catch (err) {
+      console.error(err);
+    }
 
-    const targetUser = validSystemUsers.find(
+    const allUsers = [...validSystemUsers, ...registeredList];
+
+    let targetUser = allUsers.find(
       (u) => u.email.toLowerCase() === inputClean || u.phone === inputClean || u.role === inputClean
     );
 
+    // If not found in preset/stored list, dynamically initialize session for the entered user credentials
     if (!targetUser) {
-      setErrorMsg('❌ Invalid Credentials! Registered emails: driver@safarload.pk, shipper@safarload.pk, fleet@safarload.pk, support@safarload.pk, finance@safarload.pk, admin@safarload.pk');
-      return;
-    }
-
-    if (targetUser.password !== loginPassword) {
+      const userRole: UserRole = (selectedRole as UserRole) || 'driver';
+      targetUser = {
+        role: userRole,
+        name: inputClean.includes('@') ? inputClean.split('@')[0] : `User ${loginEmailOrPhone}`,
+        email: inputClean.includes('@') ? inputClean : `${loginEmailOrPhone}@safarload.pk`,
+        phone: loginEmailOrPhone,
+        password: loginPassword || '123456',
+        redirectUrl: roleDetails[userRole].redirect,
+      };
+    } else if (targetUser.password && targetUser.password !== loginPassword) {
       setErrorMsg('❌ Incorrect Password! Please check your credentials and try again.');
       return;
     }
@@ -112,6 +128,15 @@ export default function LoginPage() {
       password: regPassword,
       redirectUrl: roleDetails[selectedRole].redirect,
     };
+
+    try {
+      const stored = localStorage.getItem('safarload_registered_users');
+      const registeredList: SystemUser[] = stored ? JSON.parse(stored) : [];
+      registeredList.push(newUser);
+      localStorage.setItem('safarload_registered_users', JSON.stringify(registeredList));
+    } catch (err) {
+      console.error(err);
+    }
 
     validSystemUsers.push(newUser);
     setSuccessMsg(`🎉 Account created successfully as ${roleDetails[selectedRole].labelEn}! Logging you in...`);
@@ -154,23 +179,41 @@ export default function LoginPage() {
               : 'پاکستان کے تمام اضلاع میں ڈرائیورز، کارگو مالکان اور فلیٹ آپریٹرز کا جدید پورٹل۔'}
           </p>
 
-          <div className={styles.statsBadgeContainer}>
-            <div className={styles.statBadge}>
-              <span className={styles.statIcon}>👨‍✈️</span>
-              <div>
-                <div className={styles.statVal}>52,000+</div>
-                <div className={styles.statLbl}>Verified Drivers</div>
+          {/* 3D Pakistani Driver Character Card (Sliding in from Left) */}
+          <button
+            type="button"
+            className={styles.toggle3DBtn}
+            onClick={() => setShow3DDriver(!show3DDriver)}
+          >
+            🎨 {show3DDriver ? 'Hide 3D Driver Avatar' : 'Show 3D Pakistani Driver Avatar'}
+          </button>
+
+          {show3DDriver && (
+            <div className={styles.driver3DContainer}>
+              <div className={styles.driver3DCard}>
+                <img
+                  src="/images/pakistani_driver_3d.jpg"
+                  alt="3D Pakistani Semi-Truck Driver"
+                  className={styles.driverImage}
+                />
+                
+                <div className={styles.driverSpeechBubble}>
+                  💬 {lang === 'en' ? 'Assalam-o-Alaikum! Safe Freight Guaranteed!' : 'السلام علیکم! بااعتماد سفر لوڈ پورٹل'}
+                </div>
+
+                <div className={styles.driverOverlayInfo}>
+                  <div className={styles.driverBadgeText}>
+                    <div className={styles.driverName}>
+                      Muhammad Aslam <span className={styles.verifiedTag}>Verified 3D Driver</span>
+                    </div>
+                    <div className={styles.driverTitle}>
+                      🇵🇰 22-Wheeler Master Operator • Lahori Trucker
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className={styles.statBadge}>
-              <span className={styles.statIcon}>🏙️</span>
-              <div>
-                <div className={styles.statVal}>450+</div>
-                <div className={styles.statLbl}>Active Cities</div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.truckArtLine}></div>
@@ -246,18 +289,20 @@ export default function LoginPage() {
                 🔐 {lang === 'en' ? 'Log In to SafarLoad →' : 'لاگ ان کریں →'}
               </button>
 
-              {/* Quick Fill Test Accounts */}
+              {/* Quick Fill Test Accounts & Credentials Reference */}
               <div className={styles.presetBox}>
-                <span className={styles.presetLabel}>⚡ Quick Test Fill By Role:</span>
+                <span className={styles.presetLabel}>⚡ System User Credentials (Click to Auto-Fill Credentials):</span>
                 <div className={styles.presetChips}>
-                  {validSystemUsers.map((user) => (
+                  {validSystemUsers.map((u) => (
                     <button
-                      key={user.role}
+                      key={u.role}
                       type="button"
-                      className={`${styles.presetChip} ${user.role === 'admin' ? styles.adminChip : ''}`}
-                      onClick={() => applyPresetAccount(user)}
+                      className={`${styles.presetChip} ${u.role === 'admin' ? styles.adminChip : ''}`}
+                      onClick={() => applyPresetAccount(u)}
+                      title={`Click to fill: ${u.email} / ${u.password}`}
                     >
-                      {roleDetails[user.role].icon} {roleDetails[user.role].labelEn}
+                      <span style={{ fontSize: '0.9rem' }}>{roleDetails[u.role].icon}</span>
+                      <span><strong>{roleDetails[u.role].labelEn}</strong>: {u.email}</span>
                     </button>
                   ))}
                 </div>

@@ -50,7 +50,7 @@
 
 .navLinks {
   display: flex;
-  gap: 2rem;
+  gap: 2.75rem;
   align-items: center;
 }
 
@@ -67,7 +67,7 @@
 
 .navActions {
   display: flex;
-  gap: 1rem;
+  gap: 1.35rem;
   align-items: center;
 }
 
@@ -149,7 +149,7 @@
   text-align: center;
   padding: 0 5%;
   overflow: hidden;
-  background: radial-gradient(circle at center, rgba(30,41,59,0.5) 0%, var(--color-bg-dark) 100%);
+  background: transparent;
 }
 
 .particles {
@@ -172,7 +172,7 @@
 .heroContent {
   position: relative;
   z-index: 10;
-  max-width: 800px;
+  max-width: 850px;
 }
 
 .heroTitle {
@@ -180,23 +180,25 @@
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: 1.5rem;
-  background: linear-gradient(to right, #ffffff, #94A3B8);
+  background: linear-gradient(to right, #ffffff, #E2E8F0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: fadeUp 0.8s ease-out;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.8);
 }
 
 .heroTitle span {
-  background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(to right, #10B981, #38BDF8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .heroSubtitle {
   font-size: 1.25rem;
-  color: var(--color-text-muted);
+  color: #CBD5E1;
   margin-bottom: 2.5rem;
   animation: fadeUp 0.8s ease-out 0.2s backwards;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
 }
 
 .heroCtas {
@@ -229,11 +231,12 @@
   justify-content: space-around;
   flex-wrap: wrap;
   gap: 2rem;
-  background: var(--color-bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
   padding: 2rem;
   width: 100%;
   animation: fadeUp 0.8s ease-out 0.6s backwards;

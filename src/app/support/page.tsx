@@ -11,7 +11,7 @@ export default function SupportDeskPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [supportTab, setSupportTab] = useState<'kyc' | 'whatsapp'>('whatsapp');
   const [kycList, setKycList] = useState<KYCSubmission[]>(mockKYCSubmissions);
-  const [selectedKyc, setSelectedKyc] = useState<KYCSubmission | null>(mockKYCSubmissions[0]);
+  const [selectedKyc, setSelectedKyc] = useState<KYCSubmission | null>(mockKYCSubmissions[0] || null);
   const [reviewNotes, setReviewNotes] = useState('');
 
   // WhatsApp Live Chat State

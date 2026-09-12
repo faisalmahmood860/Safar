@@ -6,6 +6,8 @@ import styles from './page.module.css';
 import { translations, getTranslation, isRTL, Language } from '@/lib/translations';
 import { popularRoutes } from '@/lib/mockData';
 
+import Cinematic3DBackground from '@/components/Cinematic3DBackground';
+
 export default function LandingPage() {
   const [lang, setLang] = useState<Language>('en');
   const [scrolled, setScrolled] = useState(false);
@@ -45,20 +47,18 @@ export default function LandingPage() {
           <button className={styles.langToggle} onClick={toggleLanguage}>
             🌐 {lang === 'en' ? 'اردو' : 'EN'}
           </button>
-          <Link href="/login" className={styles.loginBtn}>
-            {t('login')}
+          <Link href="/dashboard" className={styles.loginBtn}>
+            {lang === 'en' ? 'Open App' : 'ایپ کھولیں'}
           </Link>
-          <Link href="/login" className={styles.primaryBtn}>
+          <Link href="/dashboard" className={styles.primaryBtn}>
             {t('getStarted')}
           </Link>
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with Cinematic 3D Moving Containers & Connected Laser Mesh */}
       <section className={styles.hero}>
-        <div className={styles.particles}></div>
-        <div className={`${styles.floatingTruck} ${styles.truck1}`}>🚛</div>
-        <div className={`${styles.floatingTruck} ${styles.truck2}`}>🚚</div>
+        <Cinematic3DBackground />
         
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>
@@ -70,36 +70,17 @@ export default function LandingPage() {
           </h1>
           <p className={styles.heroSubtitle}>
             {lang === 'en' 
-              ? 'Connect with thousands of loads and trucks across Pakistan. No more brokers, no more waiting at Addas.' 
+              ? 'Connect with thousands of loads and trucks across Pakistan. Direct access for drivers, shippers, and fleet operators.' 
               : t('heroSubtitle')}
           </p>
           
           <div className={styles.heroCtas}>
-            <Link href="/login?role=driver" className={styles.primaryBtn}>
-              🚛 {lang === 'en' ? 'Driver Registration' : 'ڈرائیور رجسٹریشن'}
+            <Link href="/dashboard/loads" className={styles.primaryBtn}>
+              🚛 {lang === 'en' ? 'Find & Browse Loads' : 'لوڈز کا جائزہ لیں'}
             </Link>
-            <Link href="/login?role=shipper" className={styles.glassOutlineBtn}>
-              🏢 {lang === 'en' ? 'Shipper & Company Portal' : 'شپر پورٹل'}
+            <Link href="/dashboard/post-load" className={styles.glassOutlineBtn}>
+              🏢 {lang === 'en' ? 'Post Cargo Load' : 'کارگو پوسٹ کریں'}
             </Link>
-          </div>
-
-          <div className={styles.statsContainer}>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>52k+</span>
-              <span className={styles.statLabel}>{t('registeredDrivers')}</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>1.8L+</span>
-              <span className={styles.statLabel}>{t('loadsPosted')}</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>450+</span>
-              <span className={styles.statLabel}>{t('citiesCovered')}</span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statNumber}>Rs 15B+</span>
-              <span className={styles.statLabel}>{t('totalPayouts')}</span>
-            </div>
           </div>
         </div>
       </section>

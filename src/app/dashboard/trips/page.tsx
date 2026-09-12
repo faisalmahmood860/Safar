@@ -53,36 +53,9 @@ export default function DriverTripsPage() {
       challanProtected: true,
     });
   };
-  const [trips, setTrips] = useState<TripItem[]>([
-    {
-      id: 'TRIP-901',
-      loadId: 'LD-2026-001',
-      route: 'Multan → Karachi',
-      cargo: '25 Tons Cotton Bales',
-      weight: 25,
-      price: 185000,
-      shipper: 'Noor Textile Mills',
-      status: 'in_transit',
-      pickupDate: '2026-08-19 (Today)',
-      biltyUploaded: true,
-      fuelAdvanceRequested: true,
-    },
-    {
-      id: 'TRIP-902',
-      loadId: 'LD-2026-003',
-      route: 'DG Khan → Lahore',
-      cargo: '20 Tons Cement Bags',
-      weight: 20,
-      price: 95000,
-      shipper: 'DG Khan Cement Corp',
-      status: 'assigned',
-      pickupDate: '2026-08-21 (Tomorrow)',
-      biltyUploaded: false,
-      fuelAdvanceRequested: false,
-    },
-  ]);
+  const [trips, setTrips] = useState<TripItem[]>([]);
 
-  const [activeTrip, setActiveTrip] = useState<TripItem>(trips[0]);
+  const [activeTrip, setActiveTrip] = useState<TripItem | null>(null);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
 
   // Dynamic Driver Bids State Synced with localStorage
@@ -322,35 +295,45 @@ export default function DriverTripsPage() {
         </div>
 
         {/* Right Side: Active Trip Control Center */}
-        <div className={`${styles.activeTripPanel} glass-card`}>
-          <div className={styles.panelHeader}>
-            <div>
-              <h3>🚚 Active Trip Command Center — {activeTrip.id}</h3>
-              <p>Shipper: {activeTrip.shipper} | Route: {activeTrip.route}</p>
+        {activeTrip ? (
+          <div className={`${styles.activeTripPanel} glass-card`}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h3>🚚 Active Trip Command Center — {activeTrip.id}</h3>
+                <p>Shipper: {activeTrip.shipper} | Route: {activeTrip.route}</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => handleOpenBilty(activeTrip)} className="btn btn-glass btn-sm">
+                  📜 {lang === 'ur' ? 'بلٹی رسید دیکھیں' : 'View Digital Bilty'}
+                </button>
+                <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
+                  💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => handleOpenBilty(activeTrip)} className="btn btn-glass btn-sm">
-                📜 {lang === 'ur' ? 'بلٹی رسید دیکھیں' : 'View Digital Bilty'}
-              </button>
-              <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
-                💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
-              </button>
-            </div>
-          </div>
 
-          <div className={styles.infoBoxGrid}>
-            <div className={styles.infoBox}>
-              <span>Freight Payment:</span>
-              <strong>Rs. {activeTrip.price.toLocaleString()}</strong>
-              <small style={{ color: 'var(--color-primary)' }}>Escrow Guaranteed ✅</small>
-            </div>
-            <div className={styles.infoBox}>
-              <span>Fuel Advance (30%):</span>
-              <strong>Rs. {(activeTrip.price * 0.3).toLocaleString()}</strong>
-              <small style={{ color: '#F59E0B' }}>JazzCash Wallet Ready</small>
+            <div className={styles.infoBoxGrid}>
+              <div className={styles.infoBox}>
+                <span>Freight Payment:</span>
+                <strong>Rs. {activeTrip.price.toLocaleString()}</strong>
+                <small style={{ color: 'var(--color-primary)' }}>Escrow Guaranteed ✅</small>
+              </div>
+              <div className={styles.infoBox}>
+                <span>Fuel Advance (30%):</span>
+                <strong>Rs. {(activeTrip.price * 0.3).toLocaleString()}</strong>
+                <small style={{ color: '#F59E0B' }}>JazzCash Wallet Ready</small>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className={`${styles.activeTripPanel} glass-card`} style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🚚</div>
+            <h3>{lang === 'ur' ? 'کوئی فعال سفر نہیں ہے' : 'No Active Trip Selected'}</h3>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+              {lang === 'ur' ? 'جب شپر آپ کی بولی یا ٹرک کو قبول کرے گا، یہاں ٹرپ کی تفصیلات اور بلٹی دکھائی دے گی۔' : 'When a load is booked or assigned, active trip command center and digital bilty will appear here.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* MODIFY DRIVER BID MODAL */}

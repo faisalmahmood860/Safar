@@ -137,22 +137,10 @@ export default function SuperAdminPage() {
   const [newOrgPlan, setNewOrgPlan] = useState<'Free' | 'Pro' | 'Enterprise'>('Enterprise');
 
   // Drivers State
-  const [drivers, setDrivers] = useState<DriverUser[]>([
-    { id: 'DRV-101', name: 'Muhammad Aslam', nameUr: 'محمد اسلم', phone: '+92 301 2345678', cnic: '35201-1234567-1', truck: 'LHR-5678 (Trailer)', city: 'Lahore', rating: 4.8, status: 'active' },
-    { id: 'DRV-102', name: 'Abdul Rasheed', nameUr: 'عبدالرشید', phone: '+92 333 9876543', cnic: '42301-9876543-3', truck: 'KHI-1234 (Container)', city: 'Karachi', rating: 4.5, status: 'active' },
-    { id: 'DRV-103', name: 'Tariq Mehmood', nameUr: 'طارق محمود', phone: '+92 321 5551234', cnic: '36302-5551234-7', truck: 'FSD-9012 (Dumper)', city: 'Faisalabad', rating: 4.9, status: 'active' },
-    { id: 'DRV-104', name: 'Zahid Khan', nameUr: 'زاہد خان', phone: '+92 300 9988776', cnic: '17301-9988776-9', truck: 'PSH-4455 (Bedford)', city: 'Peshawar', rating: 2.1, status: 'blocked', blockReason: 'Repeated late deliveries & damaged cargo dispute' },
-    { id: 'DRV-105', name: 'Imran Bilal', nameUr: 'عمران بلال', phone: '+92 312 4433221', cnic: '31102-4433221-5', truck: 'MUL-8899 (Mazda)', city: 'Multan', rating: 4.2, status: 'pending' },
-  ]);
+  const [drivers, setDrivers] = useState<DriverUser[]>([]);
 
   // Shippers & Organizations State
-  const [shippers, setShippers] = useState<ShipperOrg[]>([
-    { id: 'ORG-001', name: 'Noor Textile Mills Ltd', type: 'Enterprise', contactPerson: 'Bilal Chaudhry', phone: '+92 42 35789000', customCommission: 2.5, subscriptionPlan: 'Enterprise', status: 'active', totalLoads: 342, totalSpent: 63200000 },
-    { id: 'ORG-002', name: 'DG Khan Cement Corp', type: 'Enterprise', contactPerson: 'Asad Shah', phone: '+92 42 111 345 345', customCommission: 2.0, subscriptionPlan: 'Enterprise', status: 'active', totalLoads: 890, totalSpent: 84500000 },
-    { id: 'ORG-003', name: 'Sindh Rice Exporters', type: 'SME Shipper', contactPerson: 'Tariq Soomro', phone: '+92 21 34567890', customCommission: 4.0, subscriptionPlan: 'Pro', status: 'active', totalLoads: 128, totalSpent: 18500000 },
-    { id: 'ORG-004', name: 'Al-Farooq Logistics Co', type: 'Logistics Company', contactPerson: 'Farooq Ahmed', phone: '+92 51 9876543', customCommission: 3.5, subscriptionPlan: 'Pro', status: 'active', totalLoads: 215, totalSpent: 39000000 },
-    { id: 'ORG-005', name: 'Khyber Trading Agency', type: 'SME Shipper', contactPerson: 'Zulqarnain Khattak', phone: '+92 91 5544332', customCommission: 4.0, subscriptionPlan: 'Free', status: 'blocked', totalLoads: 14, totalSpent: 1200000 },
-  ]);
+  const [shippers, setShippers] = useState<ShipperOrg[]>([]);
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
