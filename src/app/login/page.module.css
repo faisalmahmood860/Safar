@@ -96,9 +96,9 @@
 
 /* Right Form Panel */
 .formPanel {
-  width: 560px;
+  width: 620px;
   max-width: 100%;
-  padding: 3rem 2.5rem;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -109,7 +109,7 @@
 .topBar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .langToggle {
@@ -126,113 +126,254 @@
   width: 100%;
 }
 
+/* Auth Mode Toggle Tabs (Log In vs Create Account) */
+.authModeHeader {
+  display: flex;
+  gap: 0.5rem;
+  background: #0F172A;
+  padding: 0.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 1.25rem;
+}
+
+.modeTabBtn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #94A3B8;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.activeModeTab {
+  background: var(--color-primary, #10B981);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 .title {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
   margin-bottom: 0.25rem;
 }
 
 .subtitle {
   color: var(--color-text-muted, #94A3B8);
-  margin-bottom: 1.75rem;
-  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
 }
 
-/* Role Selection Tabs */
-.roleTabs {
+/* Social Buttons Container (Google & Facebook) */
+.socialButtonsContainer {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
-.roleTab {
-  padding: 0.65rem 0.5rem;
-  background: var(--color-bg-primary, #0F172A);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+.googleBtn, .facebookBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
   border-radius: 10px;
-  color: var(--color-text-secondary, #CBD5E1);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.88rem;
   cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.activeRoleTab {
-  background: var(--gradient-primary, linear-gradient(135deg, #10B981 0%, #059669 100%));
-  color: white;
-  border-color: var(--color-primary, #10B981);
+.googleBtn {
+  background: #FFFFFF;
+  color: #1E293B;
+  border: 1px solid #E2E8F0;
 }
 
-.adminRoleTab {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #EF4444;
-  color: #EF4444;
+.googleBtn:hover {
+  background: #F8FAFC;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.adminRoleTab.activeRoleTab {
-  background: var(--gradient-accent, linear-gradient(135deg, #EF4444 0%, #DC2626 100%));
-  color: white;
+.facebookBtn {
+  background: #1877F2;
+  color: #FFFFFF;
+  border: 1px solid #1877F2;
+}
+
+.facebookBtn:hover {
+  background: #166fe5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+}
+
+/* Divider Line */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  color: #64748B;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.divider span {
+  padding: 0 0.75rem;
 }
 
 .errorAlert {
-  padding: 0.875rem 1rem;
+  padding: 0.85rem 1rem;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 10px;
   color: #EF4444;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.successAlert {
+  padding: 0.85rem 1rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  color: #10B981;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .formStack {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .inputGroup label {
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   font-weight: 600;
   color: var(--color-text-secondary, #CBD5E1);
 }
 
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* Role Selection Grid for Registration */
+.roleSelectionBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.roleSelectionTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #E2E8F0;
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.roleCardBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: #0F172A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #CBD5E1;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.roleCardIcon {
+  font-size: 1.25rem;
+}
+
+.roleCardText {
+  display: flex;
+  flex-direction: column;
+}
+
+.roleCardText strong {
+  font-size: 0.82rem;
+  color: #FFFFFF;
+}
+
+.roleCardDesc {
+  font-size: 0.7rem;
+  color: #94A3B8;
+  line-height: 1.1;
+}
+
+.selectedRoleCard {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10B981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.adminRoleCard.selectedRoleCard {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #EF4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
 /* Preset Account Quick Fill */
 .presetBox {
-  margin-top: 2rem;
-  padding: 1rem;
+  margin-top: 1rem;
+  padding: 0.85rem;
   background: var(--color-bg-primary, #0F172A);
   border: 1px dashed var(--border-color, rgba(148, 163, 184, 0.2));
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .presetLabel {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-muted, #94A3B8);
   display: block;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .presetChips {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
 }
 
 .presetChip {
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.65rem;
   background: var(--color-bg-secondary, #1E293B);
   border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--color-text-secondary, #CBD5E1);
   font-size: 0.75rem;
   font-weight: 600;
@@ -240,17 +381,117 @@
   transition: all 0.15s ease;
 }
 
-.activePreset {
-  background: rgba(16, 185, 129, 0.15);
+.adminChip {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #EF4444;
+}
+
+.presetChip:hover {
   border-color: var(--color-primary, #10B981);
-  color: var(--color-primary, #10B981);
+  color: white;
 }
 
 .footerTerms {
   font-size: 0.75rem;
   color: var(--color-text-disabled, #64748B);
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   text-align: center;
+}
+
+/* Social Login Role Picker Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.modalContent {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  width: 480px;
+  max-width: 100%;
+  padding: 2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.modalHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.modalSubtitle {
+  color: #94A3B8;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.socialRoleList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.socialRoleBtn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: #0F172A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.socialRoleBtn:hover {
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  transform: translateX(4px);
+}
+
+.socialRoleBtn span {
+  font-size: 1.5rem;
+}
+
+.socialRoleBtn div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.socialRoleDesc {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.arrowIcon {
+  color: #10B981;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
@@ -263,5 +504,11 @@
   .formPanel {
     width: 100%;
     padding: 2rem 1.5rem;
+  }
+  .socialButtonsContainer {
+    grid-template-columns: 1fr;
+  }
+  .roleGrid {
+    grid-template-columns: 1fr;
   }
 }
