@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
+import GoogleLiveMap from '@/components/GoogleLiveMap';
 
 interface ChatMessage {
   id: string;
@@ -159,14 +160,16 @@ export default function LiveTrackingPage() {
             </div>
           </div>
 
-          <div className={styles.simulatedMap}>
-            <div className={styles.roadLine}></div>
-            <div className={styles.pulseRadar} style={{ left: '65%' }}>
-              🚛
-              <div className={styles.markerLabel}>{activeShipment.truckNumber} ({activeShipment.driverName})</div>
-            </div>
-            <div className={styles.locationPin} style={{ left: '10%' }}>📍 Multan</div>
-            <div className={styles.locationPin} style={{ right: '10%' }}>🏁 Karachi</div>
+          <div style={{ padding: '1rem 1.25rem' }}>
+            <GoogleLiveMap
+              origin={{ lat: 30.1575, lng: 71.5249, label: 'Multan', address: 'Multan Industrial Zone' }}
+              destination={{ lat: 24.7732, lng: 67.3481, label: 'Karachi', address: 'Port Qasim Gate 3, Karachi' }}
+              currentLocation={{ lat: 24.9312, lng: 68.1254, label: 'Nooriabad M-9 Highway', address: 'M-9 Motorway Rest Stop' }}
+              truckNumber={activeShipment.truckNumber}
+              driverName={activeShipment.driverName}
+              speed={activeShipment.speed}
+              height="380px"
+            />
           </div>
 
           {/* Progress Bar */}
