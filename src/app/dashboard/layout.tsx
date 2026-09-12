@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './layout.module.css';
 import NotificationBell from '@/components/NotificationBell';
+import VoIPCallModal from '@/components/VoIPCallModal';
 
 export type UserRole = 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
 
@@ -231,6 +232,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className={styles.pageBody}>{children}</div>
       </main>
+
+      {/* Global VoIP Call Overlay Modal */}
+      <VoIPCallModal />
     </div>
   );
 }

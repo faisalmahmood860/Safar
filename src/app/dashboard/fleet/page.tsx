@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { mockFleetTrucks, mockLoads, mockDrivers } from '@/lib/mockData';
+import { initiateVoIPCall, triggerIncomingDriverCall } from '@/lib/voipCallSystem';
 
 export default function FleetDashboard() {
   const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers'>('roster');
@@ -53,7 +54,21 @@ export default function FleetDashboard() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() =>
+              triggerIncomingDriverCall({
+                id: 'DRV-001',
+                name: 'Muhammad Aslam',
+                phone: '+92 301 2345678',
+                truck: 'LHR-5678 (Trailer)',
+                role: 'driver',
+              })
+            }
+            className="btn btn-warning btn-sm"
+          >
+            🧪 Test Incoming Driver Call
+          </button>
           <Link href="/dashboard/loads" className="btn btn-primary btn-sm">
             📋 Find Live Cargo Loads
           </Link>
@@ -135,6 +150,7 @@ export default function FleetDashboard() {
                   <th>Fuel Level</th>
                   <th>Maintenance</th>
                   <th>Status</th>
+                  <th>VoIP Call</th>
                 </tr>
               </thead>
               <tbody>
@@ -155,6 +171,23 @@ export default function FleetDashboard() {
                       {t.status === 'active' && <span className="badge badge-success">Active / راستے میں</span>}
                       {t.status === 'idle' && <span className="badge badge-info">Idle / فارغ</span>}
                       {t.status === 'maintenance' && <span className="badge badge-warning">Maintenance</span>}
+                    </td>
+                    <td>
+                      <button
+                        onClick={() =>
+                          initiateVoIPCall({
+                            id: t.id,
+                            name: t.driverName,
+                            phone: '+92 301 2345678',
+                            truck: `${t.registrationNumber} (${t.type})`,
+                            role: 'driver',
+                          })
+                        }
+                        className="btn btn-primary btn-sm"
+                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
+                      >
+                        📞 Call
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -197,8 +230,19 @@ export default function FleetDashboard() {
                       {d.status === 'Standby' && <span className="badge badge-warning">Standby Reserve</span>}
                     </td>
                     <td>
-                      <button onClick={() => alert(`📞 Contacting ${d.name} (${d.phone})...`)} className="btn btn-glass btn-sm">
-                        📞 Call Driver
+                      <button
+                        onClick={() =>
+                          initiateVoIPCall({
+                            id: d.id,
+                            name: d.name,
+                            phone: d.phone,
+                            truck: d.truck,
+                            role: 'driver',
+                          })
+                        }
+                        className="btn btn-primary btn-sm"
+                      >
+                        📞 Call Driver Direct
                       </button>
                     </td>
                   </tr>
