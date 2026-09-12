@@ -1,5 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#0F172A",
+};
 
 export const metadata: Metadata = {
   title: "SafarLoad — سفر لوڈ | Pakistan's #1 Truck Dispatching Platform",

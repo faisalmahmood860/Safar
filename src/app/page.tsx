@@ -32,7 +32,7 @@ export default function LandingPage() {
     <div className={styles.container} dir={dir}>
       {/* Navigation */}
       <nav className={`${styles.navbar} ${scrolled ? styles.navbarScrolled : ''}`}>
-        <Link href="/" className={styles.logo}>
+        <Link href="/" className={styles.logo} aria-label="SafarLoad Home">
           🚛 Safar<span>Load</span>
           {lang === 'ur' && ' | سفر لوڈ'}
         </Link>
@@ -44,13 +44,13 @@ export default function LandingPage() {
         </div>
 
         <div className={styles.navActions}>
-          <button className={styles.langToggle} onClick={toggleLanguage}>
+          <button className={styles.langToggle} onClick={toggleLanguage} aria-label="Toggle language">
             🌐 {lang === 'en' ? 'اردو' : 'EN'}
           </button>
           <Link href="/dashboard" className={styles.loginBtn}>
             {lang === 'en' ? 'Open App' : 'ایپ کھولیں'}
           </Link>
-          <Link href="/dashboard" className={styles.primaryBtn}>
+          <Link href="/dashboard" className={styles.primaryBtn} aria-label="Get Started — It's Free">
             {t('getStarted')}
           </Link>
         </div>
@@ -65,7 +65,7 @@ export default function LandingPage() {
             {lang === 'en' ? (
               <>The Future of <span>Trucking</span> in Pakistan</>
             ) : (
-              <>پاکستان میں <span>ٹرکنگ</span> کا مستقبل</>
+              <>پاکستان میں <span>ٹرکنگ</span> کا مستقل</>
             )}
           </h1>
           <p className={styles.heroSubtitle}>
@@ -75,10 +75,10 @@ export default function LandingPage() {
           </p>
           
           <div className={styles.heroCtas}>
-            <Link href="/dashboard/loads" className={styles.primaryBtn}>
+            <Link href="/dashboard/loads" className={styles.primaryBtn} aria-label="Find and Browse Loads">
               🚛 {lang === 'en' ? 'Find & Browse Loads' : 'لوڈز کا جائزہ لیں'}
             </Link>
-            <Link href="/dashboard/post-load" className={styles.glassOutlineBtn}>
+            <Link href="/dashboard/post-load" className={styles.glassOutlineBtn} aria-label="Post Cargo Load">
               🏢 {lang === 'en' ? 'Post Cargo Load' : 'کارگو پوسٹ کریں'}
             </Link>
           </div>
@@ -170,22 +170,29 @@ export default function LandingPage() {
 
       {/* Target Audiences Section */}
       <section className={styles.section} id="for-drivers">
+        <h2 className={styles.sectionTitle}>
+          {lang === 'en' ? 'Built for Everyone in Pakistani Logistics' : 'پاکستان کی ٹرانسپورٹ کے لیے'}
+        </h2>
+
         <div className={styles.tabsHeader}>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'drivers' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('drivers')}
+            aria-label="View Solutions for Drivers"
           >
             🚛 {t('forDrivers')}
           </button>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'companies' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('companies')}
+            aria-label="View Solutions for Companies"
           >
             🏢 {t('forCompanies')}
           </button>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'shippers' ? styles.tabActive : ''}`}
             onClick={() => setActiveTab('shippers')}
+            aria-label="View Solutions for Shippers"
           >
             📦 {t('forShippers')}
           </button>
@@ -202,7 +209,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'No reading needed — full Urdu voice commands' : 'اردو وائس کمانڈز — پڑھنے کی ضرورت نہیں'}</li>
                   <li>✅ {lang === 'en' ? 'Direct withdrawal to JazzCash & Easypaisa' : 'جاز کیش اور ایزی پیسہ میں مستقیم منتقلی'}</li>
                 </ul>
-                <Link href="/login?role=driver" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }}>
+                <Link href="/login?role=driver" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Get Started as Driver">
                   {t('getStarted')}
                 </Link>
               </div>
@@ -230,7 +237,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'Visual drag-and-drop dispatch board' : 'ڈسپیچ بورڈ'}</li>
                   <li>✅ {lang === 'en' ? 'Fuel monitoring & maintenance alerts' : 'مرمت کی اطلاع'}</li>
                 </ul>
-                <Link href="/login?role=fleet" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }}>
+                <Link href="/login?role=fleet" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Get Started as Fleet Company">
                   {t('getStarted')}
                 </Link>
               </div>
@@ -253,7 +260,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'Escrow protected payment releases' : 'ایسکرو محفوظ ادائیگیاں'}</li>
                   <li>✅ {lang === 'en' ? 'Real-time GPS tracking & digital Bilty' : 'ریئل ٹائم ٹریکنگ اور ڈیجیٹل بلٹی'}</li>
                 </ul>
-                <Link href="/dashboard/post-load" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }}>
+                <Link href="/dashboard/post-load" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Post Cargo Load">
                   🏢 Post Cargo Load
                 </Link>
               </div>
@@ -295,7 +302,7 @@ export default function LandingPage() {
               </div>
               <div className={styles.routeFooter}>
                 <span className={styles.loadsCount}>🔥 {route.loads} Active Loads</span>
-                <Link href="/dashboard/loads" className={styles.routeLink}>
+                <Link href="/dashboard/loads" className={styles.routeLink} aria-label={`View loads for ${route.from} to ${route.to}`}>
                   View →
                 </Link>
               </div>
@@ -309,14 +316,15 @@ export default function LandingPage() {
         <div className={styles.ctaCard}>
           <h2>{lang === 'en' ? 'Start Earning More Today' : 'آج ہی زیادہ کمانا شروع کریں'}</h2>
           <p>{lang === 'en' ? 'Join Pakistan\'s largest digital freight network' : 'پاکستان کے سب سے بڑے ڈیجیٹل فریٹ نیٹ ورک میں شامل ہوں'}</p>
-            <div className={styles.ctaForm}>
-              <input 
-                type="tel" 
-                aria-label={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'}
-                placeholder={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'} 
-                className={styles.ctaInput}
-              />
-            <Link href="/login" className={styles.ctaBtn}>
+          <div className={styles.ctaForm}>
+            <input 
+              id="ctaPhoneNumberInput"
+              type="tel" 
+              aria-label={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'}
+              placeholder={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'} 
+              className={styles.ctaInput}
+            />
+            <Link href="/login" className={styles.ctaBtn} aria-label="Get Started Now">
               {t('getStarted')}
             </Link>
           </div>
