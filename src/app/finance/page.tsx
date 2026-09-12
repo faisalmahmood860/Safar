@@ -471,13 +471,56 @@ export default function FinancialManagerPage() {
             </div>
 
             <div style={{ padding: '1.25rem', background: 'var(--color-bg-secondary)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
-              <h4 style={{ color: 'var(--color-primary)', marginTop: 0 }}>ℹ️ Finance Manager Manual Clearing Rules</h4>
-              <ul style={{ paddingLeft: '1.25rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-                <li><strong>1. Shipper Escrow Verification:</strong> Verify bank deposits and credit the Escrow Ledger.</li>
-                <li><strong>2. 30% Fuel Advance Release:</strong> Once the driver arrives at gate, release fuel funds via wallet.</li>
-                <li><strong>3. 70% Final Settlement:</strong> Upon unloading and POD inspection, settle driver balance.</li>
-                <li><strong>4. Refunds & Reversals:</strong> Execute partial or full refunds if a shipment is cancelled.</li>
-              </ul>
+              <h4 style={{ color: 'var(--color-primary)', marginTop: 0 }}>⏳ Pending Driver Withdrawal Requests Queue</h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)' }}>
+                Driver withdrawal requests submitted from wallet. Review and click <strong>Disburse</strong> to transfer funds.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+                <div style={{ padding: '0.85rem', background: 'var(--color-bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong>Muhammad Aslam (Driver)</strong>
+                    <span className="badge badge-warning">Pending ⏳</span>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                    Method: <strong>JazzCash (+92 301 2345678)</strong> | Amount: <strong style={{ color: '#10B981' }}>Rs. 25,000</strong>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => alert('✅ Payment Disbursed Successfully!\n\nDriver: Muhammad Aslam\nAmount: Rs. 25,000\nChannel: JazzCash API Payout\nStatus: Cleared & Transferred ✅')}
+                    className="btn btn-primary btn-sm"
+                    style={{ width: '100%', marginTop: '0.5rem' }}
+                  >
+                    ✅ Disburse Payment & Mark Cleared
+                  </button>
+                </div>
+
+                <div style={{ padding: '0.85rem', background: 'var(--color-bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong>Abdul Rasheed (Driver)</strong>
+                    <span className="badge badge-warning">Pending ⏳</span>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                    Method: <strong>HBL Bank Transfer (****4567)</strong> | Amount: <strong style={{ color: '#10B981' }}>Rs. 100,000</strong> (Unlimited IBFT)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => alert('✅ Payment Disbursed Successfully!\n\nDriver: Abdul Rasheed\nAmount: Rs. 100,000\nChannel: HBL Corporate IBFT\nStatus: Cleared & Transferred ✅')}
+                    className="btn btn-primary btn-sm"
+                    style={{ width: '100%', marginTop: '0.5rem' }}
+                  >
+                    ✅ Disburse Bank IBFT Payment & Mark Cleared
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
+                <h4 style={{ color: 'var(--color-primary)', marginTop: 0 }}>ℹ️ SBP Mobile Wallet Rules</h4>
+                <ul style={{ paddingLeft: '1.25rem', fontSize: '0.82rem', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
+                  <li><strong>JazzCash / Easypaisa Limit:</strong> Max <strong>Rs. 50,000</strong> per transaction / day.</li>
+                  <li><strong>Bank IBFT / Raast:</strong> <strong>Unlimited Amount</strong> (For payouts &gt; Rs. 50,000).</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

@@ -91,32 +91,48 @@ export default function WalletPage() {
       return;
     }
 
-    const newBal = balance - amtNum;
-    setBalance(newBal);
+    // STATE BANK REGULATION: JazzCash & Easypaisa 50k Limit Check
+    if ((withdrawMethod === 'jazzcash' || withdrawMethod === 'easypaisa') && amtNum > 50000) {
+      alert(
+        `⚠️ SBP Mobile Wallet Limit Exceeded!\n\nJazzCash and Easypaisa wallets have a transaction limit of Rs. 50,000.\n\nFor amounts greater than Rs. 50,000, please select 🏦 Bank Transfer (Unlimited Balance)!`
+      );
+      return;
+    }
 
     const methodName =
       withdrawMethod === 'jazzcash'
         ? 'JazzCash Wallet (+92 301 2345678)'
         : withdrawMethod === 'easypaisa'
         ? 'Easypaisa Wallet (+92 301 2345678)'
-        : 'HBL Corporate Account (****4567)';
+        : 'HBL Corporate Bank Account (****4567)';
+
+    const newTxId = `TXN-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const newTxn = {
-      id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: newTxId,
       type: 'debit' as const,
-      description: `Withdrawal via ${withdrawMethod.toUpperCase()}`,
+      description: `Withdrawal Request (${withdrawMethod.toUpperCase()})`,
       descriptionUr: `والٹ سے رقم کا انخلا (${withdrawMethod})`,
       amount: amtNum,
       date: new Date().toISOString(),
-      status: 'completed' as const,
+      status: 'pending' as const,
       method: methodName,
       methodIcon: withdrawMethod === 'jazzcash' ? '📱' : withdrawMethod === 'easypaisa' ? '💲' : '🏦',
     };
 
+    // Save to Pending Queue for Finance Desk
+    try {
+      const pendingStr = localStorage.getItem('safarload_pending_withdrawals');
+      const currentQueue = pendingStr ? JSON.parse(pendingStr) : [];
+      localStorage.setItem('safarload_pending_withdrawals', JSON.stringify([newTxn, ...currentQueue]));
+    } catch (err) {
+      console.error(err);
+    }
+
     setTransactionsList([newTxn, ...transactionsList]);
 
     alert(
-      `💸 Withdrawal Request Disbursed Successfully!\n\nAmount: Rs. ${amtNum.toLocaleString()}\nDestination: ${methodName}\nRef TRX: TRX-${Date.now().toString().slice(-6)}\nStatus: Instant Disbursed ✅\nNew Wallet Balance: Rs. ${newBal.toLocaleString()}`
+      `⏳ Withdrawal Request Submitted to Finance Desk!\n\nTransaction ID: ${newTxId}\nAmount: Rs. ${amtNum.toLocaleString()}\nMethod: ${methodName}\nStatus: Pending Finance Approval ⏳\n\nYour request has been routed to SafarLoad Finance Desk for clearance!`
     );
 
     setWithdrawAmount('');
@@ -219,8 +235,10 @@ export default function WalletPage() {
           Withdraw Now
         </button>
         
-        <div className={styles.processingNote}>
-          ℹ️ JazzCash/Easypaisa: Instant | Bank: 1-2 business days
+        <div className={styles.processingNote} style={{ lineHeight: 1.6 }}>
+          ℹ️ <strong>SBP Wallet Limits:</strong> JazzCash / Easypaisa: <strong>Max Rs. 50,000</strong> per transaction/day.<br />
+          🏦 Bank Transfer (IBFT): <strong>Unlimited Balance Withdrawal!</strong><br />
+          ⏳ All requests are routed to <strong>Finance Desk</strong> for instant verification & clearance.
         </div>
       </form>
 
