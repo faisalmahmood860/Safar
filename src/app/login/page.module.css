@@ -398,17 +398,95 @@
   text-align: center;
 }
 
-/* Realistic 2-Step Social OAuth Authorization Modal */
-.modalOverlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
+.configBtn {
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-primary, #0F172A);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.2));
+  border-radius: 10px;
+  color: var(--color-text-secondary, #CBD5E1);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-  padding: 1.5rem;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.configBtn:hover {
+  border-color: #10B981;
+  color: #10B981;
+}
+
+.oauthSetupCard {
+  background: #FFFFFF;
+  color: #1F2937;
+  border-radius: 20px;
+  width: 540px;
+  max-width: 100%;
+  padding: 2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid #E5E7EB;
+  animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.setupInstructionsBox {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.setupInstructionsBox h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 0.85rem 0;
+}
+
+.setupStepsList {
+  padding-left: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.setupStepsList li {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.setupStepsList strong {
+  color: #111827;
+}
+
+.setupStepsList span {
+  font-size: 0.8rem;
+  color: #6B7280;
+}
+
+.setupStepsList code {
+  background: #E5E7EB;
+  color: #059669;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.clientIdForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.clientIdForm label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #111827;
 }
 
 .oauthModalCard {
