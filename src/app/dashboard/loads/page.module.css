@@ -204,18 +204,18 @@
 .badgeUrgent {
   padding: 2px 8px;
   background: rgba(239, 68, 68, 0.2);
-  color: #EF4444;
+  color: #F87171;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .badgeBookNow {
   padding: 2px 8px;
   background: rgba(16, 185, 129, 0.2);
-  color: #10B981;
+  color: #34D399;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 

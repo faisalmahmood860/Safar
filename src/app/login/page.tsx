@@ -367,9 +367,11 @@ export default function LoginPage() {
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label>{lang === 'en' ? 'Mobile Phone' : 'موبائل نمبر'}</label>
+                  <label htmlFor="regMobilePhone">{lang === 'en' ? 'Mobile Phone' : 'موبائل نمبر'}</label>
                   <input
+                    id="regMobilePhone"
                     type="tel"
+                    aria-label={lang === 'en' ? 'Mobile Phone' : 'موبائل نمبر'}
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
                     className="input input-lg"

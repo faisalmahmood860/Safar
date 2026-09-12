@@ -238,7 +238,7 @@
 
 .bidPriceTag small {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
   text-decoration: line-through;
 }

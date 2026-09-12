@@ -309,12 +309,13 @@ export default function LandingPage() {
         <div className={styles.ctaCard}>
           <h2>{lang === 'en' ? 'Start Earning More Today' : 'آج ہی زیادہ کمانا شروع کریں'}</h2>
           <p>{lang === 'en' ? 'Join Pakistan\'s largest digital freight network' : 'پاکستان کے سب سے بڑے ڈیجیٹل فریٹ نیٹ ورک میں شامل ہوں'}</p>
-          <div className={styles.ctaForm}>
-            <input 
-              type="tel" 
-              placeholder={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'} 
-              className={styles.ctaInput}
-            />
+            <div className={styles.ctaForm}>
+              <input 
+                type="tel" 
+                aria-label={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'}
+                placeholder={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'} 
+                className={styles.ctaInput}
+              />
             <Link href="/login" className={styles.ctaBtn}>
               {t('getStarted')}
             </Link>
@@ -344,7 +345,7 @@ export default function LandingPage() {
 
             {/* Quick Portals Column */}
             <div className={styles.footerCol}>
-              <h4>{lang === 'en' ? 'Portals & Solutions' : 'پورٹلز اور سہولیات'}</h4>
+              <h3>{lang === 'en' ? 'Portals & Solutions' : 'پورٹلز اور سہولیات'}</h3>
               <Link href="/login?role=driver">👨‍✈️ {lang === 'en' ? 'Driver Load Board' : 'ڈرائیور پورٹل'}</Link>
               <Link href="/login?role=shipper">🏢 {lang === 'en' ? 'Shipper Escrow Hub' : 'کارگو شیپنگ پورٹل'}</Link>
               <Link href="/login?role=fleet">🚚 {lang === 'en' ? 'Fleet Operator Hub' : 'فلیٹ کمانڈ سینٹر'}</Link>
@@ -354,7 +355,7 @@ export default function LandingPage() {
 
             {/* Top Freight Lanes Column */}
             <div className={styles.footerCol}>
-              <h4>{lang === 'en' ? 'Top Freight Routes' : 'مشہور فریٹ روٹس'}</h4>
+              <h3>{lang === 'en' ? 'Top Freight Routes' : 'مشہور فریٹ روٹس'}</h3>
               <Link href="/dashboard/loads">📍 Lahore → Karachi</Link>
               <Link href="/dashboard/loads">📍 Multan → Faisalabad</Link>
               <Link href="/dashboard/loads">📍 Peshawar → Rawalpindi</Link>
@@ -364,7 +365,7 @@ export default function LandingPage() {
 
             {/* Company & Support Column */}
             <div className={styles.footerCol}>
-              <h4>{lang === 'en' ? 'Company & Legal' : 'کمپنی اور معلومات'}</h4>
+              <h3>{lang === 'en' ? 'Company & Legal' : 'کمپنی اور معلومات'}</h3>
               <a href="#">{t('aboutUs')}</a>
               <a href="#">{t('helpCenter')}</a>
               <a href="#">🛡️ {lang === 'en' ? 'Escrow Protection' : 'ایسکرو سیکیورٹی'}</a>

@@ -162,9 +162,9 @@
 }
 
 .roleSwitchLabel {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: #CBD5E1;
   display: block;
   margin-bottom: 0.35rem;
 }
@@ -180,8 +180,8 @@
   background: var(--color-bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: var(--color-text-muted);
-  font-size: 0.7rem;
+  color: #CBD5E1;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -406,7 +406,7 @@
 }
 
 .mobileNavLabel {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
@@ -416,7 +416,7 @@
   right: -8px;
   background: var(--color-accent);
   color: white;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: bold;
   width: 16px;
   height: 16px;

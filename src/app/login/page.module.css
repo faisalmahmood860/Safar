@@ -477,20 +477,24 @@
 }
 
 .roleCardDesc {
-  font-size: 0.7rem;
-  color: #94A3B8;
-  line-height: 1.1;
+  font-size: 0.8rem;
+  color: #E2E8F0;
+  line-height: 1.25;
 }
 
 .selectedRoleCard {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.2);
   border-color: #10B981;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
+.selectedRoleCard .roleCardDesc {
+  color: #F8FAFC;
+}
+
 .adminRoleCard.selectedRoleCard {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #EF4444;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #F87171;
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
 }
 
@@ -504,9 +508,9 @@
 }
 
 .presetLabel {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--color-text-muted, #94A3B8);
+  color: #CBD5E1;
   display: block;
   margin-bottom: 0.5rem;
 }
@@ -520,18 +524,19 @@
 .presetChip {
   padding: 0.35rem 0.65rem;
   background: var(--color-bg-secondary, #1E293B);
-  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.15));
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.25));
   border-radius: 6px;
-  color: var(--color-text-secondary, #CBD5E1);
-  font-size: 0.75rem;
+  color: #E2E8F0;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .adminChip {
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #EF4444;
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #F87171;
+  font-weight: 700;
 }
 
 .presetChip:hover {

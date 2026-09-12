@@ -200,7 +200,7 @@
 }
 
 .barValueTooltip {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
 }
 
@@ -386,7 +386,7 @@
   color: white;
   padding: 2px 6px;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
