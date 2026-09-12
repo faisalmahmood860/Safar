@@ -65,6 +65,9 @@ export default function PostLoadPage() {
     setBids(updatedBids);
     try {
       localStorage.setItem('safarload_global_bids', JSON.stringify(updatedBids));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+      }
     } catch (e) {
       console.error(e);
     }

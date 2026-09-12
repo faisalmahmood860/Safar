@@ -7,11 +7,40 @@ import { mockFleetTrucks, mockLoads, mockDrivers } from '@/lib/mockData';
 import { initiateVoIPCall, triggerIncomingDriverCall } from '@/lib/voipCallSystem';
 
 export default function FleetDashboard() {
-  const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers'>('roster');
+  const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers' | 'my-bids'>('my-bids');
   const [selectedTruckId, setSelectedTruckId] = useState<string>('TRK-001');
   const [selectedDriverId, setSelectedDriverId] = useState<string>('DRV-001');
   const [bidAmount, setBidAmount] = useState<string>('');
   const [selectedLoad, setSelectedLoad] = useState<typeof mockLoads[0] | null>(null);
+  const [submittedBids, setSubmittedBids] = useState<any[]>([]);
+
+  const loadSubmittedBids = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('safarload_global_bids');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setSubmittedBids(parsed);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    loadSubmittedBids();
+
+    const handleSync = () => {
+      loadSubmittedBids();
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('safarload_bid_change', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('safarload_bid_change', handleSync);
+    };
+  }, []);
 
   const fleetRosterDrivers = [
     { id: 'DRV-001', name: 'Muhammad Aslam', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty' },
@@ -85,6 +114,30 @@ export default function FleetDashboard() {
     setSelectedLoad(null);
   };
 
+  const handleFleetAcceptShipperCounter = (bidId: string) => {
+    try {
+      const stored = localStorage.getItem('safarload_global_bids');
+      let list = stored ? JSON.parse(stored) : [];
+      list = list.map((b: any) =>
+        b.id === bidId
+          ? {
+              ...b,
+              status: 'accepted',
+              offeredBidPrice: b.shipperCounterPrice || b.offeredBidPrice,
+              bidMessage: 'Fleet Owner accepted Shipper Counter Offer! Deal Locked.',
+            }
+          : b
+      );
+      localStorage.setItem('safarload_global_bids', JSON.stringify(list));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+      }
+      alert('✅ Shipper counter offer accepted! Deal locked and Escrow funds secured.');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className={styles.container} dir="ltr">
       {/* Header */}
@@ -156,6 +209,12 @@ export default function FleetDashboard() {
       {/* Navigation Tabs */}
       <div className={styles.tabsRow}>
         <button
+          onClick={() => setActiveTab('my-bids')}
+          className={`${styles.tabBtn} ${activeTab === 'my-bids' ? styles.activeTab : ''}`}
+        >
+          🏷️ My Submitted Fleet Bids & Status Tracker ({submittedBids.length})
+        </button>
+        <button
           onClick={() => setActiveTab('roster')}
           className={`${styles.tabBtn} ${activeTab === 'roster' ? styles.activeTab : ''}`}
         >
@@ -174,6 +233,139 @@ export default function FleetDashboard() {
           📋 Fleet Cargo Bidding & Load Assignment
         </button>
       </div>
+
+      {/* TAB 0: SUBMITTED FLEET BIDS & STATUS TRACKER */}
+      {activeTab === 'my-bids' && (
+        <div className={`${styles.panelCard} glass-card animate-fadeIn`}>
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>🏷️ My Submitted Fleet Bids & Live Status Tracker</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                Track real-time approval status of bids submitted by Al-Farooq Transport Co. to shippers.
+              </p>
+            </div>
+            <span className="badge badge-info">{submittedBids.length} Bids Tracked</span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem', marginTop: '1rem' }}>
+            {submittedBids.length === 0 ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)', gridColumn: '1 / -1' }}>
+                📋 No active fleet bids submitted yet. Go to <strong>Fleet Cargo Bidding</strong> tab to submit a bid and assign trucks!
+              </div>
+            ) : (
+              submittedBids.map((b) => (
+                <div
+                  key={b.id}
+                  style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: `1px solid ${
+                      b.status === 'accepted'
+                        ? '#10B981'
+                        : b.status === 'pending'
+                        ? '#F59E0B'
+                        : b.status === 'rejected'
+                        ? '#EF4444'
+                        : '#3B82F6'
+                    }`,
+                    borderRadius: '16px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justify: 'space-between',
+                    gap: '0.75rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <strong style={{ fontSize: '1.05rem' }}>{b.loadTitle || b.route}</strong>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                        🏢 Shipper: {b.shipperName}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10B981' }}>
+                        Rs. {b.offeredBidPrice.toLocaleString()}
+                      </div>
+                      {b.shipperCounterPrice && (
+                        <div style={{ fontSize: '0.72rem', color: '#F59E0B', textDecoration: 'line-through' }}>
+                          Revised: Rs. {b.shipperCounterPrice.toLocaleString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div style={{ margin: '0.25rem 0' }}>
+                    {b.status === 'pending' && (
+                      <span className="badge badge-warning" style={{ fontSize: '0.825rem', padding: '0.4rem 0.85rem' }}>
+                        🟡 Pending Shipper Review (شپر کی منظوری کا انتظار)
+                      </span>
+                    )}
+                    {b.status === 'accepted' && (
+                      <span className="badge badge-success" style={{ fontSize: '0.825rem', padding: '0.4rem 0.85rem' }}>
+                        🟢 ACCEPTED & ESCROW LOCKED! (شپر نے بولی قبول کر لی)
+                      </span>
+                    )}
+                    {b.status === 'rejected' && (
+                      <span className="badge badge-accent" style={{ fontSize: '0.825rem', padding: '0.4rem 0.85rem' }}>
+                        🔴 Rejected by Shipper (بولی مسترد)
+                      </span>
+                    )}
+                    {b.lastUpdatedBy === 'shipper' && b.status === 'pending' && (
+                      <span className="badge badge-info" style={{ fontSize: '0.825rem', padding: '0.4rem 0.85rem' }}>
+                        🔄 Shipper Counter Offer Received!
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Driver & Truck Details */}
+                  <div style={{ fontSize: '0.85rem', background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: '10px' }}>
+                    <p style={{ margin: '0 0 4px 0' }}>🚛 <strong>Assigned Vehicle:</strong> {b.truckNumber} ({b.truckType})</p>
+                    <p style={{ margin: '0 0 4px 0' }}>👨‍✈️ <strong>Assigned Driver:</strong> {b.driverName} ({b.driverPhone})</p>
+                    <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--color-text-muted)', fontSize: '0.78rem' }}>💬 "{b.bidMessage}"</p>
+                  </div>
+
+                  {/* Action Controls */}
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                    {b.lastUpdatedBy === 'shipper' && b.shipperCounterPrice && (
+                      <button
+                        onClick={() => handleFleetAcceptShipperCounter(b.id)}
+                        className="btn btn-primary btn-sm"
+                        style={{ width: '100%' }}
+                      >
+                        ⚡ Accept Shipper Counter Rate (Rs. {b.shipperCounterPrice.toLocaleString()})
+                      </button>
+                    )}
+
+                    {b.status === 'accepted' && (
+                      <>
+                        <button
+                          onClick={() =>
+                            initiateVoIPCall({
+                              id: b.id,
+                              name: b.driverName,
+                              phone: b.driverPhone,
+                              truck: `${b.truckNumber} (${b.truckType})`,
+                              role: 'driver',
+                            })
+                          }
+                          className="btn btn-primary btn-sm"
+                          style={{ flex: 1 }}
+                        >
+                          📞 Call Driver
+                        </button>
+                        <Link href="/dashboard/tracking" className="btn btn-outline btn-sm" style={{ flex: 1, textAlign: 'center' }}>
+                          📍 Live GPS Map
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {/* TAB 1: FLEET TRUCKS ROSTER */}
       {activeTab === 'roster' && (
