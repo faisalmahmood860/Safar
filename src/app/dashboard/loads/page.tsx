@@ -23,6 +23,8 @@ export default function LoadsPage() {
   const [bidAmount, setBidAmount] = useState('');
   const [bookedLoadIds, setBookedLoadIds] = useState<string[]>([]);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState('LHR-5678 (Flatbed Trailer)');
+  const [selectedDriverName, setSelectedDriverName] = useState('Muhammad Aslam (+92 301 2345678)');
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'ur' : 'en');
@@ -76,6 +78,48 @@ export default function LoadsPage() {
     if (!selectedLoad) return;
     setBookedLoadIds(prev => [...prev, selectedLoad.id]);
     setBookingSuccess(true);
+
+    // Parse driver name & phone
+    const driverNameOnly = selectedDriverName.split('(')[0].trim();
+    const truckRegOnly = selectedVehicle.split('(')[0].trim();
+
+    const newAcceptedBid = {
+      id: `BID-BOOK-${Date.now()}`,
+      loadId: selectedLoad.id,
+      loadTitle: `${selectedLoad.cargoType} — ${selectedLoad.pickupCity} to ${selectedLoad.dropoffCity}`,
+      route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
+      shipperName: selectedLoad.shipperName,
+      driverName: driverNameOnly,
+      driverNameUr: driverNameOnly,
+      driverPhone: '+92 301 2345678',
+      driverRating: 4.9,
+      driverTrips: 480,
+      truckNumber: truckRegOnly,
+      truckType: selectedLoad.truckType,
+      originalPrice: selectedLoad.price,
+      offeredBidPrice: selectedLoad.price,
+      bidMessage: `Booking Locked! Assigned Vehicle: ${selectedVehicle} | Assigned Driver: ${selectedDriverName}`,
+      submittedTime: 'Just now',
+      status: 'accepted' as const,
+      lastUpdatedBy: 'fleet' as const,
+    };
+
+    try {
+      const existingBidsJson = localStorage.getItem('safarload_global_bids');
+      let currentBids = existingBidsJson ? JSON.parse(existingBidsJson) : [];
+      currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
+      currentBids.unshift(newAcceptedBid);
+      localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
+
+      const storedBookedStr = localStorage.getItem('safarload_booked_loads');
+      const bookedList = storedBookedStr ? JSON.parse(storedBookedStr) : [];
+      if (!bookedList.includes(selectedLoad.id)) {
+        bookedList.push(selectedLoad.id);
+        localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedList));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSubmitBid = (e: React.FormEvent) => {
@@ -83,25 +127,28 @@ export default function LoadsPage() {
     if (!selectedLoad) return;
 
     const newPrice = Number(bidAmount);
+    const driverNameOnly = selectedDriverName.split('(')[0].trim();
+    const truckRegOnly = selectedVehicle.split('(')[0].trim();
+
     const newBidObj = {
       id: `BID-${Date.now()}`,
       loadId: selectedLoad.id,
       loadTitle: `${selectedLoad.cargoType} — ${selectedLoad.pickupCity} to ${selectedLoad.dropoffCity}`,
       route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
       shipperName: selectedLoad.shipperName,
-      driverName: 'Muhammad Aslam',
-      driverNameUr: 'محمد اسلم',
+      driverName: driverNameOnly,
+      driverNameUr: driverNameOnly,
       driverPhone: '+92 301 2345678',
       driverRating: 4.8,
       driverTrips: 456,
-      truckNumber: 'LHR-5678',
+      truckNumber: truckRegOnly,
       truckType: `${selectedLoad.truckType} (25 Tons)`,
       originalPrice: selectedLoad.price,
       offeredBidPrice: newPrice,
-      bidMessage: 'Driver Counter Offer: Ready for immediate dispatch.',
+      bidMessage: `Bid Submitted! Assigned Vehicle: ${selectedVehicle} | Assigned Driver: ${selectedDriverName}`,
       submittedTime: 'Just now',
       status: 'pending' as const,
-      lastUpdatedBy: 'driver' as const
+      lastUpdatedBy: 'fleet' as const,
     };
 
     // Update local driver state
@@ -114,16 +161,15 @@ export default function LoadsPage() {
     try {
       const existingBidsJson = localStorage.getItem('safarload_global_bids');
       let currentBids = existingBidsJson ? JSON.parse(existingBidsJson) : [];
-      // Replace existing bid for same load or add new
       currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
       currentBids.unshift(newBidObj);
       localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
-      triggerBidSubmittedNotification('Muhammad Aslam', newPrice, `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`);
+      triggerBidSubmittedNotification(driverNameOnly, newPrice, `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`);
     } catch (err) {
       console.error(err);
     }
 
-    alert(`🏷️ Bid of Rs. ${newPrice.toLocaleString()} submitted to ${selectedLoad.shipperName}! Shipper portal updated.`);
+    alert(`🏷️ Bid of Rs. ${newPrice.toLocaleString()} submitted with Assigned Vehicle (${truckRegOnly}) & Driver (${driverNameOnly})! Shipper portal updated.`);
     setSelectedLoad(null);
   };
   
@@ -364,6 +410,41 @@ export default function LoadsPage() {
                     {selectedLoad.specialRequirements.map((r, i) => (
                       <span key={i} className={styles.reqChip}>✅ {r}</span>
                     ))}
+                  </div>
+                </div>
+
+                {/* Fleet Vehicle & Driver Assignment Panel */}
+                <div style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
+                  <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.95rem', color: '#10B981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    🚚 Vehicle & Driver Dispatch Assignment (گاڑی اور ڈرائیور کا انتخاب)
+                  </h4>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                        🚛 Fleet Vehicle (گاڑی):
+                      </label>
+                      <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)} className="input input-sm" style={{ width: '100%' }}>
+                        <option value="LHR-5678 (Flatbed Trailer 25T)">LHR-5678 (Flatbed Trailer 25T)</option>
+                        <option value="KHI-1234 (Container Truck 40ft)">KHI-1234 (Container Truck 40ft)</option>
+                        <option value="FSD-9012 (Dumper Truck 20T)">FSD-9012 (Dumper Truck 20T)</option>
+                        <option value="RWP-3456 (22-Wheeler 40T)">RWP-3456 (22-Wheeler 40T)</option>
+                        <option value="SKT-5566 (Shehzore 3T)">SKT-5566 (Shehzore 3T)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                        👨‍✈️ Company Driver (ڈرائیور):
+                      </label>
+                      <select value={selectedDriverName} onChange={(e) => setSelectedDriverName(e.target.value)} className="input input-sm" style={{ width: '100%' }}>
+                        <option value="Muhammad Aslam (+92 301 2345678)">Muhammad Aslam (+92 301 2345678)</option>
+                        <option value="Abdul Rasheed (+92 333 9876543)">Abdul Rasheed (+92 333 9876543)</option>
+                        <option value="Tariq Mehmood (+92 321 5551234)">Tariq Mehmood (+92 321 5551234)</option>
+                        <option value="Shahbaz Ali (+92 300 7778899)">Shahbaz Ali (+92 300 7778899)</option>
+                        <option value="Imran Shah (+92 307 8899001)">Imran Shah (+92 307 8899001)</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 

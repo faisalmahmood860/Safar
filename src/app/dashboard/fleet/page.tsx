@@ -37,7 +37,51 @@ export default function FleetDashboard() {
     e.preventDefault();
     if (!selectedLoad) return;
     const selectedDriver = fleetRosterDrivers.find((d) => d.id === selectedDriverId);
-    alert(`🚚 Fleet Bid Submitted!\nCompany: Al-Farooq Transport\nAssigned Truck: ${selectedTruckId}\nAssigned Driver: ${selectedDriver?.name}\nBid Price: Rs. ${Number(bidAmount).toLocaleString()} (Excl. 4% Commission)\nTolls & Challan Protection Included.`);
+    const assignedTruckObj = mockFleetTrucks.find((t) => t.registrationNumber === selectedTruckId);
+
+    const newFleetBid = {
+      id: `BID-FLT-${Date.now()}`,
+      loadId: selectedLoad.id,
+      loadTitle: `${selectedLoad.cargoType} — ${selectedLoad.pickupCity} to ${selectedLoad.dropoffCity}`,
+      route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
+      shipperName: selectedLoad.shipperName,
+      driverName: selectedDriver?.name || 'Muhammad Aslam',
+      driverNameUr: selectedDriver?.name || 'محمد اسلم',
+      driverPhone: selectedDriver?.phone || '+92 301 2345678',
+      driverRating: 4.9,
+      driverTrips: 520,
+      truckNumber: selectedTruckId,
+      truckType: assignedTruckObj ? assignedTruckObj.type : selectedLoad.truckType,
+      originalPrice: selectedLoad.price,
+      offeredBidPrice: Number(bidAmount),
+      bidMessage: `Fleet Booking Locked by Al-Farooq Transport. Assigned Vehicle: ${selectedTruckId} | Assigned Driver: ${selectedDriver?.name}`,
+      submittedTime: 'Just now',
+      status: 'accepted' as const,
+      lastUpdatedBy: 'fleet' as const,
+    };
+
+    try {
+      // Save bid record
+      const storedBidsStr = localStorage.getItem('safarload_global_bids');
+      let bidsList = storedBidsStr ? JSON.parse(storedBidsStr) : [];
+      bidsList = bidsList.filter((b: any) => b.loadId !== selectedLoad.id);
+      bidsList.unshift(newFleetBid);
+      localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
+
+      // Save booked load ID
+      const storedBookedStr = localStorage.getItem('safarload_booked_loads');
+      const bookedList = storedBookedStr ? JSON.parse(storedBookedStr) : [];
+      if (!bookedList.includes(selectedLoad.id)) {
+        bookedList.push(selectedLoad.id);
+        localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedList));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    alert(
+      `🚚 Fleet Vehicle & Driver Assigned Successfully!\n\n🏢 Company: Al-Farooq Transport Co.\n🚛 Assigned Vehicle: ${selectedTruckId} (${assignedTruckObj?.type || 'Trailer'})\n👨‍✈️ Assigned Driver: ${selectedDriver?.name} (${selectedDriver?.phone})\n📍 Route: ${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}\n💰 Locked Rate: Rs. ${Number(bidAmount).toLocaleString()}\n\nEscrow payment locked! Shipment moved to Active Booked Trips.`
+    );
     setSelectedLoad(null);
   };
 
