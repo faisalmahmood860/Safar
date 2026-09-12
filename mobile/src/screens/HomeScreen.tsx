@@ -30,7 +30,7 @@ interface CounterBid {
 }
 
 export default function HomeScreen() {
-  const [role, setRole] = useState<'driver' | 'shipper' | 'fleet'>('driver');
+  const [role, setRole] = useState<'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin'>('driver');
   const [lang, setLang] = useState<'ur' | 'en'>('ur');
 
   // Driver Bids State
@@ -155,32 +155,77 @@ export default function HomeScreen() {
       </View>
 
       {/* Role Switcher Tabs */}
-      <View style={styles.roleBar}>
-        <TouchableOpacity
-          style={[styles.roleTab, role === 'driver' && styles.activeRoleTab]}
-          onPress={() => setRole('driver')}
-        >
-          <Text style={[styles.roleTabText, role === 'driver' && styles.activeRoleTabText]}>
-            👨‍✈️ Driver (ڈرائیور)
-          </Text>
-        </TouchableOpacity>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roleScroll}>
+        <View style={styles.roleBar}>
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'driver' && styles.activeRoleTab]}
+            onPress={() => setRole('driver')}
+          >
+            <Text style={[styles.roleTabText, role === 'driver' && styles.activeRoleTabText]}>
+              👨‍✈️ Driver
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.roleTab, role === 'shipper' && styles.activeRoleTab]}
-          onPress={() => setRole('shipper')}
-        >
-          <Text style={[styles.roleTabText, role === 'shipper' && styles.activeRoleTabText]}>
-            🏢 Shipper (شپر)
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'shipper' && styles.activeRoleTab]}
+            onPress={() => setRole('shipper')}
+          >
+            <Text style={[styles.roleTabText, role === 'shipper' && styles.activeRoleTabText]}>
+              🏢 Shipper
+            </Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'fleet' && styles.activeRoleTab]}
+            onPress={() => setRole('fleet')}
+          >
+            <Text style={[styles.roleTabText, role === 'fleet' && styles.activeRoleTabText]}>
+              🚚 Fleet
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'support' && styles.activeRoleTab]}
+            onPress={() => setRole('support')}
+          >
+            <Text style={[styles.roleTabText, role === 'support' && styles.activeRoleTabText]}>
+              🎧 Support Desk
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'finance' && styles.activeRoleTab]}
+            onPress={() => setRole('finance')}
+          >
+            <Text style={[styles.roleTabText, role === 'finance' && styles.activeRoleTabText]}>
+              💵 Finance
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.roleTab, role === 'admin' && styles.activeRoleTab]}
+            onPress={() => setRole('admin')}
+          >
+            <Text style={[styles.roleTabText, role === 'admin' && styles.activeRoleTabText]}>
+              👑 Admin
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* Social Login Quick Action Bar */}
+      <View style={styles.socialQuickBar}>
         <TouchableOpacity
-          style={[styles.roleTab, role === 'fleet' && styles.activeRoleTab]}
-          onPress={() => setRole('fleet')}
+          style={styles.googleMiniBtn}
+          onPress={() => Alert.alert('🌐 Google Auth', 'Logged in via Google Mobile Auth Services.')}
         >
-          <Text style={[styles.roleTabText, role === 'fleet' && styles.activeRoleTabText]}>
-            🚛 Fleet (فلیٹ)
-          </Text>
+          <Text style={styles.googleMiniBtnText}>🌐 Google Sign-In</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.fbMiniBtn}
+          onPress={() => Alert.alert('📘 Facebook Auth', 'Logged in via Facebook Mobile Auth Services.')}
+        >
+          <Text style={styles.fbMiniBtnText}>📘 Facebook Login</Text>
         </TouchableOpacity>
       </View>
 
