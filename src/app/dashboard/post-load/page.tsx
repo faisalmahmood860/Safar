@@ -48,7 +48,31 @@ export default function PostLoadPage() {
   const [voicePosting, setVoicePosting] = useState(false);
   const [loadPostedSuccess, setLoadPostedSuccess] = useState(false);
   const [bids, setBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
-  const [availabilities] = useState<DriverAvailabilityBroadcast[]>(mockDriverAvailabilities);
+  const [availabilities, setAvailabilities] = useState<DriverAvailabilityBroadcast[]>(mockDriverAvailabilities);
+
+  const loadRadarAvailabilities = async () => {
+    try {
+      const res = await fetch('/api/radar');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        setAvailabilities(data.data);
+        return;
+      }
+    } catch (e) {}
+
+    try {
+      const stored = localStorage.getItem('safarload_driver_availabilities');
+      if (stored) {
+        setAvailabilities(JSON.parse(stored));
+      }
+    } catch (e) {}
+  };
+
+  React.useEffect(() => {
+    loadRadarAvailabilities();
+    window.addEventListener('storage', loadRadarAvailabilities);
+    return () => window.removeEventListener('storage', loadRadarAvailabilities);
+  }, []);
 
   // Deposit Slips State & Real-time Sync
   const [depositSlips, setDepositSlips] = useState<DepositSlip[]>([]);

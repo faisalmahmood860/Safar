@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import styles from './page.module.css';
+import DriverAvailabilityWidget from '@/components/DriverAvailabilityWidget';
 import { pakistaniCities } from '@/lib/mockData';
 import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
@@ -103,6 +103,9 @@ export default function DashboardPage() {
           <div className={styles.decorationCircle2}></div>
         </div>
       </div>
+
+      {/* Driver Availability & Target Route Broadcast Widget */}
+      <DriverAvailabilityWidget driverName={userName} />
 
       {/* Stats Grid */}
       <div className={`${styles.statsGrid} ${styles.stagger2}`}>
