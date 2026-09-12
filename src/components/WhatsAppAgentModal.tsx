@@ -197,10 +197,9 @@ export default function WhatsAppAgentModal() {
   return (
     <>
       {/* FLOATING WHATSAPP TRIGGER BUTTON */}
-      <button onClick={() => setIsOpen(!isOpen)} className={styles.floatingTrigger}>
+      <button onClick={() => setIsOpen(!isOpen)} className={styles.floatingTrigger} title="Open SafarLoad WhatsApp AI Assistant">
         <span className={styles.waIcon}>💬</span>
-        <span>WhatsApp AI Assistant</span>
-        <span className={styles.waBadge}>AI</span>
+        <span>WhatsApp AI</span>
       </button>
 
       {/* WHATSAPP CHAT MODAL */}
