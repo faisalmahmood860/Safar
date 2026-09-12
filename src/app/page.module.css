@@ -661,27 +661,41 @@
 /* Footer Section */
 .footer {
   background: #090e17;
-  padding: 4rem 5% 2.5rem;
+  position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.footerContent {
-  display: flex;
-  justify-content: space-between;
-  gap: 4rem;
-  flex-wrap: wrap;
+.footerContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4rem 5% 2.5rem;
 }
 
-.footerBrand {
-  flex: 1.5;
-  max-width: 360px;
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
 }
 
-.footerLinks {
-  flex: 2;
+.footerBrandCol {
   display: flex;
-  gap: 4rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footerTagline {
+  color: var(--color-text-muted, #94A3B8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footerContactList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #CBD5E1;
 }
 
 .footerCol {
@@ -698,27 +712,54 @@
 }
 
 .footerCol a {
-  color: var(--color-text-muted);
+  color: var(--color-text-muted, #94A3B8);
   text-decoration: none;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
 }
 
 .footerCol a:hover {
-  color: var(--color-primary);
+  color: var(--color-primary, #10B981);
+  transform: translateX(3px);
 }
 
-.copyright {
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  margin-top: 1rem;
+.footerBottomBar {
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.copyrightText {
+  color: var(--color-text-muted, #94A3B8);
+  font-size: 0.88rem;
+}
+
+.footerSocials {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.footerSocials a {
+  color: var(--color-text-muted, #94A3B8);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.footerSocials a:hover {
+  color: var(--color-primary, #10B981);
 }
 
 /* Responsive */
 @media (max-width: 992px) {
   .comparisonGrid { grid-template-columns: 1fr; }
   .tabContent { flex-direction: column; }
-  .footerGrid { grid-template-columns: 1fr 1fr; }
+  .footerGrid { grid-template-columns: 1fr 1fr; gap: 2rem; }
 }
 
 @media (max-width: 768px) {
@@ -740,7 +781,7 @@
   .stepIcon { margin-bottom: 0; flex-shrink: 0; }
   
   .footerGrid { grid-template-columns: 1fr; }
-  .footerBottom { flex-direction: column; gap: 1rem; text-align: center; }
+  .footerBottomBar { flex-direction: column; text-align: center; }
 }
 
 @keyframes fadeUp {

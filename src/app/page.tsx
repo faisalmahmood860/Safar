@@ -343,24 +343,64 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerBrand}>
-            <div className={styles.logo}>🚛 Safar<span>Load</span></div>
-            <p>{t('tagline')}</p>
-            <p className={styles.copyright}>{t('madeInPakistan')}</p>
-          </div>
-          
-          <div className={styles.footerLinks}>
-            <div className={styles.footerCol}>
-              <h4>Company</h4>
-              <a href="#">{t('aboutUs')}</a>
-              <a href="#">{t('contactUs')}</a>
+        <div className={styles.truckArtLine}></div>
+        <div className={styles.footerContainer}>
+          <div className={styles.footerGrid}>
+            {/* Brand & Contact Column */}
+            <div className={styles.footerBrandCol}>
+              <div className={styles.logo}>🚛 Safar<span>Load</span></div>
+              <p className={styles.footerTagline}>
+                {lang === 'en'
+                  ? 'Pakistan\'s #1 Truck Dispatching & Digital Freight Platform. Connecting drivers, fleet owners, and enterprise shippers.'
+                  : 'پاکستان کا سب سے بڑا ڈیجیٹل فریٹ اور ٹرک ڈسپیچنگ نیٹ ورک۔'}
+              </p>
+              <div className={styles.footerContactList}>
+                <div>📞 <strong>{lang === 'en' ? 'Helpline:' : 'ہیلپ لائن:'}</strong> +92 42 111 SAFAR (72327)</div>
+                <div>✉️ <strong>{lang === 'en' ? 'Email:' : 'ای میل:'}</strong> support@safarload.pk</div>
+                <div>📍 <strong>{lang === 'en' ? 'Location:' : 'مقام:'}</strong> Gulberg III, Lahore, Pakistan</div>
+              </div>
             </div>
+
+            {/* Quick Portals Column */}
             <div className={styles.footerCol}>
-              <h4>Support</h4>
+              <h4>{lang === 'en' ? 'Portals & Solutions' : 'پورٹلز اور سہولیات'}</h4>
+              <Link href="/login?role=driver">👨‍✈️ {lang === 'en' ? 'Driver Load Board' : 'ڈرائیور پورٹل'}</Link>
+              <Link href="/login?role=shipper">🏢 {lang === 'en' ? 'Shipper Escrow Hub' : 'کارگو شیپنگ پورٹل'}</Link>
+              <Link href="/login?role=fleet">🚚 {lang === 'en' ? 'Fleet Operator Hub' : 'فلیٹ کمانڈ سینٹر'}</Link>
+              <Link href="/login?role=support">🎧 {lang === 'en' ? 'KYC Support Desk' : 'ڈاکومنٹ ڈیسک'}</Link>
+              <Link href="/login?role=finance">💵 {lang === 'en' ? 'Revenue & Settlements' : 'مالیاتی پورٹل'}</Link>
+            </div>
+
+            {/* Top Freight Lanes Column */}
+            <div className={styles.footerCol}>
+              <h4>{lang === 'en' ? 'Top Freight Routes' : 'مشہور فریٹ روٹس'}</h4>
+              <Link href="/dashboard/loads">📍 Lahore → Karachi</Link>
+              <Link href="/dashboard/loads">📍 Multan → Faisalabad</Link>
+              <Link href="/dashboard/loads">📍 Peshawar → Rawalpindi</Link>
+              <Link href="/dashboard/loads">📍 Quetta → Sukkur</Link>
+              <Link href="/dashboard/loads">📍 Gwadar → Islamabad</Link>
+            </div>
+
+            {/* Company & Support Column */}
+            <div className={styles.footerCol}>
+              <h4>{lang === 'en' ? 'Company & Legal' : 'کمپنی اور معلومات'}</h4>
+              <a href="#">{t('aboutUs')}</a>
               <a href="#">{t('helpCenter')}</a>
+              <a href="#">🛡️ {lang === 'en' ? 'Escrow Protection' : 'ایسکرو سیکیورٹی'}</a>
               <a href="#">{t('privacyPolicy')}</a>
               <a href="#">{t('termsOfService')}</a>
+            </div>
+          </div>
+
+          <div className={styles.footerBottomBar}>
+            <div className={styles.copyrightText}>
+              © 2026 SafarLoad Technologies (Pvt) Ltd. {t('madeInPakistan')}
+            </div>
+            <div className={styles.footerSocials}>
+              <a href="https://wa.me/923001234567" target="_blank" rel="noreferrer" title="WhatsApp Support">💬 WhatsApp</a>
+              <a href="#" title="Facebook">📘 Facebook</a>
+              <a href="#" title="LinkedIn">💼 LinkedIn</a>
+              <a href="#" title="YouTube">📺 YouTube</a>
             </div>
           </div>
         </div>
