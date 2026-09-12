@@ -51,9 +51,6 @@ export default function LandingPage() {
           <Link href="/login" className={styles.primaryBtn}>
             {t('getStarted')}
           </Link>
-          <Link href="/admin" className={styles.loginBtn} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444' }}>
-            👑 Super Admin
-          </Link>
         </div>
       </nav>
 
@@ -358,7 +355,6 @@ export default function LandingPage() {
               <h4>Company</h4>
               <a href="#">{t('aboutUs')}</a>
               <a href="#">{t('contactUs')}</a>
-              <Link href="/admin">Super Admin</Link>
             </div>
             <div className={styles.footerCol}>
               <h4>Support</h4>

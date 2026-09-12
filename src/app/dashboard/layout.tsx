@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import styles from './layout.module.css';
 
 export type UserRole = 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
@@ -62,6 +62,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [lang, setLang] = useState('en');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [role, setRole] = useState<UserRole>('driver');
@@ -69,6 +70,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     setMounted(true);
+    // Strict Authentication Guard
+    const loggedUserStr = localStorage.getItem('safarload_logged_user');
+    if (!loggedUserStr) {
+      router.push('/login');
+      return;
+    }
+
     // Read saved user role from localStorage if available
     const savedRole = localStorage.getItem('safarload_user_role') as UserRole;
     if (savedRole && roleNavItems[savedRole]) {
@@ -84,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     } else if (pathname.includes('/fleet')) {
       setRole('fleet');
     }
-  }, [pathname]);
+  }, [pathname, router]);
 
   useEffect(() => {
     if (mounted) {
@@ -164,7 +172,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link href="/login" className={styles.logoutBtn}>
+          <Link
+            href="/login"
+            className={styles.logoutBtn}
+            onClick={() => {
+              localStorage.removeItem('safarload_logged_user');
+              localStorage.removeItem('safarload_user_role');
+            }}
+          >
             <span className={styles.navIcon}>🚪</span>
             <span className={styles.navLabel}>{lang === 'en' ? 'Log Out' : 'لاگ آؤٹ'}</span>
           </Link>
