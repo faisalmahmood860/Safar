@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { pakistaniCities } from '@/lib/mockData';
+import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
 const mockLoads = [
   { id: 1, routeEn: 'Multan → Karachi', routeUr: 'ملتان ← کراچی', type: 'Cotton Bales', typeIcon: '🧵', status: 'in_transit', statusEn: 'In Transit', statusUr: 'راستے میں', price: 'Rs. 185,000', progress: 65 },
@@ -63,6 +64,7 @@ export default function DashboardPage() {
 
   const handlePostTripSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    triggerDriverAvailableNotification('Muhammad Aslam', 'Flatbed Trailer (25 Tons)', `${fromCity} → ${toCity}`);
     alert(`🚛 Trip Availability Posted!\nRoute: ${fromCity} → ${toCity}\nCapacity: ${capacityTons} Tons\nDate: ${availableDate}\nShippers on this route have been notified!`);
     setShowPostTripModal(false);
   };

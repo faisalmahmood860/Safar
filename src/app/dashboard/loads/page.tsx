@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { mockLoads } from '@/lib/mockData';
 import { translations, Language } from '@/lib/translations';
+import { triggerBidSubmittedNotification, triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
 export default function LoadsPage() {
   const [language, setLanguage] = useState<Language>('en');
@@ -117,6 +118,7 @@ export default function LoadsPage() {
       currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
       currentBids.unshift(newBidObj);
       localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
+      triggerBidSubmittedNotification('Muhammad Aslam', newPrice, `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`);
     } catch (err) {
       console.error(err);
     }

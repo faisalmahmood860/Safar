@@ -6,6 +6,7 @@ import styles from './page.module.css';
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
 import { mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
+import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from '@/lib/notificationSystem';
 
 export default function PostLoadPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
@@ -112,6 +113,7 @@ export default function PostLoadPage() {
   const handleSubmitLoad = (e: React.FormEvent) => {
     e.preventDefault();
     setLoadPostedSuccess(true);
+    triggerCargoPostedNotification(currentShipperName, `${pickupCity} → ${dropoffCity}`, offeredPrice);
   };
 
   // Shipper Filter State (Default: Noor Textile Mills)
@@ -152,6 +154,7 @@ export default function PostLoadPage() {
 
     // Save booked load ID to localStorage so it is removed from Driver Find Loads Board
     if (targetBid) {
+      triggerTripAcceptedNotification(targetBid.driverName, targetBid.offeredBidPrice, targetBid.route);
       try {
         const storedBooked = localStorage.getItem('safarload_booked_loads');
         const bookedArr: string[] = storedBooked ? JSON.parse(storedBooked) : [];

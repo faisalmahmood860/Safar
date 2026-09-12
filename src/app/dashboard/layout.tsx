@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import styles from './layout.module.css';
+import NotificationBell from '@/components/NotificationBell';
 
 export type UserRole = 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
 
@@ -206,6 +207,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className={styles.headerActions}>
+            <NotificationBell userRole={role} lang={lang as 'en' | 'ur'} />
+
             <button className={styles.langToggle} onClick={toggleTheme} title="Toggle Dark/Light Mode">
               {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
             </button>
