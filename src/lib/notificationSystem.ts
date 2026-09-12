@@ -28,7 +28,7 @@ export const initialNotifications: AppNotification[] = [
     id: 'NOTIF-102',
     titleEn: '🚛 Driver Available Nearby',
     titleUr: '🚛 ڈرائیور دستیاب ہے',
-    messageEn: 'Muhammad Aslam (Flatbed Trailer LHR-5678) marked AVAILABLE in Multan!',
+    messageEn: 'Driver (Flatbed Trailer LHR-5678) marked AVAILABLE in Multan!',
     messageUr: 'محمد اسلم (ٹرالر LHR-5678) ملتان میں خالی گاڑی کے ساتھ دستیاب ہے۔',
     timestamp: '5m ago',
     type: 'driver_available',

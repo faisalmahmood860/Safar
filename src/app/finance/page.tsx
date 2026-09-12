@@ -593,7 +593,7 @@ export default function FinancialManagerPage() {
                     type="text"
                     value={cEntityName}
                     onChange={(e) => setCEntityName(e.target.value)}
-                    placeholder="e.g. Noor Textile Mills OR Muhammad Aslam (Driver)"
+                    placeholder="e.g. Noor Textile Mills OR Tariq Mehmood (Driver)"
                     className="input"
                     style={{ width: '100%', marginTop: '4px' }}
                     required
@@ -668,7 +668,7 @@ export default function FinancialManagerPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
                 <div style={{ padding: '0.85rem', background: 'var(--color-bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <strong>Muhammad Aslam (Driver)</strong>
+                    <strong>Tariq Mehmood (Driver)</strong>
                     <span className="badge badge-warning">Pending ⏳</span>
                   </div>
                   <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -676,7 +676,7 @@ export default function FinancialManagerPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => alert('✅ Payment Disbursed Successfully!\n\nDriver: Muhammad Aslam\nAmount: Rs. 25,000\nChannel: JazzCash API Payout\nStatus: Cleared & Transferred ✅')}
+                    onClick={() => alert('✅ Payment Disbursed Successfully!\n\nDriver: Tariq Mehmood\nAmount: Rs. 25,000\nChannel: JazzCash API Payout\nStatus: Cleared & Transferred ✅')}
                     className="btn btn-primary btn-sm"
                     style={{ width: '100%', marginTop: '0.5rem' }}
                   >

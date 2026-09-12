@@ -31,7 +31,7 @@ export default function GoogleLiveMap({
   destination = { lat: 24.7732, lng: 67.3481, label: 'Karachi', address: 'Port Qasim Gate 3, Karachi' },
   currentLocation = { lat: 24.9312, lng: 68.1254, label: 'Nooriabad M-9 Highway', address: 'Nooriabad M-9 Motorway Rest Area' },
   truckNumber = 'LHR-5678',
-  driverName = 'Muhammad Aslam',
+  driverName = 'Driver',
   speed = '85 km/h',
   height = '420px',
 }: GoogleLiveMapProps) {

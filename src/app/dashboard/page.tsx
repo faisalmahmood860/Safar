@@ -38,10 +38,20 @@ export default function DashboardPage() {
   const [capacityTons, setCapacityTons] = useState('25');
   const [availableDate, setAvailableDate] = useState('2026-08-20');
 
+  const [userName, setUserName] = useState('Admin');
+
   useEffect(() => {
     setMounted(true);
     const isRtl = document.documentElement.dir === 'rtl';
     setLang(isRtl ? 'ur' : 'en');
+
+    const storedUser = localStorage.getItem('safarload_logged_user');
+    if (storedUser) {
+      try {
+        const p = JSON.parse(storedUser);
+        if (p.name) setUserName(p.name);
+      } catch (e) {}
+    }
     
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -56,7 +66,7 @@ export default function DashboardPage() {
 
   const handlePostTripSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    triggerDriverAvailableNotification('Muhammad Aslam', 'Flatbed Trailer (25 Tons)', `${fromCity} → ${toCity}`);
+    triggerDriverAvailableNotification(userName, 'Flatbed Trailer (25 Tons)', `${fromCity} → ${toCity}`);
     alert(`🚛 Trip Availability Posted!\nRoute: ${fromCity} → ${toCity}\nCapacity: ${capacityTons} Tons\nDate: ${availableDate}\nShippers on this route have been notified!`);
     setShowPostTripModal(false);
   };
@@ -69,7 +79,7 @@ export default function DashboardPage() {
       <div className={`${styles.welcomeBanner} ${styles.stagger1}`}>
         <div className={styles.bannerContent}>
           <h1 className={styles.welcomeTitle}>
-            {lang === 'en' ? 'Welcome back, Muhammad Aslam! 👋' : 'خوش آمدید، محمد اسلم! 👋'}
+            {lang === 'en' ? `Welcome back, ${userName}! 👋` : `خوش آمدید، ${userName}! 👋`}
           </h1>
           <p className={styles.dateText}>
             {lang === 'en' 

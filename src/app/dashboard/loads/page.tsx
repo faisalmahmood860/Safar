@@ -25,7 +25,7 @@ export default function LoadsPage() {
   const [bookedLoadIds, setBookedLoadIds] = useState<string[]>([]);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState('LHR-5678 (Flatbed Trailer)');
-  const [selectedDriverName, setSelectedDriverName] = useState('Muhammad Aslam (+92 301 2345678)');
+  const [selectedDriverName, setSelectedDriverName] = useState('Tariq Mehmood (+92 301 2345678)');
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'ur' : 'en');
@@ -593,7 +593,7 @@ export default function LoadsPage() {
                         👨‍✈️ Company Driver (ڈرائیور):
                       </label>
                       <select value={selectedDriverName} onChange={(e) => setSelectedDriverName(e.target.value)} className="input input-sm" style={{ width: '100%' }}>
-                        <option value="Muhammad Aslam (+92 301 2345678)">Muhammad Aslam (+92 301 2345678)</option>
+                        <option value="Tariq Mehmood (+92 301 2345678)">Tariq Mehmood (+92 301 2345678)</option>
                         <option value="Abdul Rasheed (+92 333 9876543)">Abdul Rasheed (+92 333 9876543)</option>
                         <option value="Tariq Mehmood (+92 321 5551234)">Tariq Mehmood (+92 321 5551234)</option>
                         <option value="Shahbaz Ali (+92 300 7778899)">Shahbaz Ali (+92 300 7778899)</option>

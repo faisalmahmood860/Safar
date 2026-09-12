@@ -20,12 +20,12 @@ export interface SystemUser {
 }
 
 export const validSystemUsers: SystemUser[] = [
-  { role: 'driver', email: 'driver@safarload.pk', phone: '03001234567', password: 'Driver@123', name: 'Muhammad Aslam (Verified Driver)', redirectUrl: '/dashboard' },
+  { role: 'driver', email: 'driver@safarload.pk', phone: '03001234567', password: 'Driver@123', name: 'Verified Driver', redirectUrl: '/dashboard' },
   { role: 'shipper', email: 'shipper@safarload.pk', phone: '03111234567', password: 'Shipper@123', name: 'Noor Textile Mills Ltd', redirectUrl: '/dashboard/post-load' },
   { role: 'fleet', email: 'fleet@safarload.pk', phone: '03221234567', password: 'Fleet@123', name: 'Al-Farooq Fleet Logistics', redirectUrl: '/dashboard/fleet' },
   { role: 'support', email: 'support@safarload.pk', phone: '03331234567', password: 'Support@123', name: 'Ayesha Khan (Support Staff)', redirectUrl: '/dashboard/support' },
   { role: 'finance', email: 'finance@safarload.pk', phone: '03441234567', password: 'Finance@123', name: 'Kamran Ali (Finance Desk)', redirectUrl: '/dashboard/finance' },
-  { role: 'admin', email: 'admin@safarload.pk', phone: '03551234567', password: 'SafarLoad@2026#Admin', name: 'Super Admin System', redirectUrl: '/dashboard/admin' },
+  { role: 'admin', email: 'admin@safarload.pk', phone: '03551234567', password: 'SafarLoad@2026#Admin', name: 'Admin', redirectUrl: '/dashboard/admin' },
 ];
 
 const roleDetails: Record<UserRole, { labelEn: string; labelUr: string; icon: string; redirect: string; desc: string }> = {
@@ -204,7 +204,7 @@ export default function LoginPage() {
                 <div className={styles.driverOverlayInfo}>
                   <div className={styles.driverBadgeText}>
                     <div className={styles.driverName}>
-                      Muhammad Aslam <span className={styles.verifiedTag}>Verified 3D Driver</span>
+                      Pakistani Driver <span className={styles.verifiedTag}>Verified 3D Driver</span>
                     </div>
                     <div className={styles.driverTitle}>
                       🇵🇰 22-Wheeler Master Operator • Lahori Trucker
@@ -348,7 +348,7 @@ export default function LoginPage() {
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
                   className="input input-lg"
-                  placeholder={selectedRole === 'shipper' || selectedRole === 'fleet' ? 'e.g. Al-Madina Transport Co.' : 'e.g. Muhammad Aslam'}
+                  placeholder={selectedRole === 'shipper' || selectedRole === 'fleet' ? 'e.g. Al-Madina Transport Co.' : 'e.g. Tariq Mehmood'}
                   required
                 />
               </div>

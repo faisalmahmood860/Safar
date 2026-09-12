@@ -54,7 +54,7 @@ export default function FleetDashboard() {
   }, []);
 
   const fleetRosterDrivers = [
-    { id: 'DRV-001', name: 'Muhammad Aslam', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty' },
+    { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty' },
     { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty' },
     { id: 'DRV-003', name: 'Tariq Mehmood', phone: '+92 321 5551234', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available' },
     { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available' },
@@ -85,7 +85,7 @@ export default function FleetDashboard() {
       loadTitle: `${selectedLoad.cargoType} — ${selectedLoad.pickupCity} to ${selectedLoad.dropoffCity}`,
       route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
       shipperName: selectedLoad.shipperName,
-      driverName: selectedDriver?.name || 'Muhammad Aslam',
+      driverName: selectedDriver?.name || 'Tariq Mehmood',
       driverNameUr: selectedDriver?.name || 'محمد اسلم',
       driverPhone: selectedDriver?.phone || '+92 301 2345678',
       driverRating: 4.9,
@@ -174,7 +174,7 @@ export default function FleetDashboard() {
             onClick={() =>
               triggerIncomingDriverCall({
                 id: 'DRV-001',
-                name: 'Muhammad Aslam',
+                name: 'Tariq Mehmood',
                 phone: '+92 301 2345678',
                 truck: 'LHR-5678 (Trailer)',
                 role: 'driver',

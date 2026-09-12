@@ -23,7 +23,7 @@ export default function LiveTrackingPage() {
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: '1', sender: 'driver', text: 'Assalam-o-Alaikum! Freight loaded from Multan factory. On the way to Karachi.', time: '02:15 PM' },
-    { id: '2', sender: 'shipper', text: 'Walaikum Assalam Muhammad Aslam sahib! Please make sure tarpaulin is secured properly.', time: '02:18 PM' },
+    { id: '2', sender: 'shipper', text: 'Walaikum Assalam Tariq Mehmood sahib! Please make sure tarpaulin is secured properly.', time: '02:18 PM' },
     { id: '3', sender: 'driver', text: 'Ji bilkul! Double belts applied. Reached Nooriabad now, ETA Karachi 5:30 PM.', time: '03:45 PM' },
     {
       id: '4',
@@ -49,7 +49,7 @@ export default function LiveTrackingPage() {
     lastLocation: 'Nooriabad M-9 Highway',
 
     // Driver Details (Shown to Shipper)
-    driverName: 'Muhammad Aslam',
+    driverName: 'Tariq Mehmood',
     driverNameUr: 'محمد اسلم',
     driverPhone: '+92 301 2345678',
     driverCnic: '35201-1234567-1 (Verified ✅)',

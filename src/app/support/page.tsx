@@ -17,7 +17,7 @@ export default function SupportDeskPage() {
   // WhatsApp Live Chat State
   const [waSession, setWaSession] = useState<WhatsAppSession>({
     sessionId: 'WA-SESS-9842',
-    userName: 'Muhammad Aslam (Driver)',
+    userName: 'Tariq Mehmood (Driver)',
     userPhone: '+92 301 2345678',
     userRole: 'driver',
     status: 'human_agent_connected',
@@ -26,7 +26,7 @@ export default function SupportDeskPage() {
       {
         id: '1',
         sender: 'user',
-        senderName: 'Muhammad Aslam (Driver)',
+        senderName: 'Tariq Mehmood (Driver)',
         text: 'Assalam-o-Alaikum! Mujhay Karachi say Multan ki bilty confirmation nahi mili, agent say baat karwa dein.',
         timestamp: '05:15 PM',
       },

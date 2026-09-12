@@ -38,7 +38,7 @@ export default function DriverTripsPage() {
       consigneeCnic: '42201-1122334-9',
       consigneePhone: '+92 21 34567890',
       dropoffAddress: 'Port Qasim, Bin Qasim Town, Karachi',
-      driverName: 'Muhammad Aslam',
+      driverName: 'Tariq Mehmood',
       driverCnic: '35201-1234567-1',
       driverPhone: '+92 301 2345678',
       truckNumber: 'LHR-5678',
