@@ -206,17 +206,17 @@
 }
 
 .driverTitle {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #10B981;
+  color: #34D399;
 }
 
 .verifiedTag {
   background: #10B981;
-  color: #000;
-  font-size: 0.65rem;
+  color: #0F172A;
+  font-size: 0.8rem;
   font-weight: 800;
-  padding: 0.15rem 0.4rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
   text-transform: uppercase;
 }

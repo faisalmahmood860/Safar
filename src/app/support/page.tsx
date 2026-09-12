@@ -222,11 +222,11 @@ export default function SupportDeskPage() {
                     color: '#F1F5F9',
                   }}
                 >
-                  <span style={{ display: 'block', fontSize: '0.7rem', color: '#38BDF8', fontWeight: 700, marginBottom: '2px' }}>
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: '#38BDF8', fontWeight: 700, marginBottom: '2px' }}>
                     {m.senderName}
                   </span>
                   <p style={{ margin: 0, fontSize: '0.85rem', whiteSpace: 'pre-line' }}>{m.text}</p>
-                  <span style={{ display: 'block', fontSize: '0.65rem', color: '#CBD5E1', textAlign: 'right', marginTop: '4px' }}>
+                  <span style={{ display: 'block', fontSize: '0.78rem', color: '#CBD5E1', textAlign: 'right', marginTop: '4px' }}>
                     {m.timestamp}
                   </span>
                 </div>

@@ -200,8 +200,10 @@
   color: #0F172A !important;
 }
 
-[data-theme="light"] .btn-glass {
-  background: #F1F5F9 !important;
+[data-theme="light"] button,
+[data-theme="light"] .btn-glass,
+[data-theme="light"] .langToggle {
+  background: #E2E8F0 !important;
   color: #0F172A !important;
   border-color: #CBD5E1 !important;
 }
@@ -330,7 +332,8 @@ a:hover {
 
 .btn-primary {
   background: var(--gradient-primary);
-  color: white;
+  color: #0F172A;
+  font-weight: 700;
   box-shadow: var(--shadow-md), 0 0 20px var(--color-primary-glow);
 }
 

@@ -144,6 +144,7 @@
   background: var(--gradient-secondary, linear-gradient(135deg, #F59E0B 0%, #D97706 100%));
   border: none;
   font-size: 2rem;
+  color: #0F172A;
   cursor: pointer;
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
   transition: all 0.25s ease;

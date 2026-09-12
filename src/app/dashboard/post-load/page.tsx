@@ -5,7 +5,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
-import { mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
+import { mockLoads, mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
 import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from '@/lib/notificationSystem';
 import { initiateVoIPCall } from '@/lib/voipCallSystem';
 import { apiClient } from '@/lib/apiClient';
@@ -872,12 +872,13 @@ export default function PostLoadPage() {
                   onClick={handleVoiceRecord}
                   className={`${styles.micButton} ${voicePosting ? styles.recording : ''}`}
                   title="Click to speak in Urdu"
+                  aria-label="Urdu Voice AI Assistant Microphone"
                 >
                   🎙️
                 </button>
               </div>
               <div style={{ flex: 1 }}>
-                <h3>{lang === 'ur' ? '🗣️ اردو وائس اسسٹنٹ (آواز سے فارم بھریں)' : '🗣️ Urdu Voice AI Load Assistant'}</h3>
+                <h2>{lang === 'ur' ? '🗣️ اردو وائس اسسٹنٹ (آواز سے فارم بھریں)' : '🗣️ Urdu Voice AI Load Assistant'}</h2>
                 <p style={{ margin: '2px 0 0', fontSize: '0.88rem', color: '#CBD5E1' }}>
                   {lang === 'ur'
                     ? 'مائیک پر کلک کریں اور بولیں: "مجھے ملتان سے کراچی کے لیے 25 ٹن کا ٹریلر 185,000 روپے میں چاہیے"'
