@@ -12,6 +12,8 @@ export default function LandingPage() {
   const [lang, setLang] = useState<Language>('en');
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'drivers' | 'companies' | 'shippers'>('drivers');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<string>('driver');
 
   const dir = isRTL(lang) ? 'rtl' : 'ltr';
   const t = (key: keyof typeof translations.en) => getTranslation(lang, key);
@@ -21,11 +23,40 @@ export default function LandingPage() {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
+
+    try {
+      const storedUser = localStorage.getItem('safarload_logged_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        if (parsed && parsed.role) {
+          setIsLoggedIn(true);
+          setUserRole(parsed.role);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to parse logged user:', err);
+    }
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'ur' : 'en');
+  };
+
+  const getPostLoadHref = () => {
+    if (!isLoggedIn) return '/login?role=shipper';
+    return userRole === 'admin' || userRole === 'shipper' ? '/dashboard/post-load' : '/dashboard';
+  };
+
+  const getFindLoadsHref = () => {
+    if (!isLoggedIn) return '/login?role=driver';
+    return '/dashboard/loads';
+  };
+
+  const getOpenAppHref = () => {
+    if (!isLoggedIn) return '/login';
+    return '/dashboard';
   };
 
   return (
@@ -47,10 +78,10 @@ export default function LandingPage() {
           <button className={styles.langToggle} onClick={toggleLanguage} aria-label="Toggle language">
             🌐 {lang === 'en' ? 'اردو' : 'EN'}
           </button>
-          <Link href="/dashboard" className={styles.loginBtn}>
+          <Link href={getOpenAppHref()} className={styles.loginBtn}>
             {lang === 'en' ? 'Open App' : 'ایپ کھولیں'}
           </Link>
-          <Link href="/dashboard" className={styles.primaryBtn} aria-label="Get Started — It's Free">
+          <Link href={getOpenAppHref()} className={styles.primaryBtn} aria-label="Get Started — Log In">
             {t('getStarted')}
           </Link>
         </div>
@@ -75,10 +106,12 @@ export default function LandingPage() {
           </p>
           
           <div className={styles.heroCtas}>
-            <Link href="/dashboard/loads" className={styles.primaryBtn} aria-label="Find and Browse Loads">
+            {/* Find & Browse Loads Backlink to Login */}
+            <Link href={getFindLoadsHref()} className={styles.primaryBtn} aria-label="Find and Browse Loads — Log In Required">
               🚛 {lang === 'en' ? 'Find & Browse Loads' : 'لوڈز کا جائزہ لیں'}
             </Link>
-            <Link href="/dashboard/post-load" className={styles.glassOutlineBtn} aria-label="Post Cargo Load">
+            {/* Post Cargo Load Backlink to Login */}
+            <Link href={getPostLoadHref()} className={styles.glassOutlineBtn} aria-label="Post Cargo Load — Log In Required">
               🏢 {lang === 'en' ? 'Post Cargo Load' : 'کارگو پوسٹ کریں'}
             </Link>
           </div>
@@ -209,7 +242,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'No reading needed — full Urdu voice commands' : 'اردو وائس کمانڈز — پڑھنے کی ضرورت نہیں'}</li>
                   <li>✅ {lang === 'en' ? 'Direct withdrawal to JazzCash & Easypaisa' : 'جاز کیش اور ایزی پیسہ میں مستقیم منتقلی'}</li>
                 </ul>
-                <Link href="/login?role=driver" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Get Started as Driver">
+                <Link href={isLoggedIn ? '/dashboard' : '/login?role=driver'} className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Driver">
                   {t('getStarted')}
                 </Link>
               </div>
@@ -237,7 +270,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'Visual drag-and-drop dispatch board' : 'ڈسپیچ بورڈ'}</li>
                   <li>✅ {lang === 'en' ? 'Fuel monitoring & maintenance alerts' : 'مرمت کی اطلاع'}</li>
                 </ul>
-                <Link href="/login?role=fleet" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Get Started as Fleet Company">
+                <Link href={isLoggedIn ? '/dashboard/fleet' : '/login?role=fleet'} className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Fleet Company">
                   {t('getStarted')}
                 </Link>
               </div>
@@ -260,7 +293,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'Escrow protected payment releases' : 'ایسکرو محفوظ ادائیگیاں'}</li>
                   <li>✅ {lang === 'en' ? 'Real-time GPS tracking & digital Bilty' : 'ریئل ٹائم ٹریکنگ اور ڈیجیٹل بلٹی'}</li>
                 </ul>
-                <Link href="/dashboard/post-load" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Post Cargo Load">
+                <Link href={getPostLoadHref()} className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Post Cargo Load — Log In Required">
                   🏢 Post Cargo Load
                 </Link>
               </div>
@@ -302,7 +335,7 @@ export default function LandingPage() {
               </div>
               <div className={styles.routeFooter}>
                 <span className={styles.loadsCount}>🔥 {route.loads} Active Loads</span>
-                <Link href="/dashboard/loads" className={styles.routeLink} aria-label={`View loads for ${route.from} to ${route.to}`}>
+                <Link href={getFindLoadsHref()} className={styles.routeLink} aria-label={`View loads for ${route.from} to ${route.to}`}>
                   View →
                 </Link>
               </div>
@@ -324,7 +357,7 @@ export default function LandingPage() {
               placeholder={lang === 'en' ? 'Enter phone number (+92...)' : 'فون نمبر درج کریں (+92...)'} 
               className={styles.ctaInput}
             />
-            <Link href="/login" className={styles.ctaBtn} aria-label="Get Started Now">
+            <Link href="/login" className={styles.ctaBtn} aria-label="Log In / Register Account">
               {t('getStarted')}
             </Link>
           </div>
@@ -364,11 +397,11 @@ export default function LandingPage() {
             {/* Top Freight Lanes Column */}
             <div className={styles.footerCol}>
               <h3>{lang === 'en' ? 'Top Freight Routes' : 'مشہور فریٹ روٹس'}</h3>
-              <Link href="/dashboard/loads">📍 Lahore → Karachi</Link>
-              <Link href="/dashboard/loads">📍 Multan → Faisalabad</Link>
-              <Link href="/dashboard/loads">📍 Peshawar → Rawalpindi</Link>
-              <Link href="/dashboard/loads">📍 Quetta → Sukkur</Link>
-              <Link href="/dashboard/loads">📍 Gwadar → Islamabad</Link>
+              <Link href={getFindLoadsHref()}>📍 Lahore → Karachi</Link>
+              <Link href={getFindLoadsHref()}>📍 Multan → Faisalabad</Link>
+              <Link href={getFindLoadsHref()}>📍 Peshawar → Rawalpindi</Link>
+              <Link href={getFindLoadsHref()}>📍 Quetta → Sukkur</Link>
+              <Link href={getFindLoadsHref()}>📍 Gwadar → Islamabad</Link>
             </div>
 
             {/* Company & Support Column */}

@@ -78,27 +78,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
     const storedUser = localStorage.getItem('safarload_logged_user');
-    const savedRole = localStorage.getItem('safarload_user_role') as UserRole;
 
-    if (!storedUser && !savedRole) {
-      // Require Credentials: Redirect to Login if not authenticated
+    if (!storedUser) {
+      // Require Credentials: Without username & password portal cannot be accessed
       router.push('/login');
       return;
     }
 
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        setUser(parsed);
-        setRole(parsed.role || 'driver');
-      } catch (err) {
-        console.error(err);
-        setRole(savedRole || 'driver');
+    try {
+      const parsed = JSON.parse(storedUser);
+      if (!parsed || !parsed.email) {
+        router.push('/login');
+        return;
       }
-    } else if (savedRole) {
-      setRole(savedRole);
+      setUser(parsed);
+      setRole(parsed.role || 'driver');
+      setIsAuthenticated(true);
+    } catch (err) {
+      console.error('Invalid user session:', err);
+      router.push('/login');
     }
-    setIsAuthenticated(true);
   }, [pathname, router]);
 
   useEffect(() => {

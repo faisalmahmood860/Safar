@@ -69,6 +69,13 @@ export default function FinancialManagerPage() {
   };
 
   React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('safarload_logged_user');
+      if (!stored) {
+        window.location.href = '/login?role=finance';
+        return;
+      }
+    }
     loadSlipsFromStorage();
 
     const handleSync = () => {

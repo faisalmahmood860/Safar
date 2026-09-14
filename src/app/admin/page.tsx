@@ -95,6 +95,16 @@ export default function SuperAdminPage() {
   const [showModalPassword, setShowModalPassword] = useState(false);
   const [showQAModal, setShowQAModal] = useState(false);
 
+  // Strict Login Authentication Protection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('safarload_logged_user');
+      if (!stored) {
+        window.location.href = '/login?role=admin';
+      }
+    }
+  }, []);
+
   // Sync Banners with localStorage
   useEffect(() => {
     try {

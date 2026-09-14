@@ -14,6 +14,17 @@ export default function SupportDeskPage() {
   const [selectedKyc, setSelectedKyc] = useState<KYCSubmission | null>(mockKYCSubmissions[0] || null);
   const [reviewNotes, setReviewNotes] = useState('');
 
+  // Strict Login Authentication Protection
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('safarload_logged_user');
+      if (!stored) {
+        window.location.href = '/login?role=support';
+        return;
+      }
+    }
+  }, []);
+
   // WhatsApp Live Chat State
   const [waSession, setWaSession] = useState<WhatsAppSession>({
     sessionId: 'WA-SESS-9842',
