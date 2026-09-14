@@ -12,8 +12,6 @@ export default function LandingPage() {
   const [lang, setLang] = useState<Language>('en');
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'drivers' | 'companies' | 'shippers'>('drivers');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [userRole, setUserRole] = useState<string>('driver');
 
   const dir = isRTL(lang) ? 'rtl' : 'ltr';
   const t = (key: keyof typeof translations.en) => getTranslation(lang, key);
@@ -23,20 +21,6 @@ export default function LandingPage() {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
-
-    try {
-      const storedUser = localStorage.getItem('safarload_logged_user');
-      if (storedUser) {
-        const parsed = JSON.parse(storedUser);
-        if (parsed && parsed.role) {
-          setIsLoggedIn(true);
-          setUserRole(parsed.role);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to parse logged user:', err);
-    }
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -44,20 +28,9 @@ export default function LandingPage() {
     setLang(prev => prev === 'en' ? 'ur' : 'en');
   };
 
-  const getPostLoadHref = () => {
-    if (!isLoggedIn) return '/login?role=shipper';
-    return userRole === 'admin' || userRole === 'shipper' ? '/dashboard/post-load' : '/dashboard';
-  };
-
-  const getFindLoadsHref = () => {
-    if (!isLoggedIn) return '/login?role=driver';
-    return '/dashboard/loads';
-  };
-
-  const getOpenAppHref = () => {
-    if (!isLoggedIn) return '/login';
-    return '/dashboard';
-  };
+  const getPostLoadHref = () => '/login?role=shipper';
+  const getFindLoadsHref = () => '/login?role=driver';
+  const getOpenAppHref = () => '/login';
 
   return (
     <div className={styles.container} dir={dir}>
@@ -242,7 +215,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'No reading needed — full Urdu voice commands' : 'اردو وائس کمانڈز — پڑھنے کی ضرورت نہیں'}</li>
                   <li>✅ {lang === 'en' ? 'Direct withdrawal to JazzCash & Easypaisa' : 'جاز کیش اور ایزی پیسہ میں مستقیم منتقلی'}</li>
                 </ul>
-                <Link href={isLoggedIn ? '/dashboard' : '/login?role=driver'} className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Driver">
+                <Link href="/login?role=driver" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Driver">
                   {t('getStarted')}
                 </Link>
               </div>
@@ -270,7 +243,7 @@ export default function LandingPage() {
                   <li>✅ {lang === 'en' ? 'Visual drag-and-drop dispatch board' : 'ڈسپیچ بورڈ'}</li>
                   <li>✅ {lang === 'en' ? 'Fuel monitoring & maintenance alerts' : 'مرمت کی اطلاع'}</li>
                 </ul>
-                <Link href={isLoggedIn ? '/dashboard/fleet' : '/login?role=fleet'} className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Fleet Company">
+                <Link href="/login?role=fleet" className={styles.primaryBtn} style={{ width: 'fit-content', marginTop: '1rem' }} aria-label="Log In as Fleet Company">
                   {t('getStarted')}
                 </Link>
               </div>

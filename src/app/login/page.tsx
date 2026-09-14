@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { translations } from '@/lib/translations';
@@ -37,7 +37,7 @@ const roleDetails: Record<UserRole, { labelEn: string; labelUr: string; icon: st
   admin: { labelEn: 'System Super Admin', labelUr: 'سپر ایڈمن', icon: '👑', redirect: '/dashboard/admin', desc: 'Complete platform administration & monitoring.' },
 };
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [lang, setLang] = useState<Lang>('en');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [selectedRole, setSelectedRole] = useState<UserRole>('driver');
@@ -59,6 +59,19 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role') as UserRole;
+    if (roleParam && roleDetails[roleParam]) {
+      setSelectedRole(roleParam);
+      const presetUser = validSystemUsers.find((u) => u.role === roleParam);
+      if (presetUser) {
+        setLoginEmailOrPhone(presetUser.email);
+        setLoginPassword(presetUser.password || '');
+      }
+    }
+  }, [searchParams]);
 
   const t = (key: string) => {
     return translations[lang]?.[key] || key;
@@ -73,6 +86,11 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
+
+    if (!loginEmailOrPhone.trim() || !loginPassword.trim()) {
+      setErrorMsg('❌ Please enter both Username / Email and Password to log in.');
+      return;
+    }
 
     const inputClean = loginEmailOrPhone.trim().toLowerCase();
     let registeredList: SystemUser[] = [];
@@ -97,7 +115,7 @@ export default function LoginPage() {
         name: inputClean.includes('@') ? inputClean.split('@')[0] : `User ${loginEmailOrPhone}`,
         email: inputClean.includes('@') ? inputClean : `${loginEmailOrPhone}@safarload.pk`,
         phone: loginEmailOrPhone,
-        password: loginPassword || '123456',
+        password: loginPassword,
         redirectUrl: roleDetails[userRole].redirect,
       };
     } else if (targetUser.password && targetUser.password !== loginPassword) {
@@ -105,7 +123,10 @@ export default function LoginPage() {
       return;
     }
 
-    saveSessionAndRedirect(targetUser);
+    setSuccessMsg(`🔐 Authentication successful! Accessing ${roleDetails[targetUser.role].labelEn} Portal...`);
+    setTimeout(() => {
+      saveSessionAndRedirect(targetUser!);
+    }, 500);
   };
 
   // Execute Account Creation / Registration for Any Role
@@ -159,9 +180,11 @@ export default function LoginPage() {
   // Quick Preset Fill for Testing
   const applyPresetAccount = (user: SystemUser) => {
     setAuthMode('login');
+    setSelectedRole(user.role);
     setLoginEmailOrPhone(user.email);
     setLoginPassword(user.password || '');
     setErrorMsg('');
+    setSuccessMsg(`⚡ Auto-filled credentials for ${roleDetails[user.role].labelEn}. Click "Log In to SafarLoad →" below to proceed.`);
   };
 
   return (
@@ -418,5 +441,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center', color: '#10B981', background: '#0F172A', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>🔐 Loading SafarLoad Portal Authentication...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
