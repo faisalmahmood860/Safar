@@ -368,25 +368,25 @@ export default function Cinematic3DBackground() {
           ctx.shadowColor = hub.color;
           ctx.shadowBlur = 10;
 
-          let labelYOffset = -20 * hp.scale;
-          let subYOffset = 24 * hp.scale;
+          let labelYOffset = -22 * hp.scale;
+          let subYOffset = 26 * hp.scale;
 
           if (hub.badgePos === 'top') {
             ctx.textAlign = 'center';
-            labelYOffset = -22 * hp.scale;
-            subYOffset = -8 * hp.scale;
+            labelYOffset = -30 * hp.scale;
+            subYOffset = -10 * hp.scale;
           } else if (hub.badgePos === 'bottom') {
             ctx.textAlign = 'center';
-            labelYOffset = 20 * hp.scale;
-            subYOffset = 34 * hp.scale;
+            labelYOffset = 18 * hp.scale;
+            subYOffset = 40 * hp.scale;
           } else if (hub.badgePos === 'left') {
             ctx.textAlign = 'right';
-            labelYOffset = -4 * hp.scale;
-            subYOffset = 12 * hp.scale;
+            labelYOffset = -8 * hp.scale;
+            subYOffset = 16 * hp.scale;
           } else if (hub.badgePos === 'right') {
             ctx.textAlign = 'left';
-            labelYOffset = -4 * hp.scale;
-            subYOffset = 12 * hp.scale;
+            labelYOffset = -8 * hp.scale;
+            subYOffset = 16 * hp.scale;
           }
 
           const labelX = hub.badgePos === 'left' ? hp.x - 14 * hp.scale : hub.badgePos === 'right' ? hp.x + 14 * hp.scale : hp.x;
