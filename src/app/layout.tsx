@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 import WhatsAppAgentModal from "@/components/WhatsAppAgentModal";
+import QAAuditTestRunnerModal from "@/components/QAAuditTestRunnerModal";
 
 export default function RootLayout({
   children,
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         {children}
         <WhatsAppAgentModal />
+        <QAAuditTestRunnerModal />
       </body>
     </html>
   );

@@ -1,0 +1,353 @@
+/* QAAuditTestRunnerModal.module.css */
+.floatingTrigger {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border: 1.5px solid #38BDF8;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+  cursor: pointer;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floatingTrigger:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.modalCard {
+  background: #0F172A;
+  border: 1.5px solid #38BDF8;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.modalHeader {
+  background: #1E293B;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.headerTitle h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
+.headerSubtitle {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #94A3B8;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  color: #FFFFFF;
+}
+
+.modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ETA & Progress Box */
+.etaCard {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.etaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.etaBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10B981;
+  color: #34D399;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.etaBadgeStopped {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #EF4444;
+  color: #F87171;
+}
+
+.etaBadgePaused {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #F59E0B;
+  color: #FBBF24;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981 0%, #38BDF8 100%);
+  transition: width 0.3s ease;
+}
+
+/* Control Action Buttons */
+.controlsRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  background: #10B981;
+  color: #0F172A;
+  font-weight: 800;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btnPrimary:hover {
+  background: #059669;
+  color: #FFFFFF;
+}
+
+.btnResume {
+  background: #38BDF8;
+  color: #0F172A;
+  font-weight: 800;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.btnResume:hover {
+  background: #0284C7;
+  color: #FFFFFF;
+}
+
+.btnPause {
+  background: #F59E0B;
+  color: #0F172A;
+  font-weight: 800;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btnStop {
+  background: #EF4444;
+  color: #FFFFFF;
+  font-weight: 700;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btnRestart {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Interrupted Notice Banner */
+.interruptedBanner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid #EF4444;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.interruptedText {
+  color: #FCA5A5;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.interruptedText strong {
+  color: #FFFFFF;
+  display: block;
+}
+
+/* Step List */
+.stepList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stepCard {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.stepCardRunning {
+  border-color: #38BDF8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.stepCardDone {
+  border-color: #10B981;
+  opacity: 0.85;
+}
+
+.stepCardStopped {
+  border-color: #EF4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.stepInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stepTitle {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.stepDesc {
+  color: #94A3B8;
+  font-size: 0.75rem;
+}
+
+/* Console Logs */
+.logBox {
+  background: #090E17;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 0.85rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  max-height: 140px;
+  overflow-y: auto;
+  color: #38BDF8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.logEntry {
+  line-height: 1.4;
+}
+
+.logSuccess { color: #34D399; }
+.logWarn { color: #FBBF24; }
+.logErr { color: #F87171; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

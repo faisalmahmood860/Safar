@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { PlatformBanner, initialPlatformBanners } from '@/components/GlobalBannerContainer';
+import QAAuditTestRunnerModal from '@/components/QAAuditTestRunnerModal';
 
 export interface DriverUser {
   id: string;
@@ -92,6 +93,7 @@ export default function SuperAdminPage() {
   const [uPassword, setUPassword] = useState('');
   const [uCnicOrNtn, setUCnicOrNtn] = useState('');
   const [showModalPassword, setShowModalPassword] = useState(false);
+  const [showQAModal, setShowQAModal] = useState(false);
 
   // Sync Banners with localStorage
   useEffect(() => {
@@ -465,10 +467,13 @@ export default function SuperAdminPage() {
           <button onClick={toggleLanguage} className="btn btn-glass btn-sm" aria-label="Toggle language">
             🌐 {lang === 'en' ? 'اردو' : 'English'}
           </button>
-          <button onClick={openCreateUserModal} className="btn btn-primary btn-sm" aria-label="Add new user account">
+          <button onClick={() => setShowQAModal(true)} className="btn btn-primary btn-sm" aria-label="Launch QA Audit & Test Control">
+            🧪 QA Audit & Test Control
+          </button>
+          <button onClick={openCreateUserModal} className="btn btn-outline btn-sm" aria-label="Add new user account">
             👤 Add New User Account
           </button>
-          <button onClick={() => setShowOrgModal(true)} className="btn btn-outline btn-sm" aria-label="Create organization">
+          <button onClick={() => setShowOrgModal(true)} className="btn btn-glass btn-sm" aria-label="Create organization">
             🏢 Create Organization
           </button>
           <Link href="/dashboard/finance" className="btn btn-glass btn-sm">
@@ -543,6 +548,12 @@ export default function SuperAdminPage() {
           className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.activeTab : ''}`}
         >
           📊 System Overview
+        </button>
+        <button
+          onClick={() => setShowQAModal(true)}
+          className={`${styles.tabBtn}`}
+        >
+          🧪 QA Audit & Test Runner ⏱️
         </button>
         <button
           onClick={() => setActiveTab('users')}
@@ -1401,6 +1412,9 @@ export default function SuperAdminPage() {
           </div>
         </div>
       )}
+
+      {/* QA AUDIT & TEST RUNNER MODAL */}
+      <QAAuditTestRunnerModal initialOpen={showQAModal} onClose={() => setShowQAModal(false)} />
     </div>
   );
 }
