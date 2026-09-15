@@ -24,7 +24,7 @@ interface TripItem {
 }
 
 export default function DriverTripsPage() {
-  const [lang, setLang] = useState<'en' | 'ur'>('ur');
+  const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
   const biltyEnabled = useBiltyEnabled();
 

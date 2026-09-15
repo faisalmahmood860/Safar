@@ -14,7 +14,7 @@ import { apiClient } from '@/lib/apiClient';
 import { DepositSlip, initialDepositSlips } from '@/app/finance/page';
 
 export default function PostLoadPage() {
-  const [lang, setLang] = useState<'en' | 'ur'>('ur');
+  const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
   const biltyEnabled = useBiltyEnabled();
 
