@@ -9,7 +9,7 @@ import { WhatsAppSession, WhatsAppMessage } from '@/components/WhatsAppAgentModa
 
 export default function SupportDeskPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
-  const [supportTab, setSupportTab] = useState<'kyc' | 'whatsapp'>('whatsapp');
+  const [supportTab, setSupportTab] = useState<'kyc' | 'whatsapp' | 'docs'>('docs');
   const [kycList, setKycList] = useState<KYCSubmission[]>(mockKYCSubmissions);
   const [selectedKyc, setSelectedKyc] = useState<KYCSubmission | null>(mockKYCSubmissions[0] || null);
   const [reviewNotes, setReviewNotes] = useState('');
@@ -151,6 +151,12 @@ export default function SupportDeskPage() {
 
         <div className={styles.headerActions}>
           <button
+            onClick={() => setSupportTab('docs')}
+            className={`btn ${supportTab === 'docs' ? 'btn-primary' : 'btn-glass'} btn-sm`}
+          >
+            📜 Document Expiration Tracker (Motive)
+          </button>
+          <button
             onClick={() => setSupportTab('whatsapp')}
             className={`btn ${supportTab === 'whatsapp' ? 'btn-primary' : 'btn-glass'} btn-sm`}
           >
@@ -168,7 +174,67 @@ export default function SupportDeskPage() {
         </div>
       </header>
 
-      {supportTab === 'whatsapp' ? (
+      {supportTab === 'docs' ? (
+        /* MOTIVE-STYLE AUTOMATED DOCUMENT EXPIRATION TRACKER */
+        <div className="glass-card animate-fadeIn" style={{ padding: '1.5rem', borderRadius: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div>
+              <h3>📜 Automated Document Expiration & Renewal Tracker</h3>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#94A3B8' }}>Motive-Style compliance monitoring for CNIC, HTV Licenses, Route Permits & Token Tax</p>
+            </div>
+            <span className="badge badge-warning">2 Action Required</span>
+          </div>
+
+          <div className="tableContainer">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Driver / Entity</th>
+                  <th>Document Type</th>
+                  <th>Document #</th>
+                  <th>Expiration Date</th>
+                  <th>Compliance Status</th>
+                  <th>Automated Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>👨‍✈️ Tariq Mehmood (+92 301 2345678)</strong></td>
+                  <td>🪪 Commercial Driving License (HTV)</td>
+                  <td>HTV-LHR-98421</td>
+                  <td>2026-10-15 (In 30 Days)</td>
+                  <td><span className="badge badge-success">🟢 Active & Valid</span></td>
+                  <td><button onClick={() => alert('✉️ Renewal SMS & WhatsApp Notice sent to Driver Tariq Mehmood!')} className="btn btn-glass btn-sm">📩 Send Renewal Alert</button></td>
+                </tr>
+                <tr>
+                  <td><strong>👨‍✈️ Abdul Rasheed (+92 333 9876543)</strong></td>
+                  <td>🪪 Driver CNIC Verification</td>
+                  <td>35201-9876543-1</td>
+                  <td>2026-09-29 (In 14 Days)</td>
+                  <td><span className="badge badge-warning">⚠️ Expires in 14 Days</span></td>
+                  <td><button onClick={() => alert('🚨 Urgent CNIC Expiry SMS Broadcasted!')} className="btn btn-warning btn-sm">⚠️ Urgent Notice</button></td>
+                </tr>
+                <tr>
+                  <td><strong>🚛 Truck LHR-5678 (Flatbed Trailer)</strong></td>
+                  <td>📋 Vehicle Route Fitness Certificate</td>
+                  <td>FIT-2026-7781</td>
+                  <td>2026-09-22 (In 7 Days)</td>
+                  <td><span className="badge badge-warning">⚠️ Expires in 7 Days</span></td>
+                  <td><button onClick={() => alert('📋 Vehicle Fitness Renewal Booking initiated with Punjab Transport Authority!')} className="btn btn-primary btn-sm">📋 Schedule Fitness Check</button></td>
+                </tr>
+                <tr>
+                  <td><strong>🚛 Truck KHI-1234 (22ft Container)</strong></td>
+                  <td>💳 Vehicle Token Tax Paid Status</td>
+                  <td>TOK-2026-9012</td>
+                  <td>2027-06-30 (Valid)</td>
+                  <td><span className="badge badge-success">🟢 Active & Valid</span></td>
+                  <td><span style={{ fontSize: '0.8rem', color: '#10B981' }}>✅ Fully Compliant</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : supportTab === 'whatsapp' ? (
         /* LIVE WHATSAPP SUPPORT DASHBOARD CONSOLE */
         <div className="animate-fadeIn" style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '1.5rem' }}>
           {/* LEFT: LIVE WHATSAPP SESSIONS LIST */}

@@ -27,6 +27,7 @@ export default function DriverTripsPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
   const biltyEnabled = useBiltyEnabled();
+  const [showPoliceModal, setShowPoliceModal] = useState(false);
 
   const handleOpenBilty = (trip: TripItem) => {
     setSelectedBilty({
@@ -198,6 +199,9 @@ export default function DriverTripsPage() {
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button onClick={() => setShowPoliceModal(true)} className="btn btn-warning btn-sm" title="Launch Roadside Police Inspection Mode">
+            👮 NHMP Police Inspection Mode
+          </button>
           <button onClick={toggleLanguage} className="btn btn-glass btn-sm">
             🌐 {lang === 'en' ? 'اردو' : 'English'}
           </button>
@@ -513,6 +517,72 @@ export default function DriverTripsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* NHMP HIGHWAY POLICE ROADSIDE INSPECTION MODAL */}
+      {showPoliceModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '640px', border: '2px solid #F59E0B' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(245, 158, 11, 0.2)' }}>
+              <h3 style={{ color: '#F59E0B' }}>👮 NHMP Police Inspection Mode (موٹروے پولیس ہیلپ ڈیسک)</h3>
+              <button onClick={() => setShowPoliceModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', lineHeight: 1.6, color: '#F8FAFC' }}>
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', padding: '0.85rem', borderRadius: '12px', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>✅ Officer Verified Driver & Carrier</strong>
+                  <div style={{ fontSize: '0.8rem', color: '#CBD5E1' }}>SafarLoad Digital Verification Token: <strong>SL-POLICE-88421</strong></div>
+                </div>
+                <span style={{ fontSize: '2rem' }}>🇵🇰</span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', fontSize: '0.9rem' }}>
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Driver Name:</div>
+                  <strong>Tariq Mehmood</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>CNIC Number:</div>
+                  <strong>35201-1234567-1</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Vehicle Registration:</div>
+                  <strong>LHR-5678 (Trailer)</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Commercial License (HTV):</div>
+                  <strong style={{ color: '#10B981' }}>VALID & VERIFIED ✅</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Vehicle Token Tax:</div>
+                  <strong style={{ color: '#10B981' }}>PAID (June 2027)</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Fitness Certificate:</div>
+                  <strong style={{ color: '#10B981' }}>PASSED & VALID</strong>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', background: '#0F172A', padding: '1rem', borderRadius: '12px', textAlign: 'center', border: '1px dashed #334155' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '0.4rem' }}>Digital Bilty QR & Manifest Verification:</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '4px', color: '#38BDF8' }}>║▌║█║▌│║▌║▌█</div>
+                <div style={{ fontSize: '0.8rem', color: '#10B981', marginTop: '0.2rem' }}>Cargo: 25 Tons Textile (Multan → Karachi)</div>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowPoliceModal(false)} className="btn btn-primary">
+                Done & Return to Trip Control
+              </button>
+            </div>
           </div>
         </div>
       )}

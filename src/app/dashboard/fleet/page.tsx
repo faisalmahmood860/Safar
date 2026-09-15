@@ -54,19 +54,21 @@ export default function FleetDashboard() {
     };
   }, []);
 
+  const [selectedSafetyDriver, setSelectedSafetyDriver] = useState<any | null>(null);
+
   const fleetRosterDrivers = [
-    { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty' },
-    { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty' },
-    { id: 'DRV-003', name: 'Tariq Mehmood', phone: '+92 321 5551234', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-005', name: 'Khan Muhammad', phone: '+92 302 1122334', truck: 'PSH-7890 (Bedford)', cnicVerified: true, status: 'On Duty' },
-    { id: 'DRV-006', name: 'Zahid Khan', phone: '+92 304 9988776', truck: 'MLT-4567 (Trailer)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-007', name: 'Kamran Akmal', phone: '+92 305 4433221', truck: 'LHR-9988 (Container)', cnicVerified: true, status: 'On Duty' },
-    { id: 'DRV-008', name: 'Rizwan Ahmed', phone: '+92 306 6655443', truck: 'ISB-1122 (Mazda)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-009', name: 'Imran Shah', phone: '+92 307 8899001', truck: 'GUJ-3344 (Trailer)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-010', name: 'Farooq Azam', phone: '+92 308 2233445', truck: 'SKT-5566 (Shehzore)', cnicVerified: true, status: 'Available' },
-    { id: 'DRV-011', name: 'Bilal Hassan', phone: '+92 309 7766554', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby' },
-    { id: 'DRV-012', name: 'Noman Riaz', phone: '+92 310 1144778', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby' },
+    { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty', safetyScore: 98, brakingScore: 99, idlingScore: 96, onTimeRate: '99%' },
+    { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 95, brakingScore: 94, idlingScore: 92, onTimeRate: '97%' },
+    { id: 'DRV-003', name: 'Muhammad Aslam', phone: '+92 321 5551234', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available', safetyScore: 92, brakingScore: 90, idlingScore: 89, onTimeRate: '95%' },
+    { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available', safetyScore: 97, brakingScore: 98, idlingScore: 95, onTimeRate: '98%' },
+    { id: 'DRV-005', name: 'Khan Muhammad', phone: '+92 302 1122334', truck: 'PSH-7890 (Bedford)', cnicVerified: true, status: 'On Duty', safetyScore: 94, brakingScore: 93, idlingScore: 91, onTimeRate: '96%' },
+    { id: 'DRV-006', name: 'Zahid Khan', phone: '+92 304 9988776', truck: 'MLT-4567 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 97, idlingScore: 94, onTimeRate: '98%' },
+    { id: 'DRV-007', name: 'Kamran Akmal', phone: '+92 305 4433221', truck: 'LHR-9988 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 91, brakingScore: 89, idlingScore: 88, onTimeRate: '94%' },
+    { id: 'DRV-008', name: 'Rizwan Ahmed', phone: '+92 306 6655443', truck: 'ISB-1122 (Mazda)', cnicVerified: true, status: 'Available', safetyScore: 99, brakingScore: 100, idlingScore: 97, onTimeRate: '100%' },
+    { id: 'DRV-009', name: 'Imran Shah', phone: '+92 307 8899001', truck: 'GUJ-3344 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 93, brakingScore: 92, idlingScore: 90, onTimeRate: '95%' },
+    { id: 'DRV-010', name: 'Farooq Azam', phone: '+92 308 2233445', truck: 'SKT-5566 (Shehzore)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 95, idlingScore: 93, onTimeRate: '97%' },
+    { id: 'DRV-011', name: 'Bilal Hassan', phone: '+92 309 7766554', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 90, brakingScore: 88, idlingScore: 87, onTimeRate: '93%' },
+    { id: 'DRV-012', name: 'Noman Riaz', phone: '+92 310 1144778', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 94, brakingScore: 95, idlingScore: 92, onTimeRate: '96%' },
   ];
 
   const handleOpenFleetBidModal = (load: typeof mockLoads[0]) => {
@@ -467,6 +469,7 @@ export default function FleetDashboard() {
                   <th>Driver Name</th>
                   <th>Phone Number</th>
                   <th>Assigned Vehicle</th>
+                  <th>DRIVE Safety Score</th>
                   <th>KYC CNIC Status</th>
                   <th>Duty Status</th>
                   <th>Quick Action</th>
@@ -478,6 +481,16 @@ export default function FleetDashboard() {
                     <td><strong>👨‍✈️ {d.name}</strong></td>
                     <td>{d.phone}</td>
                     <td>🚛 {d.truck}</td>
+                    <td>
+                      <button
+                        onClick={() => setSelectedSafetyDriver(d)}
+                        className="btn btn-glass btn-sm"
+                        style={{ color: '#10B981', fontWeight: 800, cursor: 'pointer' }}
+                        title="Click to view Motive DRIVE Safety Score Breakdown"
+                      >
+                        ⭐ {d.safetyScore} / 100
+                      </button>
+                    </td>
                     <td><span className="badge badge-success">✅ CNIC Verified</span></td>
                     <td>
                       {d.status === 'On Duty' && <span className="badge badge-info">On Duty</span>}
@@ -660,6 +673,52 @@ export default function FleetDashboard() {
             <div className={styles.modalActions}>
               <button onClick={() => setFleetModal(null)} className="btn btn-glass">
                 Close Info
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MOTIVE-STYLE DRIVE SAFETY SCORE BREAKDOWN MODAL */}
+      {selectedSafetyDriver && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '580px', border: '1px solid #10B981' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+              <h3 style={{ color: '#10B981' }}>⭐ Motive DRIVE Safety Score: {selectedSafetyDriver.name}</h3>
+              <button onClick={() => setSelectedSafetyDriver(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', lineHeight: 1.6, color: '#F8FAFC' }}>
+              <div style={{ textAlignment: 'center', textAlign: 'center', marginBottom: '1.25rem', background: '#1E293B', padding: '1rem', borderRadius: '14px' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10B981' }}>{selectedSafetyDriver.safetyScore} / 100</div>
+                <div style={{ fontSize: '0.85rem', color: '#CBD5E1' }}>Overall Driving Performance Index (Top 5% Carrier Network)</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Smooth Driving & Braking:</div>
+                  <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>{selectedSafetyDriver.brakingScore} / 100</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>On-Time Arrival Rate:</div>
+                  <strong style={{ color: '#38BDF8', fontSize: '1.1rem' }}>{selectedSafetyDriver.onTimeRate}</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Engine Idle Time Efficiency:</div>
+                  <strong style={{ color: '#F59E0B', fontSize: '1.1rem' }}>{selectedSafetyDriver.idlingScore} / 100</strong>
+                </div>
+
+                <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Safety Violations:</div>
+                  <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>0 Risk Alerts</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setSelectedSafetyDriver(null)} className="btn btn-primary">
+                Close Safety Score
               </button>
             </div>
           </div>
