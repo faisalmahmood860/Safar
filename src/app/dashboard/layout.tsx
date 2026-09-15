@@ -75,6 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [user, setUser] = useState<{ name: string; email: string; role: UserRole } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
+  const biltyEnabled = useBiltyEnabled();
 
   useEffect(() => {
     setMounted(true);
@@ -140,7 +141,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  const biltyEnabled = useBiltyEnabled();
   const rawNavItems = roleNavItems[role] || roleNavItems['driver'];
   const currentNavItems = rawNavItems.map((item) => {
     if (!biltyEnabled && item.path === '/dashboard/trips') {
