@@ -664,6 +664,37 @@
   font-weight: 700;
 }
 
+.footerLinkBtn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  font-size: 0.9rem;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.footerLinkBtn:hover {
+  color: #38BDF8;
+}
+
+.footerSocialBtn {
+  background: none;
+  border: none;
+  color: #CBD5E1;
+  font-size: 0.9rem;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+
+.footerSocialBtn:hover {
+  color: #10B981;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .comparisonGrid { grid-template-columns: 1fr; }

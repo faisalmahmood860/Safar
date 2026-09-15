@@ -14,6 +14,7 @@ export default function FleetDashboard() {
   const [bidAmount, setBidAmount] = useState<string>('');
   const [selectedLoad, setSelectedLoad] = useState<typeof mockLoads[0] | null>(null);
   const [submittedBids, setSubmittedBids] = useState<any[]>([]);
+  const [fleetModal, setFleetModal] = useState<'trucks' | 'drivers' | 'revenue' | 'saas' | null>(null);
 
   const loadSubmittedBids = async () => {
     try {
@@ -195,32 +196,32 @@ export default function FleetDashboard() {
 
       {/* Fleet Overview Metrics */}
       <div className={styles.statsGrid}>
-        <div className="stat-card">
+        <div onClick={() => setFleetModal('trucks')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Fleet Telematics & Roster">
           <div className="stat-card-icon">🚛</div>
           <div className="stat-card-value">10</div>
           <div className="stat-card-label">Total Fleet Trucks</div>
-          <div className="stat-card-change positive">6 Active | 4 Idle</div>
+          <div className="stat-card-change positive">6 Active | 4 Idle (Click for Details)</div>
         </div>
 
-        <div className="stat-card">
+        <div onClick={() => setFleetModal('drivers')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Driver Verification Roster">
           <div className="stat-card-icon">👨‍✈️</div>
           <div className="stat-card-value">12</div>
           <div className="stat-card-label">Verified Fleet Drivers</div>
-          <div className="stat-card-change positive">100% CNIC Verified</div>
+          <div className="stat-card-change positive">100% CNIC Verified (Click for Details)</div>
         </div>
 
-        <div className="stat-card">
+        <div onClick={() => setFleetModal('revenue')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Gross Revenue Ledger">
           <div className="stat-card-icon">💰</div>
           <div className="stat-card-value">Rs. 1,420,000</div>
           <div className="stat-card-label">Monthly Gross Revenue</div>
-          <div className="stat-card-change positive">↑ +14% MoM</div>
+          <div className="stat-card-change positive">↑ +14% MoM (Click for Breakdown)</div>
         </div>
 
-        <div className="stat-card">
+        <div onClick={() => setFleetModal('saas')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for SaaS Pack Renewal Options">
           <div className="stat-card-icon">🎫</div>
           <div className="stat-card-value">42 / 50 Trips</div>
           <div className="stat-card-label">Trip SaaS Pack Usage</div>
-          <div className="stat-card-change positive">8 Trips Remaining (Rs. 15,000 / 50 Pack)</div>
+          <div className="stat-card-change positive">8 Trips Remaining (Click for SaaS Pack)</div>
         </div>
       </div>
 
@@ -595,6 +596,72 @@ export default function FleetDashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* FLEET KPI BREAKDOWN MODAL */}
+      {fleetModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>
+                {fleetModal === 'trucks' && '🚛 Fleet Vehicle Telematics & Roster (10 Trucks)'}
+                {fleetModal === 'drivers' && '👨‍✈️ Fleet Drivers CNIC & License Directory (12 Drivers)'}
+                {fleetModal === 'revenue' && '💰 Fleet Revenue & Escrow Settlement Breakdown'}
+                {fleetModal === 'saas' && '🎫 Fleet SaaS Trip Pack Subscription'}
+              </h3>
+              <button onClick={() => setFleetModal(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', lineHeight: 1.6 }}>
+              {fleetModal === 'trucks' && (
+                <div>
+                  <p><strong>Fleet Status:</strong> 6 Active Vehicles on Route | 4 Available Idle at Base Hubs</p>
+                  <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
+                    <li>✅ <strong>LHR-5678 (Trailer):</strong> Active on Multan → Karachi (GPS Online 🟢)</li>
+                    <li>✅ <strong>KHI-1234 (Container):</strong> Active on Lahore → Islamabad (GPS Online 🟢)</li>
+                    <li>✅ <strong>FSD-9012 (Dumper):</strong> Active on Faisalabad → Peshawar (GPS Online 🟢)</li>
+                    <li>⏸️ <strong>RWP-3456 (22-Wheeler):</strong> Available at Rawaddah Terminal (Idle)</li>
+                  </ul>
+                </div>
+              )}
+
+              {fleetModal === 'drivers' && (
+                <div>
+                  <p><strong>Total Verified Fleet Drivers:</strong> 12 Commercial Heavy Transport Drivers</p>
+                  <p><strong>CNIC Status:</strong> 100% Verified via NADRA Security Database</p>
+                  <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', padding: '0.75rem', borderRadius: '8px', marginTop: '0.5rem' }}>
+                    ✅ All 12 drivers carry valid HTV / LTV Commercial Driving Licenses and Emergency Medical Insurance.
+                  </div>
+                </div>
+              )}
+
+              {fleetModal === 'revenue' && (
+                <div>
+                  <p><strong>Gross Monthly Revenue:</strong> <strong style={{ color: '#10B981', fontSize: '1.2rem' }}>Rs. 1,420,000</strong></p>
+                  <p><strong>Escrow Funds Secured:</strong> Rs. 980,000 Locked | <strong>Cleared Payouts:</strong> Rs. 440,000</p>
+                  <p><strong>Platform Fees Paid (4%):</strong> Rs. 56,800</p>
+                </div>
+              )}
+
+              {fleetModal === 'saas' && (
+                <div>
+                  <p><strong>Current Active Subscription:</strong> Al-Farooq Transport SaaS Tier 2</p>
+                  <p><strong>Trips Consumed:</strong> 42 / 50 Trips (8 Trips Remaining)</p>
+                  <p><strong>Renewal Rate:</strong> Rs. 15,000 / 50 Trip Dispatch Pack</p>
+                  <button onClick={() => { alert('💳 SaaS 50-Trip Pack Renewed! 50 new trip credits added.'); setFleetModal(null); }} className="btn btn-primary" style={{ marginTop: '0.75rem' }}>
+                    💳 Topup & Renew 50-Trip Pack Now
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setFleetModal(null)} className="btn btn-glass">
+                Close Info
+              </button>
+            </div>
           </div>
         </div>
       )}

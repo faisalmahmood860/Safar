@@ -7,11 +7,20 @@ import { translations, getTranslation, isRTL, Language } from '@/lib/translation
 import { popularRoutes } from '@/lib/mockData';
 
 import Cinematic3DBackground from '@/components/Cinematic3DBackground';
+import InfoLegalModal, { InfoLegalTab } from '@/components/InfoLegalModal';
 
 export default function LandingPage() {
   const [lang, setLang] = useState<Language>('en');
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'drivers' | 'companies' | 'shippers'>('drivers');
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [infoModalTab, setInfoModalTab] = useState<InfoLegalTab>('about');
+
+  const openLegalModal = (tab: InfoLegalTab, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setInfoModalTab(tab);
+    setInfoModalOpen(true);
+  };
 
   const dir = isRTL(lang) ? 'rtl' : 'ltr';
   const t = (key: keyof typeof translations.en) => getTranslation(lang, key);
@@ -380,11 +389,11 @@ export default function LandingPage() {
             {/* Company & Support Column */}
             <div className={styles.footerCol}>
               <h3>{lang === 'en' ? 'Company & Legal' : 'کمپنی اور معلومات'}</h3>
-              <a href="#">{t('aboutUs')}</a>
-              <a href="#">{t('helpCenter')}</a>
-              <a href="#">🛡️ {lang === 'en' ? 'Escrow Protection' : 'ایسکرو سیکیورٹی'}</a>
-              <a href="#">{t('privacyPolicy')}</a>
-              <a href="#">{t('termsOfService')}</a>
+              <button onClick={(e) => openLegalModal('about', e)} className={styles.footerLinkBtn}>{t('aboutUs')}</button>
+              <button onClick={(e) => openLegalModal('help', e)} className={styles.footerLinkBtn}>{t('helpCenter')}</button>
+              <button onClick={(e) => openLegalModal('escrow', e)} className={styles.footerLinkBtn}>🛡️ {lang === 'en' ? 'Escrow Protection' : 'ایسکرو سیکیورٹی'}</button>
+              <button onClick={(e) => openLegalModal('privacy', e)} className={styles.footerLinkBtn}>{t('privacyPolicy')}</button>
+              <button onClick={(e) => openLegalModal('terms', e)} className={styles.footerLinkBtn}>{t('termsOfService')}</button>
             </div>
           </div>
 
@@ -394,13 +403,20 @@ export default function LandingPage() {
             </div>
             <div className={styles.footerSocials}>
               <a href="https://wa.me/923001234567" target="_blank" rel="noreferrer" title="WhatsApp Support">💬 WhatsApp</a>
-              <a href="#" title="Facebook">📘 Facebook</a>
-              <a href="#" title="LinkedIn">💼 LinkedIn</a>
-              <a href="#" title="YouTube">📺 YouTube</a>
+              <button onClick={(e) => openLegalModal('socials', e)} className={styles.footerSocialBtn} title="Facebook">📘 Facebook</button>
+              <button onClick={(e) => openLegalModal('socials', e)} className={styles.footerSocialBtn} title="LinkedIn">💼 LinkedIn</button>
+              <button onClick={(e) => openLegalModal('socials', e)} className={styles.footerSocialBtn} title="YouTube">📺 YouTube</button>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Info & Legal Modal Dialog */}
+      <InfoLegalModal
+        isOpen={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        initialTab={infoModalTab}
+      />
     </div>
   );
 }

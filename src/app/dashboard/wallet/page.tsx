@@ -18,6 +18,11 @@ export default function WalletPage() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState<'jazzcash' | 'easypaisa' | 'bank'>('jazzcash');
 
+  // Interactive Breakdown Modals State
+  const [walletStatModal, setWalletStatModal] = useState<'earnings' | 'pending' | 'lastMonth' | null>(null);
+  const [selectedTxn, setSelectedTxn] = useState<any | null>(null);
+  const [showAddMethodModal, setShowAddMethodModal] = useState(false);
+
   const lang = 'en'; // Ideally from a context
   const rtl = isRTL(lang);
 
@@ -242,9 +247,9 @@ export default function WalletPage() {
         </div>
       </form>
 
-      {/* Quick Stats Row */}
+      {/* Quick Stats Row — Clickable with Info Modals */}
       <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
+        <div onClick={() => setWalletStatModal('earnings')} className={styles.statCard} style={{ cursor: 'pointer' }} title="Click for Earnings Breakdown">
           <div className={styles.statHeader}>
             <span className={styles.statIcon}>💰</span>
             <span className={styles.statLabel}>{getTranslation(lang, 'thisMonth')} Earnings</span>
@@ -252,14 +257,16 @@ export default function WalletPage() {
           </div>
           <div className={styles.statValue}>{formatRs(dashboardStats.thisMonthEarnings)}</div>
         </div>
-        <div className={styles.statCard}>
+
+        <div onClick={() => setWalletStatModal('pending')} className={styles.statCard} style={{ cursor: 'pointer' }} title="Click for Pending Settlements">
           <div className={styles.statHeader}>
             <span className={styles.statIcon}>⏳</span>
             <span className={styles.statLabel}>{getTranslation(lang, 'pendingPayments')}</span>
           </div>
           <div className={styles.statValue}>{formatRs(dashboardStats.pendingPayments)}</div>
         </div>
-        <div className={styles.statCard}>
+
+        <div onClick={() => setWalletStatModal('lastMonth')} className={styles.statCard} style={{ cursor: 'pointer' }} title="Click for Previous Month Ledger">
           <div className={styles.statHeader}>
             <span className={styles.statIcon}>📈</span>
             <span className={styles.statLabel}>Last Month</span>
@@ -297,7 +304,7 @@ export default function WalletPage() {
             </div>
             <div className={styles.methodDetails}>HBL ****4567</div>
           </div>
-          <div className={styles.addMethodCard}>
+          <div onClick={() => setShowAddMethodModal(true)} className={styles.addMethodCard} style={{ cursor: 'pointer' }}>
             <span style={{ fontSize: '24px' }}>➕</span>
             <span>Add New Method</span>
           </div>
@@ -334,7 +341,13 @@ export default function WalletPage() {
 
         <div className={styles.transactionsList}>
           {filteredTransactions.map(txn => (
-            <div key={txn.id} className={styles.transactionItem}>
+            <div
+              key={txn.id}
+              onClick={() => setSelectedTxn(txn)}
+              className={styles.transactionItem}
+              style={{ cursor: 'pointer' }}
+              title="Click to View Digital Receipt & Audit Trail"
+            >
               <div className={`${styles.txnIcon} ${styles[txn.type]}`}>
                 {txn.type === 'credit' ? '⬆️' : '⬇️'}
               </div>
@@ -367,6 +380,108 @@ export default function WalletPage() {
           )}
         </div>
       </div>
+
+      {/* WALLET STAT BREAKDOWN MODAL */}
+      {walletStatModal && (
+        <div className={styles.withdrawSection} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#0F172A', border: '1px solid #334155', borderRadius: '16px', padding: '1.5rem', marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, color: '#38BDF8' }}>
+              {walletStatModal === 'earnings' && '💰 Monthly Freight Revenue Ledger'}
+              {walletStatModal === 'pending' && '⏳ Pending Escrow Settlements'}
+              {walletStatModal === 'lastMonth' && '📈 Previous Month Financial Summary'}
+            </h3>
+            <button onClick={() => setWalletStatModal(null)} className={styles.btnOutline} style={{ width: 'auto' }}>✕ Close</button>
+          </div>
+
+          <div style={{ lineHeight: 1.6, color: '#CBD5E1' }}>
+            {walletStatModal === 'earnings' && (
+              <div>
+                <p><strong>This Month Total Earnings:</strong> <strong style={{ color: '#10B981' }}>{formatRs(dashboardStats.thisMonthEarnings)}</strong></p>
+                <p><strong>Trips Completed:</strong> 14 Deliveries across Multan, Karachi, and Lahore.</p>
+                <p><strong>Average Freight per Trip:</strong> Rs 22,000</p>
+              </div>
+            )}
+
+            {walletStatModal === 'pending' && (
+              <div>
+                <p><strong>Pending Settlements:</strong> <strong style={{ color: '#F59E0B' }}>{formatRs(dashboardStats.pendingPayments)}</strong></p>
+                <p><strong>Status:</strong> Funds locked in SafarLoad Escrow awaiting POD verification from consignee.</p>
+                <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B', padding: '0.75rem', borderRadius: '8px', marginTop: '0.5rem' }}>
+                  ⏳ Payout automatically releases to your wallet within 2 hours of POD scan.
+                </div>
+              </div>
+            )}
+
+            {walletStatModal === 'lastMonth' && (
+              <div>
+                <p><strong>Last Month Revenue:</strong> <strong style={{ color: '#38BDF8' }}>{formatRs(dashboardStats.lastMonthEarnings)}</strong></p>
+                <p><strong>Growth:</strong> +15.2% increase in monthly freight earnings compared to prior month!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* DIGITAL TRANSACTION RECEIPT MODAL */}
+      {selectedTxn && (
+        <div className={styles.withdrawSection} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#0F172A', border: '1px solid #10B981', borderRadius: '16px', padding: '1.5rem', marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, color: '#10B981' }}>🧾 Official Digital Transaction Receipt</h3>
+            <button onClick={() => setSelectedTxn(null)} className={styles.btnOutline} style={{ width: 'auto' }}>✕ Close</button>
+          </div>
+
+          <div style={{ background: '#1E293B', padding: '1.25rem', borderRadius: '12px', lineHeight: 1.7, color: '#F8FAFC' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #334155', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>
+              <strong>Transaction Reference ID:</strong>
+              <strong style={{ color: '#38BDF8' }}>{selectedTxn.id}</strong>
+            </div>
+            <p><strong>Type:</strong> {selectedTxn.type === 'credit' ? '🟢 Freight Credit / Payout Deposit' : '🔴 Wallet Withdrawal / Settlement'}</p>
+            <p><strong>Description:</strong> {selectedTxn.description} ({selectedTxn.descriptionUr})</p>
+            <p><strong>Amount:</strong> <strong style={{ color: selectedTxn.type === 'credit' ? '#10B981' : '#EF4444', fontSize: '1.2rem' }}>{formatRs(selectedTxn.amount)}</strong></p>
+            <p><strong>Payment Channel:</strong> {selectedTxn.methodIcon} {selectedTxn.method}</p>
+            <p><strong>Date & Timestamp:</strong> {new Date(selectedTxn.date).toLocaleString()}</p>
+            <p><strong>Status:</strong> <span style={{ color: '#10B981', fontWeight: 800 }}>{selectedTxn.status.toUpperCase()} ✅</span></p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button onClick={() => alert(`📄 PDF Receipt for ${selectedTxn.id} downloaded!`)} className={styles.btnPrimary} style={{ flex: 1 }}>
+              📥 Download Official PDF Receipt
+            </button>
+            <button onClick={() => setSelectedTxn(null)} className={styles.btnOutline} style={{ width: 'auto' }}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ADD NEW PAYMENT METHOD MODAL */}
+      {showAddMethodModal && (
+        <div className={styles.withdrawSection} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#0F172A', border: '1px solid #3B82F6', borderRadius: '16px', padding: '1.5rem', marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, color: '#3B82F6' }}>💳 Add New Bank or Mobile Wallet Channel</h3>
+            <button onClick={() => setShowAddMethodModal(false)} className={styles.btnOutline} style={{ width: 'auto' }}>✕ Close</button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1' }}>Select Channel Type:</label>
+              <select className={styles.amountInput} style={{ fontSize: '1rem' }}>
+                <option>📱 JazzCash Wallet</option>
+                <option>💲 Easypaisa Wallet</option>
+                <option>🏦 Commercial Bank Account (IBFT)</option>
+                <option>💳 Nayapay / Sadapay Business</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1' }}>Account Title / Account Number (IBAN):</label>
+              <input type="text" className={styles.amountInput} placeholder="e.g. PK36 MEZN 0001 2345 6789 0101" style={{ fontSize: '1rem' }} />
+            </div>
+            <button onClick={() => { alert('✅ New payment account connected successfully!'); setShowAddMethodModal(false); }} className={styles.btnPrimary}>
+              🚀 Save & Verify Account Channel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { mockLoads } from '@/lib/mockData';
 import { translations, Language } from '@/lib/translations';
 import { triggerBidSubmittedNotification, triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 import { apiClient } from '@/lib/apiClient';
+import UrduVoiceSearchModal from '@/components/UrduVoiceSearchModal';
 
 export default function LoadsPage() {
   const [language, setLanguage] = useState<Language>('en');
@@ -18,6 +19,7 @@ export default function LoadsPage() {
   const [filterCityFrom, setFilterCityFrom] = useState('');
   const [filterCityTo, setFilterCityTo] = useState('');
   const [filterTruckType, setFilterTruckType] = useState('');
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
   
   // Interactive Modal & Booking State
   const [selectedLoad, setSelectedLoad] = useState<typeof mockLoads[0] | null>(null);
@@ -338,7 +340,7 @@ export default function LoadsPage() {
             </button>
           </div>
           
-          <button className={styles.micBtn} onClick={() => alert('🎤 Voice Search Activated: Speak city name in Urdu')}>
+          <button className={styles.micBtn} onClick={() => setShowVoiceModal(true)} title="Urdu Voice Search">
             🎤
           </button>
         </div>
@@ -751,6 +753,13 @@ export default function LoadsPage() {
           </div>
         </div>
       )}
+
+      {/* Urdu & English Voice Search Assistant Modal */}
+      <UrduVoiceSearchModal
+        isOpen={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onSelectSearchQuery={(query) => setSearch(query)}
+      />
     </div>
   );
 }

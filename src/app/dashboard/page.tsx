@@ -6,31 +6,114 @@ import DriverAvailabilityWidget from '@/components/DriverAvailabilityWidget';
 import { pakistaniCities } from '@/lib/mockData';
 import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
-const mockLoads: any[] = [];
+const mockLoads = [
+  {
+    id: 'LD-2026-001',
+    routeEn: 'Multan → Karachi',
+    routeUr: 'ملتان سے کراچی',
+    typeIcon: '📦',
+    type: 'In Transit — M-5 Motorway',
+    price: 'Rs 185,000',
+    progress: 68,
+    shipper: 'Noor Textile Mills',
+    vehicle: 'LHR-5678 (Flatbed Trailer)',
+    driver: 'Tariq Mehmood',
+    driverPhone: '+92 301 2345678',
+    status: 'In Transit',
+  },
+  {
+    id: 'LD-2026-002',
+    routeEn: 'Lahore → Islamabad',
+    routeUr: 'لاہور سے اسلام آباد',
+    typeIcon: '🚛',
+    type: 'Loading at Factory Gate 3',
+    price: 'Rs 65,000',
+    progress: 20,
+    shipper: 'Packages Limited',
+    vehicle: 'KHI-1234 (22ft Container)',
+    driver: 'Abdul Rasheed',
+    driverPhone: '+92 333 9876543',
+    status: 'At Pickup',
+  },
+  {
+    id: 'LD-2026-003',
+    routeEn: 'Faisalabad → Peshawar',
+    routeUr: 'فیصل آباد سے پشاور',
+    typeIcon: '🌾',
+    type: 'Delivered — Unloading Complete',
+    price: 'Rs 140,000',
+    progress: 100,
+    shipper: 'Sitara Chemical Industries',
+    vehicle: 'FSD-9012 (Dumper Truck)',
+    driver: 'Zahid Khan',
+    driverPhone: '+92 304 9988776',
+    status: 'Delivered',
+  },
+];
 
-const mockMessages: any[] = [];
+const mockMessages = [
+  {
+    id: 'MSG-101',
+    avatar: '👨‍✈️',
+    senderEn: 'Driver Tariq Mehmood',
+    senderUr: 'ڈرائیور طارق محمود',
+    time: '10:45 AM',
+    previewEn: 'Vehicle LHR-5678 crossed Sukkur Toll Plaza. ETA Karachi 08:00 PM.',
+    previewUr: 'گاڑی LHR-5678 سکھر ٹول پلازہ کراس کر چکی ہے۔',
+    fullText: 'Assalam-o-Alaikum! Vehicle LHR-5678 is running smoothly on M-5 Motorway. Cargo tarpaulin and belts inspected. Fuel level normal.',
+    phone: '+92 301 2345678',
+  },
+  {
+    id: 'MSG-102',
+    avatar: '🏢',
+    senderEn: 'Noor Textile Dispatch Desk',
+    senderUr: 'نور ٹیکسٹائل ڈسپیچ ڈیسک',
+    time: '09:30 AM',
+    previewEn: 'Bilty #BLT-2026-904 approved! Advance payment 30% credited to wallet.',
+    previewUr: 'بلٹی منظور! 30 فیصد ایڈوانس والٹ میں منتقل کر دیا گیا۔',
+    fullText: 'Your digital Bilty document has been verified by Noor Textile finance team. 30% advance freight (Rs. 55,500) has been released into your SafarLoad wallet.',
+    phone: '+92 42 35789000',
+  },
+  {
+    id: 'MSG-103',
+    avatar: '🎧',
+    senderEn: 'SafarLoad KYC Desk',
+    senderUr: 'سفر لوڈ سپورٹ ڈیسک',
+    time: 'Yesterday',
+    previewEn: 'Driver CNIC and Route Fitness Certificate updated successfully.',
+    previewUr: 'ڈرائیور کا شناختی کارڈ اور روٹ سرٹیفکیٹ منظور ہو گیا۔',
+    fullText: 'Driver Tariq Mehmood CNIC verification renewal has been completed. Account status: 100% Active with Tier 1 Dispatch Rights.',
+    phone: '+92 42 111 72327',
+  },
+];
 
 const dashboardStats = {
-  activeLoads: 0,
-  completed: 0,
-  distance: '0',
-  rating: 5.0
+  activeLoads: 3,
+  completed: 48,
+  distance: '12,450',
+  rating: 4.9,
 };
 
 const weeklyEarnings = [
-  { dayEn: 'Mon', dayUr: 'پیر', amount: 0, height: '0%' },
-  { dayEn: 'Tue', dayUr: 'منگل', amount: 0, height: '0%' },
-  { dayEn: 'Wed', dayUr: 'بدھ', amount: 0, height: '0%' },
-  { dayEn: 'Thu', dayUr: 'جمعرات', amount: 0, height: '0%' },
-  { dayEn: 'Fri', dayUr: 'جمعہ', amount: 0, height: '0%' },
-  { dayEn: 'Sat', dayUr: 'ہفتہ', amount: 0, height: '0%' },
-  { dayEn: 'Sun', dayUr: 'اتوار', amount: 0, height: '0%' },
+  { dayEn: 'Mon', dayUr: 'پیر', amount: 45000, height: '45%' },
+  { dayEn: 'Tue', dayUr: 'منگل', amount: 65000, height: '65%' },
+  { dayEn: 'Wed', dayUr: 'بدھ', amount: 50000, height: '50%' },
+  { dayEn: 'Thu', dayUr: 'جمعرات', amount: 85000, height: '85%' },
+  { dayEn: 'Fri', dayUr: 'جمعہ', amount: 30000, height: '30%' },
+  { dayEn: 'Sat', dayUr: 'ہفتہ', amount: 95000, height: '95%' },
+  { dayEn: 'Sun', dayUr: 'اتوار', amount: 70000, height: '70%' },
 ];
 
 export default function DashboardPage() {
   const [lang, setLang] = useState('en');
   const [mounted, setMounted] = useState(false);
   const [showPostTripModal, setShowPostTripModal] = useState(false);
+
+  // Informational & Breakdown Modals State
+  const [statModal, setStatModal] = useState<'active' | 'completed' | 'distance' | 'rating' | null>(null);
+  const [selectedLoadDetail, setSelectedLoadDetail] = useState<any | null>(null);
+  const [selectedMessageDetail, setSelectedMessageDetail] = useState<any | null>(null);
+  const [showSosModal, setShowSosModal] = useState(false);
   
   // Trip Availability Form State
   const [fromCity, setFromCity] = useState('Lahore');
@@ -107,49 +190,69 @@ export default function DashboardPage() {
       {/* Driver Availability & Target Route Broadcast Widget */}
       <DriverAvailabilityWidget driverName={userName} />
 
-      {/* Stats Grid */}
+      {/* Stats Grid — Clickable Cards with Info Modals */}
       <div className={`${styles.statsGrid} ${styles.stagger2}`}>
-        <div className={`${styles.statCard} ${styles.borderPrimary}`}>
+        <div
+          onClick={() => setStatModal('active')}
+          className={`${styles.statCard} ${styles.borderPrimary}`}
+          style={{ cursor: 'pointer' }}
+          title="Click for Active Shipments Breakdown"
+        >
           <div className={styles.statHeader}>
             <span className={styles.statTitle}>{lang === 'en' ? 'Active Loads' : 'فعال لوڈز'}</span>
             <span className={`${styles.statIcon} ${styles.pulseAnim}`}>📦</span>
           </div>
           <div className={styles.statValue}>{dashboardStats.activeLoads}</div>
           <div className={styles.statFooter}>
-            <span className={styles.trendUp}>↑ 1</span> {lang === 'en' ? 'vs last week' : 'پچھلے ہفتے کی نسبت'}
+            <span className={styles.trendUp}>↑ 1</span> {lang === 'en' ? 'vs last week (Click for Info)' : 'پچھلے ہفتے کی نسبت (تفصیل دیکھیں)'}
           </div>
         </div>
         
-        <div className={`${styles.statCard} ${styles.borderSuccess}`}>
+        <div
+          onClick={() => setStatModal('completed')}
+          className={`${styles.statCard} ${styles.borderSuccess}`}
+          style={{ cursor: 'pointer' }}
+          title="Click for Completed Trips History"
+        >
           <div className={styles.statHeader}>
             <span className={styles.statTitle}>{lang === 'en' ? 'Completed' : 'مکمل شدہ'}</span>
             <span className={styles.statIcon}>✅</span>
           </div>
           <div className={styles.statValue}>{dashboardStats.completed}</div>
           <div className={styles.statFooter}>
-            <span className={styles.trendUp}>↑ 12%</span> {lang === 'en' ? 'this month' : 'اس مہینے'}
+            <span className={styles.trendUp}>↑ 12%</span> {lang === 'en' ? 'this month (Click for History)' : 'اس مہینے (تفصیل دیکھیں)'}
           </div>
         </div>
 
-        <div className={`${styles.statCard} ${styles.borderInfo}`}>
+        <div
+          onClick={() => setStatModal('distance')}
+          className={`${styles.statCard} ${styles.borderInfo}`}
+          style={{ cursor: 'pointer' }}
+          title="Click for Total Distance Log"
+        >
           <div className={styles.statHeader}>
             <span className={styles.statTitle}>{lang === 'en' ? 'Total Distance' : 'کل فاصلہ'}</span>
             <span className={styles.statIcon}>🛣️</span>
           </div>
           <div className={styles.statValue}>{dashboardStats.distance} <span className={styles.unit}>km</span></div>
           <div className={styles.statFooter}>
-            <span className={styles.trendNeutral}>~</span> {lang === 'en' ? 'steady average' : 'مستقل اوسط'}
+            <span className={styles.trendNeutral}>~</span> {lang === 'en' ? 'steady average (Click for Log)' : 'مستقل اوسط (تفصیل دیکھیں)'}
           </div>
         </div>
 
-        <div className={`${styles.statCard} ${styles.borderSecondary}`}>
+        <div
+          onClick={() => setStatModal('rating')}
+          className={`${styles.statCard} ${styles.borderSecondary}`}
+          style={{ cursor: 'pointer' }}
+          title="Click for Driver Rating Reviews"
+        >
           <div className={styles.statHeader}>
             <span className={styles.statTitle}>{lang === 'en' ? 'Rating' : 'ریٹنگ'}</span>
             <span className={styles.statIcon}>⭐</span>
           </div>
           <div className={styles.statValue}>{dashboardStats.rating}<span className={styles.unit}>/5.0</span></div>
           <div className={styles.statFooter}>
-            <span className={styles.trendUp}>↑ 0.2</span> {lang === 'en' ? 'from last trip' : 'پچھلے سفر سے'}
+            <span className={styles.trendUp}>↑ 0.2</span> {lang === 'en' ? 'from last trip (Click for Reviews)' : 'پچھلے سفر سے (تفصیل دیکھیں)'}
           </div>
         </div>
       </div>
@@ -193,7 +296,7 @@ export default function DashboardPage() {
               <div className={styles.actionIcon}>💰</div>
               <div className={styles.actionLabel}>{lang === 'en' ? 'My Wallet' : 'میرا بٹوہ'}</div>
             </Link>
-            <button onClick={() => alert('🆘 Emergency SOS Triggered! SafarLoad Helpline & Highway Police Notified.')} className={styles.actionCard} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #EF4444' }}>
+            <button onClick={() => setShowSosModal(true)} className={styles.actionCard} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #EF4444' }}>
               <div className={styles.actionIcon}>🆘</div>
               <div className={styles.actionLabel} style={{ color: '#EF4444' }}>{lang === 'en' ? 'Emergency SOS' : 'ہنگامی مدد'}</div>
             </button>
@@ -224,7 +327,7 @@ export default function DashboardPage() {
                     <div className={styles.progressBarFill} style={{ width: `${load.progress}%` }}></div>
                   </div>
                   <div className={styles.progressText}>
-                    <span>{lang === 'en' ? load.type : load.type}</span>
+                    <span>{load.type}</span>
                     <span>{load.progress}%</span>
                   </div>
                 </div>
@@ -232,9 +335,9 @@ export default function DashboardPage() {
                   <Link href="/dashboard/tracking" className="btn btn-glass btn-sm">
                     📍 {lang === 'en' ? 'Live Track' : 'لائیو ٹریک'}
                   </Link>
-                  <Link href="/dashboard/trips" className="btn btn-primary btn-sm">
+                  <button onClick={() => setSelectedLoadDetail(load)} className="btn btn-primary btn-sm">
                     🚛 {lang === 'en' ? 'Trip Details' : 'تفصیلات'}
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}
@@ -250,7 +353,7 @@ export default function DashboardPage() {
 
           <div className={styles.messagesList}>
             {mockMessages.map((msg) => (
-              <div key={msg.id} className={styles.messageItem}>
+              <div key={msg.id} onClick={() => setSelectedMessageDetail(msg)} className={styles.messageItem} style={{ cursor: 'pointer' }} title="Click to Read & Reply">
                 <div className={styles.msgAvatar}>{msg.avatar}</div>
                 <div className={styles.msgContent}>
                   <div className={styles.msgHeader}>
@@ -259,12 +362,178 @@ export default function DashboardPage() {
                   </div>
                   <p className={styles.msgPreview}>{lang === 'en' ? msg.previewEn : msg.previewUr}</p>
                 </div>
-                {msg.unread > 0 && <span className={styles.msgBadge}>{msg.unread}</span>}
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* KPI STATS BREAKDOWN MODAL */}
+      {statModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>
+                {statModal === 'active' && '📦 Active Shipments Overview'}
+                {statModal === 'completed' && '✅ Completed Trips Log & Certificates'}
+                {statModal === 'distance' && '🛣️ Distance Log & Fleet Odometers'}
+                {statModal === 'rating' && '⭐ Driver Performance & Customer Reviews'}
+              </h3>
+              <button onClick={() => setStatModal(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1rem', lineHeight: 1.6 }}>
+              {statModal === 'active' && (
+                <div>
+                  <p><strong>Total Active Shipments:</strong> 3 Shipments currently on route across Pakistan.</p>
+                  <ul>
+                    <li>📍 <strong>Multan → Karachi:</strong> 25 Tons Textile (68% Complete, M-5 Motorway)</li>
+                    <li>📍 <strong>Lahore → Islamabad:</strong> 22ft Container (20% Complete, Factory Gate)</li>
+                    <li>📍 <strong>Faisalabad → Peshawar:</strong> 30 Tons Chemicals (Unloading at Terminal)</li>
+                  </ul>
+                  <div style={{ marginTop: '1rem', background: 'rgba(59, 130, 246, 0.1)', padding: '0.75rem', borderRadius: '8px' }}>
+                    ℹ️ Real-time GPS pings are updated every 15 seconds.
+                  </div>
+                </div>
+              )}
+
+              {statModal === 'completed' && (
+                <div>
+                  <p><strong>Total Completed Trips:</strong> 48 Successfully Delivered Freight Orders.</p>
+                  <p><strong>On-Time Arrival Index:</strong> 98.6% | <strong>Zero Cargo Damage Claims!</strong></p>
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#10B981' }}>
+                    🏆 Verified Carrier Certificate issued by SafarLoad Dispatch Oversight.
+                  </div>
+                </div>
+              )}
+
+              {statModal === 'distance' && (
+                <div>
+                  <p><strong>Total Cumulative Distance Logged:</strong> 12,450 km across National Highways & Motorways.</p>
+                  <p><strong>Top Active Route:</strong> Multan ↔ Karachi (M-5 Motorway — 945 km)</p>
+                  <p><strong>Fuel Saved by AI Route Optimizer:</strong> ~340 Liters Diesel saved this month!</p>
+                </div>
+              )}
+
+              {statModal === 'rating' && (
+                <div>
+                  <p><strong>Overall Platform Rating:</strong> ⭐ 4.9 / 5.0 (Based on 52 Shipper Reviews)</p>
+                  <div style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '0.75rem', borderRadius: '8px', marginTop: '0.5rem' }}>
+                    💬 <em>"Excellent driver Tariq Mehmood! Cargo loaded on time in Multan and delivered safely to Karachi Port Qasim."</em> — Noor Textile Mills
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setStatModal(null)} className="btn btn-primary">
+                Close Info
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACTIVE SHIPMENT DETAIL MODAL */}
+      {selectedLoadDetail && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>🚛 Shipment Details: {selectedLoadDetail.id}</h3>
+              <button onClick={() => setSelectedLoadDetail(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1rem', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#38BDF8', marginBottom: '0.5rem' }}>
+                {selectedLoadDetail.routeEn} ({selectedLoadDetail.routeUr})
+              </div>
+              <p><strong>Shipper Name:</strong> {selectedLoadDetail.shipper}</p>
+              <p><strong>Assigned Truck:</strong> {selectedLoadDetail.vehicle}</p>
+              <p><strong>Driver:</strong> {selectedLoadDetail.driver} ({selectedLoadDetail.driverPhone})</p>
+              <p><strong>Total Agreed Freight:</strong> <strong style={{ color: '#10B981' }}>{selectedLoadDetail.price}</strong></p>
+              <p><strong>Current Transit Status:</strong> {selectedLoadDetail.type} ({selectedLoadDetail.progress}%)</p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <Link href="/dashboard/tracking" className="btn btn-primary">
+                📍 Open Live GPS Satellite Map
+              </Link>
+              <button onClick={() => setSelectedLoadDetail(null)} className="btn btn-glass">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MESSAGE READER & REPLY MODAL */}
+      {selectedMessageDetail && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>{selectedMessageDetail.avatar} {selectedMessageDetail.senderEn}</h3>
+              <button onClick={() => setSelectedMessageDetail(null)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1rem', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '0.85rem', color: '#94A3B8', marginBottom: '0.5rem' }}>Received: {selectedMessageDetail.time}</div>
+              <p style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '1rem', borderRadius: '12px', color: '#F8FAFC' }}>
+                {selectedMessageDetail.fullText}
+              </p>
+              <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}><strong>Contact Phone:</strong> {selectedMessageDetail.phone}</p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <a href={`tel:${selectedMessageDetail.phone}`} className="btn btn-success">
+                📞 Call {selectedMessageDetail.senderEn}
+              </a>
+              <button onClick={() => { alert(`💬 Reply sent to ${selectedMessageDetail.senderEn}!`); setSelectedMessageDetail(null); }} className="btn btn-primary">
+                ✉️ Send Quick Reply
+              </button>
+              <button onClick={() => setSelectedMessageDetail(null)} className="btn btn-glass">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EMERGENCY SOS HIGHWAY POLICE DISPATCH MODAL */}
+      {showSosModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ borderColor: '#EF4444' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(239, 68, 68, 0.2)' }}>
+              <h3 style={{ color: '#EF4444' }}>🚨 EMERGENCY SOS HIGHWAY POLICE & DESK NOTIFIED</h3>
+              <button onClick={() => setShowSosModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div style={{ padding: '1.25rem', lineHeight: 1.6 }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #EF4444', padding: '1rem', borderRadius: '12px', marginBottom: '1rem' }}>
+                <strong style={{ color: '#EF4444', fontSize: '1.1rem' }}>⚠️ Emergency Alarm Broadcasted Live!</strong>
+                <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.9rem', color: '#F8FAFC' }}>
+                  GPS Coordinates captured: <strong>30.1978° N, 71.4697° E (M-5 Motorway)</strong>.<br />
+                  Emergency package transmitted to <strong>NHMP National Highway & Motorway Police (130)</strong> and SafarLoad Dispatch Control Desk.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <a href="tel:130" className="btn btn-accent" style={{ textAlign: 'center', fontWeight: 800 }}>
+                  📞 Call Highway Police Helpline (NHMP 130)
+                </a>
+                <a href="tel:+924211172327" className="btn btn-primary" style={{ textAlign: 'center' }}>
+                  📞 Call 24/7 SafarLoad Rescue Hotline (+92 42 111 SAFAR)
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowSosModal(false)} className="btn btn-glass">
+                Cancel Emergency Alert
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* POST RETURN TRIP MODAL */}
       {showPostTripModal && (
