@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styles from './DigitalBiltyModal.module.css';
+import { useBiltyEnabled } from '@/lib/biltyConfig';
 
 export interface BiltyData {
   biltyNumber: string;
@@ -39,6 +40,10 @@ interface Props {
 }
 
 export default function DigitalBiltyModal({ bilty, onClose }: Props) {
+  const biltyEnabled = useBiltyEnabled();
+
+  if (!biltyEnabled) return null;
+
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
       window.print();

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import styles from './layout.module.css';
 import NotificationBell from '@/components/NotificationBell';
 import VoIPCallModal from '@/components/VoIPCallModal';
+import { useBiltyEnabled } from '@/lib/biltyConfig';
 
 export type UserRole = 'driver' | 'shipper' | 'fleet' | 'support' | 'finance' | 'admin';
 
@@ -139,7 +140,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  const currentNavItems = roleNavItems[role] || roleNavItems['driver'];
+  const biltyEnabled = useBiltyEnabled();
+  const rawNavItems = roleNavItems[role] || roleNavItems['driver'];
+  const currentNavItems = rawNavItems.map((item) => {
+    if (!biltyEnabled && item.path === '/dashboard/trips') {
+      return {
+        ...item,
+        labelEn: 'Booked Trips',
+        labelUr: 'میرے فعال سفر',
+      };
+    }
+    return item;
+  });
   const dir = lang === 'ur' ? 'rtl' : 'ltr';
 
   return (

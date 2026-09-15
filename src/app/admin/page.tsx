@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { PlatformBanner, initialPlatformBanners } from '@/components/GlobalBannerContainer';
+import PlatformBanner, { initialPlatformBanners } from '@/components/GlobalBannerContainer';
 import QAAuditTestRunnerModal from '@/components/QAAuditTestRunnerModal';
+import { isBiltyEnabled, setBiltyEnabled, useBiltyEnabled } from '@/lib/biltyConfig';
 
 export interface DriverUser {
   id: string;
@@ -255,6 +256,7 @@ export default function SuperAdminPage() {
   // Drivers & Shippers State
   const [drivers, setDrivers] = useState<DriverUser[]>([]);
   const [shippers, setShippers] = useState<ShipperOrg[]>([]);
+  const biltyEnabled = useBiltyEnabled();
 
   const toggleLanguage = () => {
     setLang((prev) => (prev === 'en' ? 'ur' : 'en'));
@@ -516,6 +518,55 @@ export default function SuperAdminPage() {
             <div className={styles.credBadge}>{adminCredentials.securityPin}</div>
           </div>
         </div>
+      </div>
+
+      {/* Admin Feature Control: Global Bilty System Toggle */}
+      <div style={{
+        background: biltyEnabled ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+        border: biltyEnabled ? '1px solid #10B981' : '1px solid #EF4444',
+        borderRadius: '16px',
+        padding: '1.25rem 1.5rem',
+        marginBottom: '1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '1rem',
+        flexWrap: 'wrap'
+      }}>
+        <div style={{ flex: 1, minWidth: '280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>🧾</span>
+            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#FFF' }}>
+              Digital Bilty Feature Switch (Super Admin Access Control)
+            </h3>
+            {biltyEnabled ? (
+              <span className="badge badge-success" style={{ fontWeight: 700, fontSize: '0.8rem', padding: '4px 10px' }}>🟢 ENABLED</span>
+            ) : (
+              <span className="badge badge-danger" style={{ fontWeight: 700, fontSize: '0.8rem', padding: '4px 10px' }}>🔴 DISABLED FOR ALL USERS</span>
+            )}
+          </div>
+          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+            {biltyEnabled
+              ? 'Bilty documents, bilty buttons, and bilty delivery receipts are currently ENABLED across the platform.'
+              : 'Bilty function is currently DISABLED and hidden from all regular users (Drivers, Shippers, Fleet Operators, Support, Finance).'}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            const nextState = !biltyEnabled;
+            setBiltyEnabled(nextState);
+            alert(nextState
+              ? "🟢 Bilty Feature ENABLED! Users can now view and access Bilty documents across the platform."
+              : "🔴 Bilty Feature DISABLED! Bilty buttons and documents have been hidden from all regular users."
+            );
+          }}
+          className={`btn ${biltyEnabled ? 'btn-danger' : 'btn-primary'}`}
+          style={{ padding: '0.75rem 1.5rem', fontWeight: 700, fontSize: '0.95rem', borderRadius: '10px' }}
+        >
+          {biltyEnabled ? '🔴 Disable Bilty for All Users' : '🟢 Enable Bilty Feature for All Users'}
+        </button>
       </div>
 
       {/* Global Overview KPI Cards */}

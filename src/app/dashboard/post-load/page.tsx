@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
+import { useBiltyEnabled } from '@/lib/biltyConfig';
 import { mockLoads, mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
 import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from '@/lib/notificationSystem';
 import { initiateVoIPCall } from '@/lib/voipCallSystem';
@@ -15,6 +16,7 @@ import { DepositSlip, initialDepositSlips } from '@/app/finance/page';
 export default function PostLoadPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
+  const biltyEnabled = useBiltyEnabled();
 
   const handleOpenBilty = (b: DriverCounterBid) => {
     setSelectedBilty({
@@ -2468,7 +2470,7 @@ export default function PostLoadPage() {
       )}
 
       {/* DIGITAL BILTY MODAL */}
-      {selectedBilty && (
+      {biltyEnabled && selectedBilty && (
         <DigitalBiltyModal bilty={selectedBilty} onClose={() => setSelectedBilty(null)} />
       )}
     </div>

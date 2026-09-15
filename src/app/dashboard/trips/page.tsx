@@ -7,6 +7,7 @@ import { pakistaniCities, mockDriverCounterBids, DriverCounterBid } from '@/lib/
 
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
+import { useBiltyEnabled } from '@/lib/biltyConfig';
 
 interface TripItem {
   id: string;
@@ -25,6 +26,7 @@ interface TripItem {
 export default function DriverTripsPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('ur');
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
+  const biltyEnabled = useBiltyEnabled();
 
   const handleOpenBilty = (trip: TripItem) => {
     setSelectedBilty({
@@ -286,9 +288,11 @@ export default function DriverTripsPage() {
                 <button onClick={() => setChatTargetShipper(t)} className="btn btn-primary btn-sm" style={{ flex: 1 }}>
                   💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
                 </button>
-                <button onClick={() => handleOpenBilty(t)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
-                  📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
-                </button>
+                {biltyEnabled && (
+                  <button onClick={() => handleOpenBilty(t)} className="btn btn-glass btn-sm" style={{ flex: 1 }}>
+                    📜 {lang === 'ur' ? 'بلٹی دیکھیں' : 'View Bilty'}
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -303,9 +307,11 @@ export default function DriverTripsPage() {
                 <p>Shipper: {activeTrip.shipper} | Route: {activeTrip.route}</p>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => handleOpenBilty(activeTrip)} className="btn btn-glass btn-sm">
-                  📜 {lang === 'ur' ? 'بلٹی رسید دیکھیں' : 'View Digital Bilty'}
-                </button>
+                {biltyEnabled && (
+                  <button onClick={() => handleOpenBilty(activeTrip)} className="btn btn-glass btn-sm">
+                    📜 {lang === 'ur' ? 'بلٹی رسید دیکھیں' : 'View Digital Bilty'}
+                  </button>
+                )}
                 <button onClick={() => setChatTargetShipper(activeTrip)} className="btn btn-primary btn-sm">
                   💬 {lang === 'ur' ? 'شپر سے چیٹ کریں' : 'Chat with Shipper'}
                 </button>
@@ -512,7 +518,7 @@ export default function DriverTripsPage() {
       )}
 
       {/* DIGITAL BILTY MODAL */}
-      {selectedBilty && (
+      {biltyEnabled && selectedBilty && (
         <DigitalBiltyModal bilty={selectedBilty} onClose={() => setSelectedBilty(null)} />
       )}
     </div>
