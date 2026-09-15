@@ -579,10 +579,16 @@ export default function PostLoadPage() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('200000');
 
+  const isShipperBid = (b: any) => {
+    if (!b) return false;
+    if (!b.shipperName) return true;
+    return b.shipperName.includes('Noor Textile') || b.shipperName.includes(currentShipperName);
+  };
+
   // Dynamic Approved Escrow Vault Balance Calculation
-  const approvedDepositsTotal = depositSlips
-    .filter((s) => s.status === 'approved' && (s.shipperName.includes('Noor Textile Mills') || s.shipperName.includes(currentShipperName)))
-    .reduce((acc, s) => acc + s.amountPkr, 0);
+  const approvedDepositsTotal = (depositSlips || [])
+    .filter((s) => s && s.status === 'approved' && (!s.shipperName || s.shipperName.includes('Noor Textile') || s.shipperName.includes(currentShipperName)))
+    .reduce((acc, s) => acc + (s?.amountPkr || 0), 0);
   const activeEscrowVaultBalance = 420000 + approvedDepositsTotal;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -830,7 +836,7 @@ export default function PostLoadPage() {
           <div className={styles.metricIcon}>🏷️</div>
           <div>
             <div className={styles.metricVal}>
-              {bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length} Pending
+              {bids.filter((b) => isShipperBid(b) && b.status === 'pending').length} Pending
             </div>
             <div className={styles.metricSub}>Driver Counter Bids Received</div>
           </div>
@@ -840,7 +846,7 @@ export default function PostLoadPage() {
           <div className={styles.metricIcon}>🚛</div>
           <div>
             <div className={styles.metricVal}>
-              {bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length} En-Route
+              {bids.filter((b) => isShipperBid(b) && b.status === 'accepted').length} En-Route
             </div>
             <div className={styles.metricSub}>Booked Trips & Active Bilty</div>
           </div>
@@ -865,13 +871,13 @@ export default function PostLoadPage() {
           onClick={() => setWorkspaceTab('bids')}
           className={`${styles.workspaceTab} ${workspaceTab === 'bids' ? styles.activeWorkspaceTab : ''}`}
         >
-          🏷️ {lang === 'ur' ? 'ڈرائیور بولیاں' : 'Live Driver Bids'} ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})
+          🏷️ {lang === 'ur' ? 'ڈرائیور بولیاں' : 'Live Driver Bids'} ({bids.filter((b) => isShipperBid(b) && b.status === 'pending').length})
         </button>
         <button
           onClick={() => setWorkspaceTab('booked')}
           className={`${styles.workspaceTab} ${workspaceTab === 'booked' ? styles.activeWorkspaceTab : ''}`}
         >
-          🚛 {lang === 'ur' ? 'بک شدہ سفر' : 'Booked Shipments'} ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'accepted').length})
+          🚛 {lang === 'ur' ? 'بک شدہ سفر' : 'Booked Shipments'} ({bids.filter((b) => isShipperBid(b) && b.status === 'accepted').length})
         </button>
         <button
           onClick={() => setWorkspaceTab('escrow')}
@@ -1053,7 +1059,7 @@ export default function PostLoadPage() {
         <section className={`${styles.bidsSection} glass-card animate-fadeIn`}>
           <div className={styles.bidsHeader}>
             <div>
-              <h3>🏷️ Pending Driver Counter Bids ({bids.filter((b) => b.shipperName === currentShipperName && b.status === 'pending').length})</h3>
+              <h3>🏷️ Pending Driver Counter Bids ({bids.filter((b) => isShipperBid(b) && b.status === 'pending').length})</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
                 Review driver offers, initiate direct voice calls, send counter offers, or accept deal.
               </p>
@@ -1062,7 +1068,7 @@ export default function PostLoadPage() {
 
           <div className={styles.bidsGrid}>
             {bids
-              .filter((b) => b.shipperName === currentShipperName && b.status === 'pending')
+              .filter((b) => isShipperBid(b) && b.status === 'pending')
               .map((b) => (
                 <div key={b.id} className={styles.bidCard}>
                   <div className={styles.bidCardHeader}>
@@ -1127,7 +1133,7 @@ export default function PostLoadPage() {
 
           <div className={styles.bidsGrid}>
             {bids
-              .filter((b) => b.shipperName === currentShipperName && b.status === 'accepted')
+              .filter((b) => isShipperBid(b) && b.status === 'accepted')
               .map((b) => (
                 <div key={b.id} className={`${styles.bidCard} ${styles.acceptedBid}`}>
                   <div className={styles.bidCardHeader}>
