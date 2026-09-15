@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import styles from './page.module.css';
 import DriverAvailabilityWidget from '@/components/DriverAvailabilityWidget';
 import { pakistaniCities } from '@/lib/mockData';
 import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
