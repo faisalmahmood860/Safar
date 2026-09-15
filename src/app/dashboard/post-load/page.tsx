@@ -11,7 +11,7 @@ import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from 
 import { initiateVoIPCall } from '@/lib/voipCallSystem';
 import { apiClient } from '@/lib/apiClient';
 
-import { DepositSlip, initialDepositSlips } from '@/app/finance/page';
+import { DepositSlip, initialDepositSlips } from '@/lib/depositSlipData';
 
 export default function PostLoadPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');

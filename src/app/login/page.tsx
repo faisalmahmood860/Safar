@@ -138,7 +138,7 @@ function LoginPageContent() {
   };
 
   // Execute Account Creation / Registration for Any Role
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -157,6 +157,23 @@ function LoginPageContent() {
       password: regPassword,
       redirectUrl: roleDetails[selectedRole].redirect,
     };
+
+    try {
+      await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: newUser.role,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          password: newUser.password,
+          details: { cnicOrNtn: newUser.cnicOrNtn }
+        })
+      });
+    } catch (err) {
+      console.error('Failed to persist user to backend DB:', err);
+    }
 
     try {
       const stored = localStorage.getItem('safarload_registered_users');
