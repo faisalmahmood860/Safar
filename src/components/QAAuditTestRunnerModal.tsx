@@ -207,29 +207,6 @@ export default function QAAuditTestRunnerModal({ initialOpen = false, onClose }:
 
   return (
     <>
-      {/* FLOATING TRIGGER BUTTON */}
-      {!isOpen && (
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className={styles.floatingTrigger}
-          aria-label="Open QA Audit & Test Control Manager"
-          title="Open QA Audit & Test Control Manager"
-        >
-          <span>🧪 QA Audit & Test Control</span>
-          {testStatus === 'running' && (
-            <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
-              ⏱️ {formattedETA}
-            </span>
-          )}
-          {(testStatus === 'stopped' || testStatus === 'paused') && (
-            <span className="badge badge-warning" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>
-              ▶️ Resume Available
-            </span>
-          )}
-        </button>
-      )}
-
       {/* QA AUDIT MODAL */}
       {isOpen && (
         <div className={styles.modalBackdrop}>
