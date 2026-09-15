@@ -252,6 +252,11 @@ export default function LoadsPage() {
         bookedList.push(selectedLoad.id);
         localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedList));
       }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+        window.dispatchEvent(new Event('safarload_loads_change'));
+      }
     } catch (err) {
       console.error(err);
     }
@@ -302,6 +307,9 @@ export default function LoadsPage() {
       currentBids = currentBids.filter((b: any) => b.loadId !== selectedLoad.id);
       currentBids.unshift(newBidObj);
       localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+      }
       triggerBidSubmittedNotification(driverNameOnly, newPrice, `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`);
     } catch (err) {
       console.error(err);

@@ -122,6 +122,10 @@ export default function FleetDashboard() {
         bookedList.push(selectedLoad.id);
         localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedList));
       }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+        window.dispatchEvent(new Event('safarload_loads_change'));
+      }
     } catch (err) {
       console.error(err);
     }
