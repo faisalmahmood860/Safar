@@ -41,9 +41,13 @@ export default function AvailableTrucksPage() {
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>('shipper');
 
   useEffect(() => {
     try {
+      const storedRole = localStorage.getItem('safarload_user_role');
+      if (storedRole) setUserRole(storedRole);
+
       const stored = localStorage.getItem('safarload_fleet_trucks');
       if (stored) {
         const list: FleetTruck[] = JSON.parse(stored);
@@ -230,13 +234,15 @@ export default function AvailableTrucksPage() {
                 >
                   📞 Call Driver Direct
                 </button>
-                <Link
-                  href={`/dashboard/post-load?targetTruck=${encodeURIComponent(truck.registrationNumber)}`}
-                  className="btn btn-success btn-sm"
-                  style={{ width: '100%', textAlign: 'center' }}
-                >
-                  ⚡ Assign Load to Truck
-                </Link>
+                {userRole !== 'driver' && (
+                  <Link
+                    href={`/dashboard/post-load?targetTruck=${encodeURIComponent(truck.registrationNumber)}`}
+                    className="btn btn-success btn-sm"
+                    style={{ width: '100%', textAlign: 'center' }}
+                  >
+                    ⚡ Assign Load to Truck
+                  </Link>
+                )}
               </div>
             </div>
           ))

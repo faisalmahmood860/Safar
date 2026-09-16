@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { pakistaniCities, mockDriverCounterBids, DriverCounterBid } from '@/lib/mockData';
+import { apiClient } from '@/lib/apiClient';
 
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
@@ -21,6 +22,7 @@ interface TripItem {
   pickupDate: string;
   biltyUploaded: boolean;
   fuelAdvanceRequested: boolean;
+  isAwaitingShipperAck?: boolean;
 }
 
 export default function DriverTripsPage() {
@@ -57,34 +59,7 @@ export default function DriverTripsPage() {
     });
   };
 
-  const defaultTrips: TripItem[] = [
-    {
-      id: 'TRIP-901',
-      loadId: 'LD-2026-001',
-      route: 'Multan → Karachi',
-      cargo: 'Textile Bales (25 Tons)',
-      weight: 25,
-      price: 185000,
-      shipper: 'Noor Textile Mills Ltd',
-      status: 'in_transit',
-      pickupDate: 'Today 08:00 AM',
-      biltyUploaded: true,
-      fuelAdvanceRequested: true,
-    },
-    {
-      id: 'TRIP-902',
-      loadId: 'LD-2026-002',
-      route: 'Lahore → Islamabad',
-      cargo: 'Packaging Materials (20 Tons)',
-      weight: 20,
-      price: 65000,
-      shipper: 'Packages Limited',
-      status: 'assigned',
-      pickupDate: 'Tomorrow 09:00 AM',
-      biltyUploaded: false,
-      fuelAdvanceRequested: false,
-    },
-  ];
+  const defaultTrips: TripItem[] = [];
 
   const [trips, setTrips] = useState<TripItem[]>([]);
   const [activeTrip, setActiveTrip] = useState<TripItem | null>(null);
@@ -95,6 +70,13 @@ export default function DriverTripsPage() {
   const [receiverName, setReceiverName] = useState('Pak Cotton Terminal Manager');
   const [deliveryOtpCode, setDeliveryOtpCode] = useState('4829');
   const [cargoConditionNote, setCargoConditionNote] = useState('Cargo delivered in 100% sound condition without damage or shortage.');
+
+  // Trip Cancellation / Removal with Valid Reason & Proof State
+  const [showCancelTripModal, setShowCancelTripModal] = useState(false);
+  const [cancelTargetTrip, setCancelTargetTrip] = useState<TripItem | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('🚨 Vehicle Mechanical Breakdown / Engine Failure');
+  const [cancelNote, setCancelNote] = useState<string>('');
+  const [cancelProofFileName, setCancelProofFileName] = useState<string>('Vehicle_Engine_Breakdown_Slip.png');
 
   // Dynamic Driver Bids State Synced with localStorage
   const [driverBids, setDriverBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
@@ -256,7 +238,7 @@ export default function DriverTripsPage() {
         let bidsList = JSON.parse(storedBids);
         bidsList = bidsList.map((b: any) =>
           b.loadId === activeTrip.loadId || b.id === activeTrip.id || b.loadTitle === activeTrip.cargo
-            ? { ...b, status: 'delivered', isDelivered: true, awaitingShipperAck: true, deliveryProof: { receiverName, deliveryOtpCode, notes: cargoConditionNotes, submittedAt: new Date().toLocaleDateString() } }
+            ? { ...b, status: 'delivered', isDelivered: true, awaitingShipperAck: true, deliveryProof: { receiverName, deliveryOtpCode, notes: cargoConditionNote, submittedAt: new Date().toLocaleDateString() } }
             : b
         );
         localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
@@ -278,6 +260,72 @@ export default function DriverTripsPage() {
     );
 
     setShowCompleteTripModal(false);
+  };
+
+  const handleOpenCancelModal = (trip: TripItem) => {
+    setCancelTargetTrip(trip);
+    setCancelReason('🚨 Vehicle Mechanical Breakdown / Engine Failure');
+    setCancelNote('');
+    setCancelProofFileName('Vehicle_Engine_Breakdown_Slip.png');
+    setShowCancelTripModal(true);
+  };
+
+  const handleCancelTripSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cancelTargetTrip) return;
+
+    const cancellationRecord = {
+      tripId: cancelTargetTrip.id,
+      loadId: cancelTargetTrip.loadId,
+      route: cancelTargetTrip.route,
+      shipper: cancelTargetTrip.shipper,
+      reason: cancelReason,
+      note: cancelNote || 'Trip cancelled due to valid mechanical / emergency condition.',
+      proofFileName: cancelProofFileName,
+      cancelledAt: new Date().toLocaleString(),
+    };
+
+    // 1. Remove/Cancel trip from active trips list
+    const updatedTrips = trips.filter((t) => t.id !== cancelTargetTrip.id);
+    setTrips(updatedTrips);
+    if (activeTrip?.id === cancelTargetTrip.id) {
+      setActiveTrip(updatedTrips.length > 0 ? updatedTrips[0] : null);
+    }
+
+    try {
+      localStorage.setItem('safarload_driver_trips', JSON.stringify(updatedTrips));
+      
+      const storedCancelled = localStorage.getItem('safarload_cancelled_trips');
+      const cancelledList = storedCancelled ? JSON.parse(storedCancelled) : [];
+      cancelledList.unshift(cancellationRecord);
+      localStorage.setItem('safarload_cancelled_trips', JSON.stringify(cancelledList));
+
+      // Update global bids status to cancelled
+      const storedBids = localStorage.getItem('safarload_global_bids');
+      if (storedBids) {
+        let bidsList = JSON.parse(storedBids);
+        bidsList = bidsList.map((b: any) =>
+          b.loadId === cancelTargetTrip.loadId || b.id === cancelTargetTrip.id || b.loadTitle === cancelTargetTrip.cargo
+            ? { ...b, status: 'cancelled', cancellationRecord }
+            : b
+        );
+        localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+        window.dispatchEvent(new Event('safarload_loads_change'));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    alert(
+      `🚫 TRIP CANCELLED & WITHDRAWN SUCCESSFULLY!\n\n🚚 Trip ID: ${cancelTargetTrip.id}\n📍 Route: ${cancelTargetTrip.route}\n📋 Valid Reason: ${cancelReason}\n📄 Audit Proof Document: ${cancelProofFileName}\n\nShipper (${cancelTargetTrip.shipper}) and Support Desk notified. Escrow vault hold refunded.`
+    );
+
+    setShowCancelTripModal(false);
+    setCancelTargetTrip(null);
   };
 
   const handleSendChatMessage = (e: React.FormEvent) => {
@@ -391,7 +439,7 @@ export default function DriverTripsPage() {
             <div
               key={t.id}
               onClick={() => setActiveTrip(t)}
-              className={`${styles.tripCard} ${activeTrip.id === t.id ? styles.activeTripCard : ''} glass-card`}
+              className={`${styles.tripCard} ${activeTrip?.id === t.id ? styles.activeTripCard : ''} glass-card`}
             >
               <div className={styles.tripCardHeader}>
                 <strong>{t.route}</strong>
@@ -497,6 +545,16 @@ export default function DriverTripsPage() {
                   </div>
                 </div>
               )}
+              {activeTrip.status !== 'delivered' && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenCancelModal(activeTrip)}
+                  className="btn btn-accent btn-sm"
+                  style={{ width: '100%', marginTop: '0.75rem', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', color: '#FCA5A5' }}
+                >
+                  🚫 Cancel / Withdraw Trip (معقول وجہ اور ثبوت کے ساتھ)
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -509,6 +567,116 @@ export default function DriverTripsPage() {
           </div>
         )}
       </div>
+
+      {/* TRIP CANCELLATION & WITHDRAWAL AUDIT MODAL */}
+      {showCancelTripModal && cancelTargetTrip && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(239, 68, 68, 0.15)', borderColor: '#EF4444' }}>
+              <h3 style={{ color: '#EF4444' }}>🚫 Cancel & Withdraw Accepted Trip — {cancelTargetTrip.id}</h3>
+              <button onClick={() => setShowCancelTripModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleCancelTripSubmit} style={{ padding: '1rem 0 0 0' }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.08)', padding: '0.85rem', borderRadius: '10px', border: '1px solid rgba(239, 68, 68, 0.3)', marginBottom: '1rem', fontSize: '0.85rem', color: '#CBD5E1' }}>
+                ⚠️ <strong>Audit Requirement:</strong> Withdrawing an accepted trip requires choosing a valid justification reason and attaching verification proof for Shipper ({cancelTargetTrip.shipper}) & SafarLoad Audit Desk.
+              </div>
+
+              {/* Reason Selector */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+                  📋 Select Valid Cancellation Reason (معقول وجہ):
+                </label>
+                <select
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="input"
+                  style={{ width: '100%', background: '#1E293B' }}
+                >
+                  <option value="🚨 Vehicle Mechanical Breakdown / Engine Failure">🚨 Vehicle Mechanical Breakdown / Engine Failure</option>
+                  <option value="🛣️ Route Blocked / National Highway Closure / Strike">🛣️ Route Blocked / National Highway Closure / Strike</option>
+                  <option value="📦 Cargo Mismatch / Unsafe Packaging at Factory Gate">📦 Cargo Mismatch / Unsafe Packaging at Factory Gate</option>
+                  <option value="⚠️ Extreme Weather / Flood / Natural Disruption">⚠️ Extreme Weather / Flood / Natural Disruption</option>
+                  <option value="💼 Mutual Agreement with Shipper / Schedule Conflict">💼 Mutual Agreement with Shipper / Schedule Conflict</option>
+                </select>
+              </div>
+
+              {/* Explanation Note */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+                  📝 Detailed Explanation Notes (تفصیلی وجہ):
+                </label>
+                <textarea
+                  value={cancelNote}
+                  onChange={(e) => setCancelNote(e.target.value)}
+                  rows={3}
+                  className="input"
+                  style={{ width: '100%', background: '#1E293B' }}
+                  placeholder="e.g. Engine radiator overheated near Sukkur Toll Plaza. Mechanic repair receipt attached."
+                  required
+                />
+              </div>
+
+              {/* Proof File Attachment */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+                  📎 Verification Proof Document / Receipt (ثبوت فائل):
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    id="cancelProofFileInput"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setCancelProofFileName(e.target.files[0].name);
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('cancelProofFileInput')?.click()}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    📷 Upload Proof Image / PDF
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: '#34D399', fontWeight: 600 }}>
+                    {cancelProofFileName || 'No file chosen'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCancelProofFileName('Vehicle_Engine_Breakdown_Receipt.png')}
+                    className="btn btn-glass btn-sm"
+                    style={{ fontSize: '0.75rem' }}
+                  >
+                    📷 Attach Engine Breakdown Receipt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCancelProofFileName('NHMP_Highway_Blockage_Alert.png')}
+                    className="btn btn-glass btn-sm"
+                    style={{ fontSize: '0.75rem' }}
+                  >
+                    📷 Attach Highway Blockage Alert
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button type="button" onClick={() => setShowCancelTripModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-accent" style={{ background: '#EF4444', color: '#FFF' }}>
+                  🚫 Confirm Cancellation & Submit Audit Proof
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* MODIFY DRIVER BID MODAL */}
       {modifyBidTarget && (

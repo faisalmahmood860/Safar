@@ -385,7 +385,7 @@ export default function FleetDashboard() {
                     padding: '1.25rem',
                     display: 'flex',
                     flexDirection: 'column',
-                    justify: 'space-between',
+                    justifyContent: 'space-between',
                     gap: '0.75rem',
                   }}
                 >

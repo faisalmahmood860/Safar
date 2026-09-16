@@ -1334,7 +1334,7 @@ export default function PostLoadPage() {
                           fontSize: '0.88rem',
                           display: 'flex',
                           alignItems: 'center',
-                          justify: 'center',
+                          justifyContent: 'center',
                           gap: '6px'
                         }}
                       >

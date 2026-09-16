@@ -18,6 +18,7 @@ export default function LoadsPage() {
   const [marketTab, setMarketTab] = useState<'cargo' | 'fleet-trucks' | 'driver-radar'>('cargo');
   const [fleetTrucks, setFleetTrucks] = useState<any[]>([]);
   const [driverBroadcasts, setDriverBroadcasts] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<string>('driver');
 
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'list' | 'map'>('list');
@@ -101,6 +102,9 @@ export default function LoadsPage() {
   };
 
   React.useEffect(() => {
+    const storedRole = localStorage.getItem('safarload_user_role');
+    if (storedRole) setUserRole(storedRole);
+
     loadAllLoadsFromStorage();
     loadFleetTrucksAndRadar();
 
@@ -654,13 +658,15 @@ export default function LoadsPage() {
                   >
                     📞 Call Driver Direct
                   </button>
-                  <Link
-                    href={`/dashboard/post-load?targetTruck=${encodeURIComponent(truck.registrationNumber)}`}
-                    className="btn btn-success btn-sm"
-                    style={{ flex: 1, textAlign: 'center' }}
-                  >
-                    ⚡ Assign Cargo Load
-                  </Link>
+                  {userRole !== 'driver' && (
+                    <Link
+                      href={`/dashboard/post-load?targetTruck=${encodeURIComponent(truck.registrationNumber)}`}
+                      className="btn btn-success btn-sm"
+                      style={{ flex: 1, textAlign: 'center' }}
+                    >
+                      ⚡ Assign Cargo Load
+                    </Link>
+                  )}
                 </div>
               </div>
             ))
@@ -720,13 +726,15 @@ export default function LoadsPage() {
                   >
                     📞 Call Driver Direct
                   </button>
-                  <Link
-                    href={`/dashboard/post-load?pickupCity=${encodeURIComponent(radar.currentCity)}&dropoffCity=${encodeURIComponent(radar.preferredDestination)}`}
-                    className="btn btn-success btn-sm"
-                    style={{ flex: 1, textAlign: 'center' }}
-                  >
-                    ⚡ Offer Return Cargo Load
-                  </Link>
+                  {userRole !== 'driver' && (
+                    <Link
+                      href={`/dashboard/post-load?pickupCity=${encodeURIComponent(radar.currentCity)}&dropoffCity=${encodeURIComponent(radar.preferredDestination)}`}
+                      className="btn btn-success btn-sm"
+                      style={{ flex: 1, textAlign: 'center' }}
+                    >
+                      ⚡ Offer Return Cargo Load
+                    </Link>
+                  )}
                 </div>
               </div>
             ))
