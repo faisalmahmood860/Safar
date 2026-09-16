@@ -237,6 +237,43 @@ export default function LoadsPage() {
     'LD-2026-001': { price: 178000, note: 'Ready to load today evening. Tarpaulin and belts ready.' }
   });
 
+  // Track global bids from storage to alert drivers when their bids are rejected or countered
+  const [globalBidsList, setGlobalBidsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadGlobalBids = () => {
+      try {
+        const stored = localStorage.getItem('safarload_global_bids');
+        if (stored) {
+          setGlobalBidsList(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadGlobalBids();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('safarload_bid_change', loadGlobalBids);
+      return () => window.removeEventListener('safarload_bid_change', loadGlobalBids);
+    }
+  }, []);
+
+  const handleDismissRejectedBid = (bidId: string) => {
+    try {
+      const stored = localStorage.getItem('safarload_global_bids');
+      let list = stored ? JSON.parse(stored) : [];
+      list = list.filter((b: any) => b.id !== bidId);
+      localStorage.setItem('safarload_global_bids', JSON.stringify(list));
+      setGlobalBidsList(list);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_bid_change'));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleOpenLoadModal = (load: typeof mockLoads[0]) => {
     setSelectedLoad(load);
     const existingBid = driverBidsMap[load.id];
@@ -441,6 +478,118 @@ export default function LoadsPage() {
           🟢 {isRtl ? 'ڈرائیور واپسی رڈار' : 'Driver Return Radar'} ({driverBroadcasts.length})
         </button>
       </div>
+
+      {/* DRIVER BID REJECTION & COUNTER OFFER ALERTS BANNER */}
+      {marketTab === 'cargo' && globalBidsList.some(b => b.status === 'rejected' || (b.status === 'pending' && b.lastUpdatedBy === 'shipper')) && (
+        <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {globalBidsList.filter(b => b.status === 'rejected').map((bid: any) => (
+            <div
+              key={bid.id}
+              style={{
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(30, 41, 59, 0.95) 100%)',
+                border: '2px solid #EF4444',
+                borderRadius: '16px',
+                padding: '1.25rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                boxShadow: '0 8px 24px rgba(239, 68, 68, 0.25)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span className="badge badge-danger" style={{ fontSize: '0.8rem', padding: '3px 8px', fontWeight: 700 }}>
+                    🔴 REJECTED BY SHIPPER
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>Load ID: {bid.loadId}</span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#FFFFFF' }}>
+                  📦 {bid.loadTitle || bid.route}
+                </div>
+                <div style={{ fontSize: '0.88rem', color: '#E2E8F0', marginTop: '4px' }}>
+                  🏢 Shipper <strong>{bid.shipperName}</strong> rejected your rate offer of <strong style={{ color: '#EF4444', textDecoration: 'line-through' }}>Rs. {bid.offeredBidPrice?.toLocaleString()}</strong>.
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#F59E0B', marginTop: '2px' }}>
+                  💡 Tip: You can submit a lower counter bid or accept the standard load rate to secure dispatch.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    const matchedLoad = allLoads.find(l => l.id === bid.loadId) || {
+                      id: bid.loadId,
+                      title: bid.loadTitle || bid.route,
+                      pickupCity: (bid.route || '').split('→')[0]?.trim() || 'Multan',
+                      dropoffCity: (bid.route || '').split('→')[1]?.trim() || 'Karachi',
+                      pickupAddress: 'Industrial Area',
+                      dropoffAddress: 'City Goods Yard',
+                      cargoType: bid.loadTitle?.split('—')[0]?.trim() || 'Cargo Freight',
+                      weight: '25 Tons',
+                      truckType: bid.truckType || 'Trailer',
+                      price: bid.originalPrice || bid.offeredBidPrice,
+                      shipperName: bid.shipperName,
+                    };
+                    handleOpenLoadModal(matchedLoad as any);
+                  }}
+                  className="btn btn-warning btn-md"
+                  style={{ fontWeight: 700, padding: '0.65rem 1.1rem', borderRadius: '10px' }}
+                >
+                  ✏️ {isRtl ? 'دوبارہ بولی دیں (Re-Bid)' : 'Submit Revised Counter Bid'}
+                </button>
+                <button
+                  onClick={() => handleDismissRejectedBid(bid.id)}
+                  className="btn btn-glass btn-sm"
+                  style={{ fontSize: '0.85rem', padding: '0.6rem 0.9rem' }}
+                >
+                  ✕ Dismiss
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {globalBidsList.filter(b => b.status === 'pending' && b.lastUpdatedBy === 'shipper').map((bid: any) => (
+            <div
+              key={bid.id}
+              style={{
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(30, 41, 59, 0.95) 100%)',
+                border: '2px solid #3B82F6',
+                borderRadius: '16px',
+                padding: '1.25rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.25)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span className="badge badge-info" style={{ fontSize: '0.8rem', padding: '3px 8px', fontWeight: 700 }}>
+                    🔄 REVISED SHIPPER COUNTER OFFER
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>Load ID: {bid.loadId}</span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#FFFFFF' }}>
+                  📦 {bid.loadTitle || bid.route}
+                </div>
+                <div style={{ fontSize: '0.88rem', color: '#E2E8F0', marginTop: '4px' }}>
+                  🏢 Shipper <strong>{bid.shipperName}</strong> offered revised rate: <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>Rs. {bid.shipperCounterPrice?.toLocaleString()}</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Link href="/dashboard/fleet" className="btn btn-primary btn-md" style={{ fontWeight: 700, padding: '0.65rem 1.1rem', borderRadius: '10px' }}>
+                  ⚡ Review & Accept Offer in Fleet
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* SEARCH & FILTERS */}
       {marketTab === 'cargo' && (

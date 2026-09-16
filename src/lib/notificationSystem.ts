@@ -158,3 +158,28 @@ export function triggerTripAcceptedNotification(driverName: string, pricePkr: nu
     actionUrl: '/dashboard/trips',
   });
 }
+
+export function triggerBidRejectedNotification(driverName: string, pricePkr: number | string, route: string) {
+  dispatchAppNotification({
+    titleEn: '🔴 Counter Bid Rejected by Shipper',
+    titleUr: '🔴 بولی شیپر نے مسترد کر دی',
+    messageEn: `Your counter bid of Rs. ${Number(pricePkr).toLocaleString()} for ${route} was rejected by the Shipper. Tap to re-bid or view standard rates.`,
+    messageUr: `${route} کے لیے آپ کی ${Number(pricePkr).toLocaleString()} روپے کی بولی شیپر نے مسترد کر دی ہے۔`,
+    type: 'bid_rejected',
+    targetRole: 'driver',
+    actionUrl: '/dashboard/loads',
+  });
+}
+
+export function triggerShipperCounterOfferNotification(driverName: string, pricePkr: number | string, route: string) {
+  dispatchAppNotification({
+    titleEn: '🔄 Shipper Sent Revised Counter Offer!',
+    titleUr: '🔄 شیپر نے نئی پیشکش بھیجی!',
+    messageEn: `Shipper sent a revised offer of Rs. ${Number(pricePkr).toLocaleString()} for ${route}. Tap to accept or respond!`,
+    messageUr: `شیپر نے ${route} کے لیے ${Number(pricePkr).toLocaleString()} روپے کی نیں پیشکش بھیجی ہے۔`,
+    type: 'bid_countered',
+    targetRole: 'driver',
+    actionUrl: '/dashboard/loads',
+  });
+}
+

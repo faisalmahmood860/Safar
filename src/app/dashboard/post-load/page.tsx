@@ -7,7 +7,7 @@ import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
 import { useBiltyEnabled } from '@/lib/biltyConfig';
 import { mockLoads, mockDriverCounterBids, mockDriverAvailabilities, DriverCounterBid, DriverAvailabilityBroadcast, pakistaniCities } from '@/lib/mockData';
-import { triggerCargoPostedNotification, triggerTripAcceptedNotification } from '@/lib/notificationSystem';
+import { triggerCargoPostedNotification, triggerTripAcceptedNotification, triggerBidRejectedNotification, triggerShipperCounterOfferNotification } from '@/lib/notificationSystem';
 import { initiateVoIPCall } from '@/lib/voipCallSystem';
 import { apiClient } from '@/lib/apiClient';
 
@@ -705,8 +705,18 @@ export default function PostLoadPage() {
   };
 
   const handleRejectBid = (bidId: string) => {
+    const targetBid = bids.find((b) => b.id === bidId);
     const updated = bids.map((b) => (b.id === bidId ? { ...b, status: 'rejected' as const } : b));
     saveBidsToStorage(updated);
+
+    if (targetBid) {
+      triggerBidRejectedNotification(
+        targetBid.driverName,
+        targetBid.offeredBidPrice,
+        targetBid.route || targetBid.loadTitle
+      );
+      alert(`🔴 Driver Counter Bid REJECTED! Driver (${targetBid.driverName}) has been notified live via notification badge & dashboard alert.`);
+    }
   };
 
   const handleOpenCounterBackModal = (bid: DriverCounterBid) => {
@@ -732,7 +742,12 @@ export default function PostLoadPage() {
     );
 
     saveBidsToStorage(updated);
-    alert(`🔄 Revised Counter Offer of Rs. ${revisedPrice.toLocaleString()} sent back to driver ${counterBidTarget.driverName}! Driver dashboard updated.`);
+    triggerShipperCounterOfferNotification(
+      counterBidTarget.driverName,
+      revisedPrice,
+      counterBidTarget.route || counterBidTarget.loadTitle
+    );
+    alert(`🔄 Revised Counter Offer of Rs. ${revisedPrice.toLocaleString()} sent back to driver ${counterBidTarget.driverName}! Driver dashboard & live notifications updated.`);
     setCounterBidTarget(null);
   };
 
