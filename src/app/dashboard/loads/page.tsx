@@ -322,16 +322,32 @@ export default function LoadsPage() {
       currentBids.unshift(newAcceptedBid);
       localStorage.setItem('safarload_global_bids', JSON.stringify(currentBids));
 
-      const storedBookedStr = localStorage.getItem('safarload_booked_loads');
-      const bookedList = storedBookedStr ? JSON.parse(storedBookedStr) : [];
-      if (!bookedList.includes(selectedLoad.id)) {
-        bookedList.push(selectedLoad.id);
-        localStorage.setItem('safarload_booked_loads', JSON.stringify(bookedList));
-      }
+      const newTripItem = {
+        id: `TRIP-${Math.floor(100 + Math.random() * 900)}`,
+        loadId: selectedLoad.id,
+        route: `${selectedLoad.pickupCity} → ${selectedLoad.dropoffCity}`,
+        cargo: `${selectedLoad.cargoType} (${selectedLoad.weight} Tons)`,
+        weight: Number(selectedLoad.weight) || 25,
+        price: selectedLoad.price,
+        shipper: selectedLoad.shipperName,
+        driverName: driverNameOnly,
+        status: 'assigned',
+        pickupDate: 'Tomorrow',
+        biltyUploaded: false,
+        fuelAdvanceRequested: false,
+        bookedByUserRole: userRole,
+        bookedByUserName: driverNameOnly
+      };
+
+      const storedTripsStr = localStorage.getItem('safarload_driver_trips');
+      const tripsList = storedTripsStr ? JSON.parse(storedTripsStr) : [];
+      tripsList.unshift(newTripItem);
+      localStorage.setItem('safarload_driver_trips', JSON.stringify(tripsList));
 
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('safarload_bid_change'));
         window.dispatchEvent(new Event('safarload_loads_change'));
+        window.dispatchEvent(new Event('safarload_trips_change'));
       }
     } catch (err) {
       console.error(err);

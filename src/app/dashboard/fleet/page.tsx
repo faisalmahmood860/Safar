@@ -7,33 +7,8 @@ import { mockFleetTrucks, mockLoads, mockDrivers, pakistaniCities } from '@/lib/
 import { initiateVoIPCall, triggerIncomingDriverCall } from '@/lib/voipCallSystem';
 import { apiClient } from '@/lib/apiClient';
 
-const defaultFleetTrucks = [
-  { id: 'TRK-001', registrationNumber: 'LHR-5678', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Tariq Mehmood', currentCity: 'Multan', fuelLevel: 85, nextMaintenance: '2026-09-30', status: 'active' },
-  { id: 'TRK-002', registrationNumber: 'KHI-1234', type: 'Container (22ft / 20 Tons)', typeIcon: '📦', driverName: 'Abdul Rasheed', currentCity: 'Karachi', fuelLevel: 92, nextMaintenance: '2026-10-12', status: 'active' },
-  { id: 'TRK-003', registrationNumber: 'FSD-9012', type: 'Dumper Truck (30 Tons)', typeIcon: '🚛', driverName: 'Muhammad Aslam', currentCity: 'Faisalabad', fuelLevel: 45, nextMaintenance: '2026-09-22', status: 'idle' },
-  { id: 'TRK-004', registrationNumber: 'RWP-3456', type: '22-Wheeler Heavy Trailer', typeIcon: '🚛', driverName: 'Shahbaz Ali', currentCity: 'Rawalpindi', fuelLevel: 78, nextMaintenance: '2026-11-05', status: 'idle' },
-  { id: 'TRK-005', registrationNumber: 'PSH-7890', type: 'Bedford Open Rig (15 Tons)', typeIcon: '🚛', driverName: 'Khan Muhammad', currentCity: 'Peshawar', fuelLevel: 60, nextMaintenance: '2026-09-18', status: 'active' },
-  { id: 'TRK-006', registrationNumber: 'MLT-4567', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Zahid Khan', currentCity: 'Multan', fuelLevel: 90, nextMaintenance: '2026-10-25', status: 'idle' },
-  { id: 'TRK-007', registrationNumber: 'LHR-9988', type: 'Container (40ft / 35 Tons)', typeIcon: '📦', driverName: 'Kamran Akmal', currentCity: 'Lahore', fuelLevel: 30, nextMaintenance: '2026-09-16', status: 'maintenance' },
-  { id: 'TRK-008', registrationNumber: 'ISB-1122', type: 'Mazda Master (10 Tons)', typeIcon: '🚚', driverName: 'Rizwan Ahmed', currentCity: 'Islamabad', fuelLevel: 95, nextMaintenance: '2026-12-01', status: 'idle' },
-  { id: 'TRK-009', registrationNumber: 'GUJ-3344', type: 'Heavy Trailer (30 Tons)', typeIcon: '🚛', driverName: 'Imran Shah', currentCity: 'Gujranwala', fuelLevel: 72, nextMaintenance: '2026-10-15', status: 'active' },
-  { id: 'TRK-010', registrationNumber: 'SKT-5566', type: 'Shehzore Pickup (3 Tons)', typeIcon: '🛻', driverName: 'Farooq Azam', currentCity: 'Sialkot', fuelLevel: 88, nextMaintenance: '2026-11-20', status: 'idle' },
-];
-
-const defaultFleetDrivers = [
-  { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', cnic: '35201-1234567-1', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty', safetyScore: 98, brakingScore: 99, idlingScore: 96, onTimeRate: '99%' },
-  { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', cnic: '42201-9876543-1', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 95, brakingScore: 94, idlingScore: 92, onTimeRate: '97%' },
-  { id: 'DRV-003', name: 'Muhammad Aslam', phone: '+92 321 5551234', cnic: '33100-5551234-1', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available', safetyScore: 92, brakingScore: 90, idlingScore: 89, onTimeRate: '95%' },
-  { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', cnic: '37405-7778899-1', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available', safetyScore: 97, brakingScore: 98, idlingScore: 95, onTimeRate: '98%' },
-  { id: 'DRV-005', name: 'Khan Muhammad', phone: '+92 302 1122334', cnic: '17301-1122334-1', truck: 'PSH-7890 (Bedford)', cnicVerified: true, status: 'On Duty', safetyScore: 94, brakingScore: 93, idlingScore: 91, onTimeRate: '96%' },
-  { id: 'DRV-006', name: 'Zahid Khan', phone: '+92 304 9988776', cnic: '36302-9988776-1', truck: 'MLT-4567 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 97, idlingScore: 94, onTimeRate: '98%' },
-  { id: 'DRV-007', name: 'Kamran Akmal', phone: '+92 305 4433221', cnic: '35202-4433221-1', truck: 'LHR-9988 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 91, brakingScore: 89, idlingScore: 88, onTimeRate: '94%' },
-  { id: 'DRV-008', name: 'Rizwan Ahmed', phone: '+92 306 6655443', cnic: '61101-6655443-1', truck: 'ISB-1122 (Mazda)', cnicVerified: true, status: 'Available', safetyScore: 99, brakingScore: 100, idlingScore: 97, onTimeRate: '100%' },
-  { id: 'DRV-009', name: 'Imran Shah', phone: '+92 307 8899001', cnic: '34201-8899001-1', truck: 'GUJ-3344 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 93, brakingScore: 92, idlingScore: 90, onTimeRate: '95%' },
-  { id: 'DRV-010', name: 'Farooq Azam', phone: '+92 308 2233445', cnic: '34603-2233445-1', truck: 'SKT-5566 (Shehzore)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 95, idlingScore: 93, onTimeRate: '97%' },
-  { id: 'DRV-011', name: 'Bilal Hassan', phone: '+92 309 7766554', cnic: '35201-7766554-1', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 90, brakingScore: 88, idlingScore: 87, onTimeRate: '93%' },
-  { id: 'DRV-012', name: 'Noman Riaz', phone: '+92 310 1144778', cnic: '35202-1144778-1', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 94, brakingScore: 95, idlingScore: 92, onTimeRate: '96%' },
-];
+const defaultFleetTrucks: any[] = [];
+const defaultFleetDrivers: any[] = [];
 
 export default function FleetDashboard() {
   const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers' | 'my-bids'>('my-bids');

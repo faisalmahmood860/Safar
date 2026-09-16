@@ -18,11 +18,15 @@ interface TripItem {
   weight: number;
   price: number;
   shipper: string;
+  driverName?: string;
   status: 'assigned' | 'at_pickup' | 'in_transit' | 'delivered';
   pickupDate: string;
   biltyUploaded: boolean;
   fuelAdvanceRequested: boolean;
   isAwaitingShipperAck?: boolean;
+  bookedByUserId?: string;
+  bookedByUserRole?: string;
+  bookedByUserName?: string;
 }
 
 export default function DriverTripsPage() {
@@ -30,6 +34,9 @@ export default function DriverTripsPage() {
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
   const biltyEnabled = useBiltyEnabled();
   const [showPoliceModal, setShowPoliceModal] = useState(false);
+
+  const [userRole, setUserRole] = useState<string>('driver');
+  const [loggedUser, setLoggedUser] = useState<any>(null);
 
   const handleOpenBilty = (trip: TripItem) => {
     setSelectedBilty({
@@ -43,7 +50,7 @@ export default function DriverTripsPage() {
       consigneeCnic: '42201-1122334-9',
       consigneePhone: '+92 21 34567890',
       dropoffAddress: 'Port Qasim, Bin Qasim Town, Karachi',
-      driverName: 'Tariq Mehmood',
+      driverName: trip.driverName || 'Tariq Mehmood',
       driverCnic: '35201-1234567-1',
       driverPhone: '+92 301 2345678',
       truckNumber: 'LHR-5678',
@@ -79,7 +86,7 @@ export default function DriverTripsPage() {
   const [cancelProofFileName, setCancelProofFileName] = useState<string>('Vehicle_Engine_Breakdown_Slip.png');
 
   // Dynamic Driver Bids State Synced with localStorage
-  const [driverBids, setDriverBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
+  const [driverBids, setDriverBids] = useState<DriverCounterBid[]>([]);
   const [modifyBidTarget, setModifyBidTarget] = useState<DriverCounterBid | null>(null);
   const [newDriverBidPrice, setNewDriverBidPrice] = useState<string>('');
   const [newDriverBidMsg, setNewDriverBidMsg] = useState<string>('');
@@ -92,25 +99,61 @@ export default function DriverTripsPage() {
   ]);
   const [chatInputText, setChatInputText] = useState('');
 
-  // Sync trips and bids with localStorage
+  // Sync trips and bids with localStorage (User-Scoped)
   useEffect(() => {
     try {
-      const storedTrips = localStorage.getItem('safarload_driver_trips');
-      if (storedTrips) {
-        const parsed = JSON.parse(storedTrips);
-        setTrips(parsed);
-        if (parsed.length > 0) setActiveTrip(parsed[0]);
-      } else {
-        setTrips(defaultTrips);
-        setActiveTrip(defaultTrips[0]);
-        localStorage.setItem('safarload_driver_trips', JSON.stringify(defaultTrips));
+      const storedRole = localStorage.getItem('safarload_user_role') || 'driver';
+      setUserRole(storedRole);
+
+      let currentUser: any = null;
+      const storedUser = localStorage.getItem('safarload_logged_user');
+      if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        setLoggedUser(currentUser);
       }
+
+      const loadUserTrips = () => {
+        const storedTrips = localStorage.getItem('safarload_driver_trips');
+        if (storedTrips) {
+          const parsed: TripItem[] = JSON.parse(storedTrips);
+          const filtered = parsed.filter((t: TripItem) => {
+            if (storedRole === 'admin') return true;
+            if (storedRole === 'driver') {
+              if (t.bookedByUserRole) return t.bookedByUserRole === 'driver';
+              return true;
+            }
+            if (storedRole === 'shipper') {
+              if (t.bookedByUserRole) return t.bookedByUserRole === 'shipper';
+              return t.shipper?.toLowerCase().includes(currentUser?.name?.toLowerCase() || 'shipper');
+            }
+            if (storedRole === 'fleet') {
+              return t.bookedByUserRole === 'fleet';
+            }
+            return true;
+          });
+
+          setTrips(filtered);
+          if (filtered.length > 0) setActiveTrip(filtered[0]);
+          else setActiveTrip(null);
+        } else {
+          setTrips([]);
+          setActiveTrip(null);
+        }
+      };
+
+      loadUserTrips();
 
       const storedBids = localStorage.getItem('safarload_global_bids');
       if (storedBids) {
         setDriverBids(JSON.parse(storedBids));
       } else {
-        localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
+        setDriverBids([]);
+        localStorage.setItem('safarload_global_bids', JSON.stringify([]));
+      }
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('safarload_trips_change', loadUserTrips);
+        return () => window.removeEventListener('safarload_trips_change', loadUserTrips);
       }
     } catch (e) {
       console.error(e);
@@ -178,11 +221,26 @@ export default function DriverTripsPage() {
       weight: 25,
       price: acceptedPrice,
       shipper: targetBid.shipperName,
+      driverName: targetBid.driverName,
       status: 'assigned',
       pickupDate: 'Tomorrow',
       biltyUploaded: false,
-      fuelAdvanceRequested: false
+      fuelAdvanceRequested: false,
+      bookedByUserRole: userRole,
+      bookedByUserName: loggedUser?.name || 'Driver'
     };
+
+    try {
+      const stored = localStorage.getItem('safarload_driver_trips');
+      const list: TripItem[] = stored ? JSON.parse(stored) : [];
+      list.unshift(newTrip);
+      localStorage.setItem('safarload_driver_trips', JSON.stringify(list));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_trips_change'));
+      }
+    } catch (e) {
+      console.error(e);
+    }
 
     setTrips(prev => [newTrip, ...prev]);
 

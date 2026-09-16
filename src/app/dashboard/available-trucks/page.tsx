@@ -23,21 +23,11 @@ interface FleetTruck {
   ratePerKm?: number;
 }
 
-const defaultFleetTrucks: FleetTruck[] = [
-  { id: 'TRK-001', registrationNumber: 'LHR-5678', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Tariq Mehmood', driverPhone: '+92 301 2345678', currentCity: 'Multan', fuelLevel: 85, status: 'idle', operatorName: 'Al-Farooq Logistics', capacityTons: 25, ratePerKm: 195 },
-  { id: 'TRK-002', registrationNumber: 'KHI-1234', type: 'Container (22ft / 20 Tons)', typeIcon: '📦', driverName: 'Abdul Rasheed', driverPhone: '+92 333 9876543', currentCity: 'Karachi', fuelLevel: 92, status: 'idle', operatorName: 'Port Freight Lines', capacityTons: 20, ratePerKm: 180 },
-  { id: 'TRK-003', registrationNumber: 'FSD-9012', type: 'Dumper Truck (30 Tons)', typeIcon: '🚛', driverName: 'Muhammad Aslam', driverPhone: '+92 321 5551234', currentCity: 'Faisalabad', fuelLevel: 45, status: 'idle', operatorName: 'Faisalabad Heavy Fleet', capacityTons: 30, ratePerKm: 210 },
-  { id: 'TRK-004', registrationNumber: 'RWP-3456', type: '22-Wheeler Heavy Trailer', typeIcon: '🚛', driverName: 'Shahbaz Ali', driverPhone: '+92 300 7778899', currentCity: 'Rawalpindi', fuelLevel: 78, status: 'idle', operatorName: 'Northern Freight Co.', capacityTons: 35, ratePerKm: 220 },
-  { id: 'TRK-005', registrationNumber: 'PSH-7890', type: 'Bedford Open Rig (15 Tons)', typeIcon: '🚛', driverName: 'Khan Muhammad', driverPhone: '+92 302 1122334', currentCity: 'Peshawar', fuelLevel: 60, status: 'idle', operatorName: 'Khyber Express Fleet', capacityTons: 15, ratePerKm: 160 },
-  { id: 'TRK-006', registrationNumber: 'MLT-4567', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Zahid Khan', driverPhone: '+92 304 9988776', currentCity: 'Multan', fuelLevel: 90, status: 'idle', operatorName: 'South Punjab Transport', capacityTons: 25, ratePerKm: 195 },
-  { id: 'TRK-008', registrationNumber: 'ISB-1122', type: 'Mazda Master (10 Tons)', typeIcon: '🚚', driverName: 'Rizwan Ahmed', driverPhone: '+92 306 6655443', currentCity: 'Islamabad', fuelLevel: 95, status: 'idle', operatorName: 'Capital Fast Logistics', capacityTons: 10, ratePerKm: 140 },
-  { id: 'TRK-009', registrationNumber: 'GUJ-3344', type: 'Heavy Trailer (30 Tons)', typeIcon: '🚛', driverName: 'Imran Shah', driverPhone: '+92 307 8899001', currentCity: 'Gujranwala', fuelLevel: 72, status: 'idle', operatorName: 'Guiranwala Industrial Fleet', capacityTons: 30, ratePerKm: 205 },
-  { id: 'TRK-010', registrationNumber: 'SKT-5566', type: 'Shehzore Pickup (3 Tons)', typeIcon: '🛻', driverName: 'Farooq Azam', driverPhone: '+92 308 2233445', currentCity: 'Sialkot', fuelLevel: 88, status: 'idle', operatorName: 'Sialkot Export Cargo', capacityTons: 3, ratePerKm: 95 },
-];
+const defaultFleetTrucks: FleetTruck[] = [];
 
 export default function AvailableTrucksPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
-  const [trucks, setTrucks] = useState<FleetTruck[]>(defaultFleetTrucks);
+  const [trucks, setTrucks] = useState<FleetTruck[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -51,7 +41,7 @@ export default function AvailableTrucksPage() {
       const stored = localStorage.getItem('safarload_fleet_trucks');
       if (stored) {
         const list: FleetTruck[] = JSON.parse(stored);
-        setTrucks(list.length > 0 ? list : defaultFleetTrucks);
+        setTrucks(list);
       }
     } catch (e) {
       console.error(e);
