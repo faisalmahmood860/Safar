@@ -1033,6 +1033,13 @@ export default function PostLoadPage() {
         >
           🟢 {lang === 'ur' ? 'ڈرائیور رڈار' : 'Driver Return Radar'} ({availabilities.length})
         </button>
+        <Link
+          href="/dashboard/available-trucks"
+          className={`${styles.workspaceTab}`}
+          style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', color: '#10B981' }}
+        >
+          🚛 {lang === 'ur' ? 'دستیاب فلیٹ گاڑیاں' : 'Available Fleet Trucks'} ➔
+        </Link>
       </nav>
 
       {/* WORKSPACE TAB 1: POST CARGO LOAD & VOICE AI HERO */}

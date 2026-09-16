@@ -741,9 +741,15 @@ export default function FleetDashboard() {
               <div className={styles.inputGroup}>
                 <label>Current Location City (شہر)</label>
                 <select value={newTruckCity} onChange={(e) => setNewTruckCity(e.target.value)} className="input">
-                  {pakistaniCities.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  {pakistaniCities.map((c: any) => {
+                    const cityName = typeof c === 'string' ? c : c.en;
+                    const cityUr = typeof c === 'string' ? c : c.ur;
+                    return (
+                      <option key={cityName} value={cityName}>
+                        {cityName} ({cityUr})
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 

@@ -16,12 +16,13 @@ export interface SystemUser {
   password?: string;
   name: string;
   cnicOrNtn?: string;
+  shipperType?: 'company' | 'individual';
   redirectUrl: string;
 }
 
 export const validSystemUsers: SystemUser[] = [
   { role: 'driver', email: 'driver@safarload.pk', phone: '03001234567', password: 'Driver@123', name: 'Verified Driver', redirectUrl: '/dashboard' },
-  { role: 'shipper', email: 'shipper@safarload.pk', phone: '03111234567', password: 'Shipper@123', name: 'Noor Textile Mills Ltd', redirectUrl: '/dashboard/post-load' },
+  { role: 'shipper', email: 'shipper@safarload.pk', phone: '03111234567', password: 'Shipper@123', name: 'Noor Textile Mills Ltd', shipperType: 'company', redirectUrl: '/dashboard/post-load' },
   { role: 'fleet', email: 'fleet@safarload.pk', phone: '03221234567', password: 'Fleet@123', name: 'Al-Farooq Fleet Logistics', redirectUrl: '/dashboard/fleet' },
   { role: 'support', email: 'support@safarload.pk', phone: '03331234567', password: 'Support@123', name: 'Ayesha Khan (Support Staff)', redirectUrl: '/dashboard/support' },
   { role: 'finance', email: 'finance@safarload.pk', phone: '03441234567', password: 'Finance@123', name: 'Kamran Ali (Finance Desk)', redirectUrl: '/dashboard/finance' },
@@ -30,7 +31,7 @@ export const validSystemUsers: SystemUser[] = [
 
 const roleDetails: Record<UserRole, { labelEn: string; labelUr: string; icon: string; redirect: string; desc: string }> = {
   driver: { labelEn: 'Truck Driver', labelUr: 'ڈرائیور', icon: '👨‍✈️', redirect: '/dashboard', desc: 'Find loads, track trips, and receive payments.' },
-  shipper: { labelEn: 'Enterprise Shipper', labelUr: 'کارگو مالک', icon: '🏢', redirect: '/dashboard/post-load', desc: 'Post cargo loads & track freight live.' },
+  shipper: { labelEn: 'Cargo Shipper', labelUr: 'کارگو مالک', icon: '🏢', redirect: '/dashboard/post-load', desc: 'Post cargo loads (Company / Individual) & track freight live.' },
   fleet: { labelEn: 'Fleet Operator', labelUr: 'فلیٹ آپریٹر', icon: '🚚', redirect: '/dashboard/fleet', desc: 'Manage truck fleet & driver dispatching.' },
   support: { labelEn: 'KYC & Support Desk', labelUr: 'ڈاکومنٹ ڈیسک', icon: '🎧', redirect: '/dashboard/support', desc: 'Verify user credentials & KYC documents.' },
   finance: { labelEn: 'Finance & Revenue Desk', labelUr: 'مالیاتی ڈیسک', icon: '💵', redirect: '/dashboard/finance', desc: 'Manage payouts, tax invoices & commission.' },
@@ -41,6 +42,7 @@ function LoginPageContent() {
   const [lang, setLang] = useState<Lang>('en');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [selectedRole, setSelectedRole] = useState<UserRole>('driver');
+  const [shipperType, setShipperType] = useState<'company' | 'individual'>('company');
   const [show3DDriver, setShow3DDriver] = useState<boolean>(true);
   
   // Login Form States
@@ -153,7 +155,8 @@ function LoginPageContent() {
       name: regName.trim(),
       email: regEmail.trim().toLowerCase(),
       phone: regPhone.trim() || '03000000000',
-      cnicOrNtn: regCnic.trim() || '35202-0000000-1',
+      cnicOrNtn: regCnic.trim() || (selectedRole === 'shipper' && shipperType === 'company' ? '1234567-8 (NTN)' : '35202-0000000-1'),
+      shipperType: selectedRole === 'shipper' ? shipperType : undefined,
       password: regPassword,
       redirectUrl: roleDetails[selectedRole].redirect,
     };
@@ -168,7 +171,7 @@ function LoginPageContent() {
           email: newUser.email,
           phone: newUser.phone,
           password: newUser.password,
-          details: { cnicOrNtn: newUser.cnicOrNtn }
+          details: { cnicOrNtn: newUser.cnicOrNtn, shipperType: newUser.shipperType }
         })
       });
     } catch (err) {
@@ -394,14 +397,64 @@ function LoginPageContent() {
               </div>
 
               {/* Registration Form Fields */}
+              {selectedRole === 'shipper' && (
+                <div className={styles.inputGroup} style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)', marginBottom: '1rem' }}>
+                  <label style={{ color: '#10B981', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>
+                    🏢 {lang === 'en' ? 'Shipper Entity Type Verification:' : 'کارگو مالک کی قسم:'}
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShipperType('company')}
+                      style={{
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '8px',
+                        border: shipperType === 'company' ? '2px solid #10B981' : '1px solid #334155',
+                        background: shipperType === 'company' ? 'rgba(16, 185, 129, 0.2)' : '#1E293B',
+                        color: shipperType === 'company' ? '#10B981' : '#94A3B8',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      🏢 {lang === 'en' ? 'Registered Company' : 'رجسٹرڈ کمپنی'}
+                      <div style={{ fontSize: '0.72rem', opacity: 0.8, marginTop: '2px' }}>SECP / NTN Verified</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShipperType('individual')}
+                      style={{
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '8px',
+                        border: shipperType === 'individual' ? '2px solid #3B82F6' : '1px solid #334155',
+                        background: shipperType === 'individual' ? 'rgba(59, 130, 246, 0.2)' : '#1E293B',
+                        color: shipperType === 'individual' ? '#60A5FA' : '#94A3B8',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      👤 {lang === 'en' ? 'Individual Shipper' : 'انفرادی شپر'}
+                      <div style={{ fontSize: '0.72rem', opacity: 0.8, marginTop: '2px' }}>CNIC Verified</div>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className={styles.inputGroup}>
-                <label>{lang === 'en' ? 'Full Name / Business Title' : 'مکمل نام / بزنس کا نام'}</label>
+                <label>
+                  {selectedRole === 'shipper'
+                    ? (shipperType === 'company' ? (lang === 'en' ? 'Company Name (SECP Registered)' : 'کمپنی کا نام (رجسٹرڈ)') : (lang === 'en' ? 'Individual Shipper Full Name' : 'شپر کا نام'))
+                    : (lang === 'en' ? 'Full Name / Business Title' : 'مکمل نام / بزنس کا نام')}
+                </label>
                 <input
                   type="text"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
                   className="input input-lg"
-                  placeholder={selectedRole === 'shipper' || selectedRole === 'fleet' ? 'e.g. Al-Madina Transport Co.' : 'e.g. Tariq Mehmood'}
+                  placeholder={selectedRole === 'shipper' ? (shipperType === 'company' ? 'e.g. Noor Textile Mills Ltd' : 'e.g. Tariq Mehmood') : 'e.g. Al-Madina Transport Co.'}
                   required
                 />
               </div>
@@ -436,13 +489,17 @@ function LoginPageContent() {
 
               <div className={styles.formRow}>
                 <div className={styles.inputGroup}>
-                  <label>{lang === 'en' ? 'CNIC / NTN Number' : 'شناختی کارڈ / این ٹی این'}</label>
+                  <label>
+                    {selectedRole === 'shipper'
+                      ? (shipperType === 'company' ? (lang === 'en' ? 'SECP NTN Tax Registration Number' : 'این ٹی این نمبر') : (lang === 'en' ? 'CNIC Number' : 'شناختی کارڈ نمبر'))
+                      : (lang === 'en' ? 'CNIC / NTN Number' : 'شناختی کارڈ / این ٹی این')}
+                  </label>
                   <input
                     type="text"
                     value={regCnic}
                     onChange={(e) => setRegCnic(e.target.value)}
                     className="input input-lg"
-                    placeholder="35202-1234567-1"
+                    placeholder={selectedRole === 'shipper' && shipperType === 'company' ? 'e.g. NTN-7489210-4' : '35202-1234567-1'}
                   />
                 </div>
 
