@@ -236,12 +236,12 @@ export default function DriverTripsPage() {
     const finalFreight = activeTrip.price;
     const final70PercentBalance = Math.round(finalFreight * 0.7);
 
-    // 1. Update trip status to 'delivered'
+    // 1. Update trip status to 'delivered' (Awaiting Shipper Acknowledgment)
     const updatedTrips = trips.map((t) =>
-      t.id === activeTrip.id ? { ...t, status: 'delivered' as const } : t
+      t.id === activeTrip.id ? { ...t, status: 'delivered' as const, isAwaitingShipperAck: true } : t
     );
     setTrips(updatedTrips);
-    setActiveTrip({ ...activeTrip, status: 'delivered' as const });
+    setActiveTrip({ ...activeTrip, status: 'delivered' as const, isAwaitingShipperAck: true });
 
     try {
       localStorage.setItem('safarload_driver_trips', JSON.stringify(updatedTrips));
@@ -249,14 +249,14 @@ export default function DriverTripsPage() {
       console.error(err);
     }
 
-    // 2. Update global bids / booked loads status in localStorage
+    // 2. Update global bids / booked loads status in localStorage to 'delivered'
     try {
       const storedBids = localStorage.getItem('safarload_global_bids');
       if (storedBids) {
         let bidsList = JSON.parse(storedBids);
         bidsList = bidsList.map((b: any) =>
           b.loadId === activeTrip.loadId || b.id === activeTrip.id || b.loadTitle === activeTrip.cargo
-            ? { ...b, status: 'completed', isDelivered: true, completedAt: new Date().toLocaleDateString() }
+            ? { ...b, status: 'delivered', isDelivered: true, awaitingShipperAck: true, deliveryProof: { receiverName, deliveryOtpCode, notes: cargoConditionNotes, submittedAt: new Date().toLocaleDateString() } }
             : b
         );
         localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
@@ -265,18 +265,8 @@ export default function DriverTripsPage() {
       console.error(err);
     }
 
-    // 3. Credit 70% final escrow balance to Driver Wallet
-    try {
-      const storedWallet = localStorage.getItem('safarload_wallet_balance');
-      const currentBal = storedWallet ? Number(storedWallet) : 124500;
-      const newBal = currentBal + final70PercentBalance;
-      localStorage.setItem('safarload_wallet_balance', newBal.toString());
-    } catch (err) {
-      console.error(err);
-    }
-
-    // 4. Update API backend status
-    apiClient.updateLoadStatus(activeTrip.loadId, 'completed').catch(console.error);
+    // 3. Update API backend status
+    apiClient.updateLoadStatus(activeTrip.loadId, 'delivered').catch(console.error);
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('safarload_bid_change'));
@@ -284,7 +274,7 @@ export default function DriverTripsPage() {
     }
 
     alert(
-      `🎉 TRIP COMPLETED & DELIVERED SUCCESSFULLY!\n\n🚚 Trip ID: ${activeTrip.id}\n📍 Route: ${activeTrip.route}\n🏢 Shipper: ${activeTrip.shipper}\n👤 Receiver: ${receiverName}\n🔑 Delivery OTP Code: ${deliveryOtpCode}\n💰 70% Final Escrow Freight (Rs. ${final70PercentBalance.toLocaleString()}) credited to your SafarLoad Wallet!\n\nePOD Digital Delivery Proof logged.`
+      `🚚 DELIVERY PROOF & OTP SUBMITTED SUCCESSFULLY!\n\n🚚 Trip ID: ${activeTrip.id}\n📍 Route: ${activeTrip.route}\n🏢 Shipper: ${activeTrip.shipper}\n👤 Receiver: ${receiverName}\n🔑 Delivery OTP Code: ${deliveryOtpCode}\n\nStatus set to 'Delivered & Awaiting Shipper Acknowledgment'. Once the Shipper acknowledges receipt, your 70% final freight payment (Rs. ${final70PercentBalance.toLocaleString()}) will be transferred directly to your driver account.`
     );
 
     setShowCompleteTripModal(false);

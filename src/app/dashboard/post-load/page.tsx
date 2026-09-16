@@ -884,9 +884,29 @@ export default function PostLoadPage() {
   };
 
   const handleCloseShipmentAndRateDriver = (bid: DriverCounterBid) => {
-    const updated = bids.map((b) => (b.id === bid.id ? { ...b, status: 'completed' as const } : b));
+    const final70Percent = Math.round(bid.offeredBidPrice * 0.7);
+
+    const confirmed = confirm(
+      `Acknowledge shipment delivery for "${bid.loadTitle}"?\n\nThis will release and transfer the 70% final freight payment of Rs. ${final70Percent.toLocaleString()} directly to driver ${bid.driverName}'s account.`
+    );
+    if (!confirmed) return;
+
+    // 1. Update bids status to 'completed'
+    const updated = bids.map((b) => (b.id === bid.id ? { ...b, status: 'completed' as const, isAcknowledgedByShipper: true } : b));
     saveBidsToStorage(updated);
 
+    // 2. Transfer 70% final payment to Driver account wallet
+    try {
+      const storedWallet = localStorage.getItem('safarload_driver_wallet');
+      const currentBal = storedWallet ? Number(storedWallet) : 0;
+      const newBal = currentBal + final70Percent;
+      localStorage.setItem('safarload_driver_wallet', newBal.toString());
+      localStorage.setItem('safarload_wallet_balance', newBal.toString());
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 3. Update global posted load status to completed
     try {
       const storedLoads = localStorage.getItem('safarload_global_posted_loads');
       if (storedLoads) {
@@ -903,7 +923,9 @@ export default function PostLoadPage() {
       console.error(e);
     }
 
-    alert(`✅ Trip marked as DELIVERED & CLOSED!\n70% Escrow final balance released to driver ${bid.driverName}.\n\nPlease submit your rating & review for the driver.`);
+    alert(
+      `✅ SHIPMENT DELIVERY ACKNOWLEDGED!\n\n👨‍✈️ Driver: ${bid.driverName}\n🚛 Vehicle: ${bid.truckNumber}\n💰 70% Final Freight Payment (Rs. ${final70Percent.toLocaleString()}) transferred directly to driver account!\n\nPlease submit your driver performance rating & review below.`
+    );
     handleOpenRatingModal(bid);
   };
 
@@ -1309,7 +1331,7 @@ export default function PostLoadPage() {
                           gap: '6px'
                         }}
                       >
-                        ✅ {lang === 'ur' ? 'شپمنٹ وصول ہو گئی - ٹرپ بند کریں اور ریٹنگ دیں' : 'Mark Trip Delivered & Closed'}
+                        ✅ {lang === 'ur' ? 'ڈیلیوری کی تصدیق کریں اور 70% ادائیگی بھیجیں' : 'Acknowledge Delivery & Release 70% Payment to Driver'}
                       </button>
                     )}
 
