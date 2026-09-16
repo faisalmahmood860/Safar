@@ -805,17 +805,17 @@ export default function LoadsPage() {
                 </div>
 
                 {/* Fleet Vehicle & Driver Assignment Panel */}
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
-                  <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.95rem', color: '#10B981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(148, 163, 184, 0.2)', borderRadius: '16px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                  <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.05rem', fontWeight: 700, color: '#10B981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     🚚 Vehicle & Driver Dispatch Assignment (گاڑی اور ڈرائیور کا انتخاب)
                   </h4>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                         🚛 Fleet Vehicle (گاڑی):
                       </label>
-                      <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)} className="input input-sm" style={{ width: '100%' }}>
+                      <select value={selectedVehicle} onChange={(e) => setSelectedVehicle(e.target.value)} className="input" style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.92rem', borderRadius: '10px' }}>
                         <option value="LHR-5678 (Flatbed Trailer 25T)">LHR-5678 (Flatbed Trailer 25T)</option>
                         <option value="KHI-1234 (Container Truck 40ft)">KHI-1234 (Container Truck 40ft)</option>
                         <option value="FSD-9012 (Dumper Truck 20T)">FSD-9012 (Dumper Truck 20T)</option>
@@ -825,10 +825,10 @@ export default function LoadsPage() {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
                         👨‍✈️ Company Driver (ڈرائیور):
                       </label>
-                      <select value={selectedDriverName} onChange={(e) => setSelectedDriverName(e.target.value)} className="input input-sm" style={{ width: '100%' }}>
+                      <select value={selectedDriverName} onChange={(e) => setSelectedDriverName(e.target.value)} className="input" style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.92rem', borderRadius: '10px' }}>
                         <option value="Tariq Mehmood (+92 301 2345678)">Tariq Mehmood (+92 301 2345678)</option>
                         <option value="Abdul Rasheed (+92 333 9876543)">Abdul Rasheed (+92 333 9876543)</option>
                         <option value="Tariq Mehmood (+92 321 5551234)">Tariq Mehmood (+92 321 5551234)</option>
@@ -842,32 +842,87 @@ export default function LoadsPage() {
                 {/* Instant Booking or Submit Bid */}
                 <div className={styles.actionTabsBox}>
                   <div className={styles.instantBookingBox}>
-                    <h4>⚡ Instant Fixed Booking</h4>
-                    <div className={styles.priceDisplay}>
-                      Rs. {selectedLoad.price.toLocaleString()}
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#10B981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        ⚡ Instant Fixed Booking
+                      </h4>
+                      <div className={styles.priceDisplay}>
+                        Rs. {selectedLoad.price.toLocaleString()}
+                      </div>
                     </div>
-                    <button onClick={handleConfirmBooking} className="btn btn-primary btn-lg" style={{ width: '100%' }}>
+                    <button
+                      onClick={handleConfirmBooking}
+                      className="btn btn-primary btn-lg"
+                      style={{
+                        width: '100%',
+                        fontSize: '1.05rem',
+                        fontWeight: 700,
+                        padding: '0.9rem 1.25rem',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                        boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)'
+                      }}
+                    >
                       ⚡ Confirm Booking Now (ابھی بوک کریں)
                     </button>
                   </div>
 
                   <div className={styles.biddingBox}>
-                    <h4>🏷️ Or Submit Counter Bid</h4>
-                    <form onSubmit={handleSubmitBid}>
-                      <div style={{ marginBottom: '0.75rem' }}>
-                        <label style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Your Rate Bid (PKR):</label>
-                        <input
-                          type="number"
-                          value={bidAmount}
-                          onChange={(e) => setBidAmount(e.target.value)}
-                          className="input"
-                          required
-                        />
-                      </div>
-                      <button type="submit" className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
-                        📩 Submit Bid to Shipper
-                      </button>
-                    </form>
+                    <div>
+                      <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.2rem', fontWeight: 700, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        🏷️ Or Submit Counter Bid
+                      </h4>
+                      <form onSubmit={handleSubmitBid}>
+                        <div style={{ marginBottom: '1.25rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+                            Your Rate Bid (PKR):
+                          </label>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <span style={{ position: 'absolute', left: '14px', color: '#F59E0B', fontWeight: 800, fontSize: '1rem' }}>
+                              PKR
+                            </span>
+                            <input
+                              type="number"
+                              value={bidAmount}
+                              onChange={(e) => setBidAmount(e.target.value)}
+                              className="input"
+                              style={{
+                                width: '100%',
+                                paddingLeft: '3.5rem',
+                                paddingRight: '1rem',
+                                paddingTop: '0.75rem',
+                                paddingBottom: '0.75rem',
+                                fontSize: '1.35rem',
+                                fontWeight: 800,
+                                color: '#F59E0B',
+                                border: '2px solid rgba(245, 158, 11, 0.5)',
+                                background: 'rgba(15, 23, 42, 0.9)',
+                                borderRadius: '12px'
+                              }}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="submit"
+                          className="btn btn-lg"
+                          style={{
+                            width: '100%',
+                            fontSize: '1.05rem',
+                            fontWeight: 700,
+                            padding: '0.9rem 1.25rem',
+                            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 16px rgba(245, 158, 11, 0.35)',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          📩 Submit Bid to Shipper
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -879,7 +934,7 @@ export default function LoadsPage() {
       {/* EDIT LOAD MODAL FOR SHIPPER */}
       {editingLoadTarget && (
         <div className={styles.modalBackdrop}>
-          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '650px', width: '90%' }}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '880px', width: '92%' }}>
             <div className={styles.modalHeader}>
               <h3>✏️ Edit Load Details — {editingLoadTarget.id}</h3>
               <button onClick={() => setEditingLoadTarget(null)} className={styles.closeBtn}>✕</button>
