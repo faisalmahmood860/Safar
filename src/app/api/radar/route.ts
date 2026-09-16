@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, statements } from '@/lib/db';
+
+export const dynamic = 'force-static';
 
 export async function GET(request: Request) {
   try {

@@ -56,10 +56,45 @@ export default function DriverTripsPage() {
       challanProtected: true,
     });
   };
-  const [trips, setTrips] = useState<TripItem[]>([]);
 
+  const defaultTrips: TripItem[] = [
+    {
+      id: 'TRIP-901',
+      loadId: 'LD-2026-001',
+      route: 'Multan → Karachi',
+      cargo: 'Textile Bales (25 Tons)',
+      weight: 25,
+      price: 185000,
+      shipper: 'Noor Textile Mills Ltd',
+      status: 'in_transit',
+      pickupDate: 'Today 08:00 AM',
+      biltyUploaded: true,
+      fuelAdvanceRequested: true,
+    },
+    {
+      id: 'TRIP-902',
+      loadId: 'LD-2026-002',
+      route: 'Lahore → Islamabad',
+      cargo: 'Packaging Materials (20 Tons)',
+      weight: 20,
+      price: 65000,
+      shipper: 'Packages Limited',
+      status: 'assigned',
+      pickupDate: 'Tomorrow 09:00 AM',
+      biltyUploaded: false,
+      fuelAdvanceRequested: false,
+    },
+  ];
+
+  const [trips, setTrips] = useState<TripItem[]>([]);
   const [activeTrip, setActiveTrip] = useState<TripItem | null>(null);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+
+  // Complete Trip & ePOD Delivery Verification State
+  const [showCompleteTripModal, setShowCompleteTripModal] = useState(false);
+  const [receiverName, setReceiverName] = useState('Pak Cotton Terminal Manager');
+  const [deliveryOtpCode, setDeliveryOtpCode] = useState('4829');
+  const [cargoConditionNote, setCargoConditionNote] = useState('Cargo delivered in 100% sound condition without damage or shortage.');
 
   // Dynamic Driver Bids State Synced with localStorage
   const [driverBids, setDriverBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);
@@ -75,12 +110,23 @@ export default function DriverTripsPage() {
   ]);
   const [chatInputText, setChatInputText] = useState('');
 
-  // Sync bids with localStorage
+  // Sync trips and bids with localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('safarload_global_bids');
-      if (stored) {
-        setDriverBids(JSON.parse(stored));
+      const storedTrips = localStorage.getItem('safarload_driver_trips');
+      if (storedTrips) {
+        const parsed = JSON.parse(storedTrips);
+        setTrips(parsed);
+        if (parsed.length > 0) setActiveTrip(parsed[0]);
+      } else {
+        setTrips(defaultTrips);
+        setActiveTrip(defaultTrips[0]);
+        localStorage.setItem('safarload_driver_trips', JSON.stringify(defaultTrips));
+      }
+
+      const storedBids = localStorage.getItem('safarload_global_bids');
+      if (storedBids) {
+        setDriverBids(JSON.parse(storedBids));
       } else {
         localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
       }
@@ -162,6 +208,86 @@ export default function DriverTripsPage() {
     saveBidsToStorage(updated);
 
     alert(`🎉 Shipper Counter Offer Accepted! Trip locked at Rs. ${acceptedPrice.toLocaleString()}. Added to your Booked Trips.`);
+  };
+
+  const handleAdvanceTripStatus = (nextStatus: 'at_pickup' | 'in_transit') => {
+    if (!activeTrip) return;
+    const updatedTrips = trips.map((t) =>
+      t.id === activeTrip.id ? { ...t, status: nextStatus } : t
+    );
+    setTrips(updatedTrips);
+    setActiveTrip({ ...activeTrip, status: nextStatus });
+    try {
+      localStorage.setItem('safarload_driver_trips', JSON.stringify(updatedTrips));
+    } catch (err) {
+      console.error(err);
+    }
+    if (nextStatus === 'at_pickup') {
+      alert(`📍 Vehicle Arrived at Factory Gate!\nShipper ${activeTrip.shipper} notified that vehicle is ready at pickup location.`);
+    } else if (nextStatus === 'in_transit') {
+      alert(`🚛 Transit Started!\nVehicle departed factory gate en-route on highway. Live GPS telematics active.`);
+    }
+  };
+
+  const handleCompleteTripSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeTrip) return;
+
+    const finalFreight = activeTrip.price;
+    const final70PercentBalance = Math.round(finalFreight * 0.7);
+
+    // 1. Update trip status to 'delivered'
+    const updatedTrips = trips.map((t) =>
+      t.id === activeTrip.id ? { ...t, status: 'delivered' as const } : t
+    );
+    setTrips(updatedTrips);
+    setActiveTrip({ ...activeTrip, status: 'delivered' as const });
+
+    try {
+      localStorage.setItem('safarload_driver_trips', JSON.stringify(updatedTrips));
+    } catch (err) {
+      console.error(err);
+    }
+
+    // 2. Update global bids / booked loads status in localStorage
+    try {
+      const storedBids = localStorage.getItem('safarload_global_bids');
+      if (storedBids) {
+        let bidsList = JSON.parse(storedBids);
+        bidsList = bidsList.map((b: any) =>
+          b.loadId === activeTrip.loadId || b.id === activeTrip.id || b.loadTitle === activeTrip.cargo
+            ? { ...b, status: 'completed', isDelivered: true, completedAt: new Date().toLocaleDateString() }
+            : b
+        );
+        localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    // 3. Credit 70% final escrow balance to Driver Wallet
+    try {
+      const storedWallet = localStorage.getItem('safarload_wallet_balance');
+      const currentBal = storedWallet ? Number(storedWallet) : 124500;
+      const newBal = currentBal + final70PercentBalance;
+      localStorage.setItem('safarload_wallet_balance', newBal.toString());
+    } catch (err) {
+      console.error(err);
+    }
+
+    // 4. Update API backend status
+    apiClient.updateLoadStatus(activeTrip.loadId, 'completed').catch(console.error);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('safarload_bid_change'));
+      window.dispatchEvent(new Event('safarload_loads_change'));
+    }
+
+    alert(
+      `🎉 TRIP COMPLETED & DELIVERED SUCCESSFULLY!\n\n🚚 Trip ID: ${activeTrip.id}\n📍 Route: ${activeTrip.route}\n🏢 Shipper: ${activeTrip.shipper}\n👤 Receiver: ${receiverName}\n🔑 Delivery OTP Code: ${deliveryOtpCode}\n💰 70% Final Escrow Freight (Rs. ${final70PercentBalance.toLocaleString()}) credited to your SafarLoad Wallet!\n\nePOD Digital Delivery Proof logged.`
+    );
+
+    setShowCompleteTripModal(false);
   };
 
   const handleSendChatMessage = (e: React.FormEvent) => {
@@ -331,8 +457,56 @@ export default function DriverTripsPage() {
               <div className={styles.infoBox}>
                 <span>Fuel Advance (30%):</span>
                 <strong>Rs. {(activeTrip.price * 0.3).toLocaleString()}</strong>
-                <small style={{ color: '#F59E0B' }}>JazzCash Wallet Ready</small>
+                <small style={{ color: '#F59E0B' }}>JazzCash Wallet Paid</small>
               </div>
+            </div>
+
+            {/* Trip Lifecycle Progress Stepper */}
+            <div style={{ margin: '1.25rem 0', background: 'rgba(15, 23, 42, 0.6)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '0.825rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '0.75rem' }}>
+                🚚 Trip Status Progression (ٹرپ کی موجودہ صورتحال):
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', textAlign: 'center', fontSize: '0.78rem' }}>
+                <div style={{ padding: '0.5rem', borderRadius: '8px', background: activeTrip.status === 'assigned' ? '#3B82F6' : '#1E293B', color: activeTrip.status === 'assigned' ? '#FFF' : '#94A3B8', fontWeight: activeTrip.status === 'assigned' ? 800 : 400 }}>
+                  1. Assigned
+                </div>
+                <div style={{ padding: '0.5rem', borderRadius: '8px', background: activeTrip.status === 'at_pickup' ? '#F59E0B' : '#1E293B', color: activeTrip.status === 'at_pickup' ? '#FFF' : '#94A3B8', fontWeight: activeTrip.status === 'at_pickup' ? 800 : 400 }}>
+                  2. At Pickup Gate
+                </div>
+                <div style={{ padding: '0.5rem', borderRadius: '8px', background: activeTrip.status === 'in_transit' ? '#0284C7' : '#1E293B', color: activeTrip.status === 'in_transit' ? '#FFF' : '#94A3B8', fontWeight: activeTrip.status === 'in_transit' ? 800 : 400 }}>
+                  3. In Transit
+                </div>
+                <div style={{ padding: '0.5rem', borderRadius: '8px', background: activeTrip.status === 'delivered' ? '#10B981' : '#1E293B', color: activeTrip.status === 'delivered' ? '#FFF' : '#94A3B8', fontWeight: activeTrip.status === 'delivered' ? 800 : 400 }}>
+                  4. Delivered ✅
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Status Advancement & Complete Trip Action Controls */}
+            <div style={{ marginTop: '1rem' }}>
+              {activeTrip.status === 'assigned' && (
+                <button onClick={() => handleAdvanceTripStatus('at_pickup')} className="btn btn-warning" style={{ width: '100%', padding: '0.85rem' }}>
+                  📍 Mark Arrived at Factory / Pickup Gate
+                </button>
+              )}
+              {activeTrip.status === 'at_pickup' && (
+                <button onClick={() => handleAdvanceTripStatus('in_transit')} className="btn btn-primary" style={{ width: '100%', padding: '0.85rem' }}>
+                  🚛 Start Transit / Depart for Destination
+                </button>
+              )}
+              {activeTrip.status === 'in_transit' && (
+                <button onClick={() => setShowCompleteTripModal(true)} className="btn btn-success" style={{ width: '100%', padding: '0.85rem', background: '#10B981', borderColor: '#10B981', color: '#FFF', fontWeight: 800 }}>
+                  ✅ Complete Trip & Upload Delivery Proof (ePOD / OTP)
+                </button>
+              )}
+              {activeTrip.status === 'delivered' && (
+                <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.25rem', color: '#10B981', fontWeight: 800 }}>🎉 TRIP COMPLETED & DELIVERED!</div>
+                  <div style={{ fontSize: '0.85rem', color: '#CBD5E1', marginTop: '4px' }}>
+                    100% Escrow freight payment (Rs. {activeTrip.price.toLocaleString()}) cleared. Digital ePOD generated.
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -583,6 +757,91 @@ export default function DriverTripsPage() {
                 Done & Return to Trip Control
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* COMPLETE TRIP & EPOD DELIVERY PROOF MODAL */}
+      {showCompleteTripModal && activeTrip && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '560px', border: '2px solid #10B981' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+              <h3 style={{ color: '#10B981' }}>✅ Complete Trip & Upload Delivery Proof (ePOD / OTP)</h3>
+              <button onClick={() => setShowCompleteTripModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleCompleteTripSubmit} style={{ padding: '1.25rem' }}>
+              <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px', marginBottom: '1rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Trip Being Completed:</div>
+                <strong style={{ fontSize: '1.05rem', color: '#10B981' }}>{activeTrip.id} — {activeTrip.route}</strong>
+                <div style={{ fontSize: '0.8rem', color: '#CBD5E1', marginTop: '2px' }}>
+                  🏢 Shipper: <strong>{activeTrip.shipper}</strong> | 💰 70% Balance Release: <strong>Rs. {Math.round(activeTrip.price * 0.7).toLocaleString()}</strong>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC' }}>
+                  👤 Consignee / Receiver Person Name (وصول کنندہ کا نام):
+                </label>
+                <input
+                  type="text"
+                  value={receiverName}
+                  onChange={(e) => setReceiverName(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC' }}>
+                  🔑 Digital Delivery OTP Verification Code (شپر کا OTP کوڈ):
+                </label>
+                <input
+                  type="text"
+                  value={deliveryOtpCode}
+                  onChange={(e) => setDeliveryOtpCode(e.target.value)}
+                  className="input input-lg"
+                  placeholder="e.g. 4829"
+                  style={{ fontWeight: 800, letterSpacing: '2px', color: '#F59E0B' }}
+                  required
+                />
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                  * Ask consignee/receiver at gate for their 4-digit SafarLoad Delivery Confirmation OTP.
+                </span>
+              </div>
+
+              <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC' }}>
+                  📸 Upload Unloading Slip / ePOD Receipt Photo:
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input type="file" accept="image/*,.pdf" className="input" style={{ flex: 1 }} />
+                  <span className="badge badge-success">✅ Photo Attached</span>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup} style={{ marginBottom: '1.25rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC' }}>
+                  📋 Cargo Condition & Unloading Notes (مال کی صورتحال):
+                </label>
+                <textarea
+                  value={cargoConditionNote}
+                  onChange={(e) => setCargoConditionNote(e.target.value)}
+                  className="input"
+                  rows={2}
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              <div className={styles.modalActions} style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setShowCompleteTripModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" style={{ background: '#10B981', borderColor: '#10B981', color: '#FFF', fontWeight: 800 }}>
+                  🚀 Submit ePOD & Release 70% Freight (Rs. {Math.round(activeTrip.price * 0.7).toLocaleString()})
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

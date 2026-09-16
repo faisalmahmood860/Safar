@@ -111,7 +111,7 @@ export interface DriverCounterBid {
   offeredBidPrice: number;
   bidMessage: string;
   submittedTime: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected' | 'completed';
   
   // Shipper Counter-Counter Fields
   shipperCounterPrice?: number;

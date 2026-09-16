@@ -23,6 +23,7 @@ export default function DriverAvailabilityWidget({
   const [departureTime, setDepartureTime] = useState('Immediate / Ready Now');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeBroadcast, setActiveBroadcast] = useState<DriverAvailabilityBroadcast | null>(null);
+  const [inTransitTrip, setInTransitTrip] = useState<any | null>(null);
 
   useEffect(() => {
     // Check local storage for active driver broadcast
@@ -31,6 +32,24 @@ export default function DriverAvailabilityWidget({
       try {
         setActiveBroadcast(JSON.parse(stored));
       } catch (e) {}
+    }
+
+    // Check if truck/driver has an active accepted load (In Transit)
+    try {
+      const storedBids = localStorage.getItem('safarload_global_bids');
+      if (storedBids) {
+        const bidsList = JSON.parse(storedBids);
+        const activeAccepted = bidsList.find((b: any) => b.status === 'accepted' || b.status === 'booked');
+        if (activeAccepted) {
+          setInTransitTrip(activeAccepted);
+          const routeParts = activeAccepted.route ? activeAccepted.route.split('→') : [];
+          const dropCity = routeParts.length > 1 ? routeParts[1].trim() : 'Karachi';
+          setCurrentCity(dropCity);
+          setDepartureTime(`Post-Unloading (After ${activeAccepted.route || 'delivery'})`);
+        }
+      }
+    } catch (e) {
+      console.error(e);
     }
   }, []);
 
@@ -42,6 +61,10 @@ export default function DriverAvailabilityWidget({
       ? 'Open to Go Anywhere in Pakistan 🇵🇰'
       : targetDestination;
 
+    const formattedDeparture = inTransitTrip
+      ? `🔄 Post-Unloading Return (${departureTime})`
+      : departureTime;
+
     const payload = {
       driverName,
       driverPhone,
@@ -51,7 +74,9 @@ export default function DriverAvailabilityWidget({
       isOpenToAnywhere,
       preferredDestination: destinationText,
       availableCapacityTons: parseFloat(capacityTons) || 25,
-      departureTime,
+      departureTime: formattedDeparture,
+      isInTransit: !!inTransitTrip,
+      activeTripRoute: inTransitTrip?.route || null,
     };
 
     try {
@@ -75,7 +100,11 @@ export default function DriverAvailabilityWidget({
         if (onBroadcastSuccess) {
           onBroadcastSuccess(data.broadcast);
         }
-        alert(`📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons\n\nShippers searching for trucks on this route can now view your availability and contact you directly!`);
+        alert(
+          inTransitTrip
+            ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}\nDeparture: ${formattedDeparture}\n\nShippers searching for return loads from ${currentCity} can now view your post-unloading availability!`
+            : `📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons`
+        );
       }
     } catch (err) {
       // Fallback local broadcast
@@ -86,17 +115,17 @@ export default function DriverAvailabilityWidget({
         driverPhone,
         driverRating: 4.9,
         completedTrips: 128,
-        healthStatus: 'Excellent',
+        healthStatus: inTransitTrip ? `Online & In-Transit (${inTransitTrip.route})` : 'Excellent',
         isFleetManaged: false,
         truckNumber,
         truckType,
         currentCity,
         currentCityUr: currentCity,
-        currentLocation: `${currentCity} Logistics Hub`,
+        currentLocation: inTransitTrip ? `${currentCity} Unloading Hub` : `${currentCity} Logistics Hub`,
         preferredDestination: destinationText,
         preferredDestinationUr: destinationText,
         availableCapacityTons: parseFloat(capacityTons) || 25,
-        departureTime,
+        departureTime: formattedDeparture,
         status: 'available',
         postedAgo: 'Just now',
       };
@@ -112,7 +141,11 @@ export default function DriverAvailabilityWidget({
       if (onBroadcastSuccess) {
         onBroadcastSuccess(fallbackBroadcast);
       }
-      alert(`📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons`);
+      alert(
+        inTransitTrip
+          ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}\nDeparture: ${formattedDeparture}`
+          : `📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -142,14 +175,16 @@ export default function DriverAvailabilityWidget({
             <span>📡</span> Driver Return-Trip Radar & Availability Broadcast
           </h3>
           <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#94A3B8' }}>
-            Broadcast your current truck location & target destination so shippers can book you directly!
+            {inTransitTrip
+              ? 'Truck currently in transit — Broadcast post-return trip availability after unloading!'
+              : 'Broadcast your current truck location & target destination so shippers can book you directly!'}
           </p>
         </div>
 
         {activeBroadcast ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ padding: '0.35rem 0.85rem', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10B981', color: '#34D399', borderRadius: '999px', fontSize: '0.82rem', fontWeight: 700 }}>
-              🟢 Live & Visible on Shipper Radar
+            <span style={{ padding: '0.35rem 0.85rem', background: inTransitTrip ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)', border: `1px solid ${inTransitTrip ? '#F59E0B' : '#10B981'}`, color: inTransitTrip ? '#F59E0B' : '#34D399', borderRadius: '999px', fontSize: '0.82rem', fontWeight: 700 }}>
+              {inTransitTrip ? '🟡 Online & In-Transit (Post-Return Available)' : '🟢 Live & Visible on Shipper Radar'}
             </span>
             <button
               onClick={handleToggleOffline}
@@ -160,11 +195,39 @@ export default function DriverAvailabilityWidget({
             </button>
           </div>
         ) : (
-          <span style={{ padding: '0.35rem 0.85rem', background: 'rgba(148, 163, 184, 0.15)', border: '1px solid rgba(148, 163, 184, 0.3)', color: '#CBD5E1', borderRadius: '999px', fontSize: '0.82rem', fontWeight: 600 }}>
-            ⚪ Currently Not Broadcasted
+          <span style={{ padding: '0.35rem 0.85rem', background: inTransitTrip ? 'rgba(245, 158, 11, 0.15)' : 'rgba(148, 163, 184, 0.15)', border: `1px solid ${inTransitTrip ? '#F59E0B' : 'rgba(148, 163, 184, 0.3)'}`, color: inTransitTrip ? '#F59E0B' : '#CBD5E1', borderRadius: '999px', fontSize: '0.82rem', fontWeight: 600 }}>
+            {inTransitTrip ? '🟡 Online & In-Transit (en-route)' : '⚪ Currently Not Broadcasted'}
           </span>
         )}
       </div>
+
+      {/* IN-TRANSIT POST-RETURN WARNING BANNER */}
+      {inTransitTrip && (
+        <div
+          style={{
+            padding: '1rem',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid #F59E0B',
+            borderRadius: '12px',
+            marginBottom: '1.25rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <strong style={{ color: '#F59E0B', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              🟡 Status: Online & In-Transit (راستے میں - En Route)
+            </strong>
+            <span className="badge badge-warning" style={{ fontSize: '0.8rem' }}>
+              🚚 Active Trip: {inTransitTrip.route || inTransitTrip.loadTitle}
+            </span>
+          </div>
+          <p style={{ margin: '6px 0 0 0', fontSize: '0.85rem', color: '#CBD5E1' }}>
+            🔒 Your truck <strong>{inTransitTrip.truckNumber || 'LHR-5678'}</strong> is currently carrying an active load. Same-day immediate pickup for this active route is locked.
+          </p>
+          <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#34D399', fontWeight: 600 }}>
+            🔄 <strong>Post-Return Mode Active:</strong> You are broadcasting <strong>Post-Return Cargo Availability</strong> from your unloading city (<strong>{currentCity}</strong>) for your return leg!
+          </p>
+        </div>
+      )}
 
       {/* Active Broadcast Alert Box */}
       {activeBroadcast && (
@@ -314,12 +377,24 @@ export default function DriverAvailabilityWidget({
             value={departureTime}
             onChange={(e) => setDepartureTime(e.target.value)}
             className="input"
-            style={{ width: '100%', background: '#1E293B', color: '#F1F5F9', borderColor: 'rgba(148, 163, 184, 0.3)' }}
+            style={{ width: '100%', background: '#1E293B', color: '#F1F5F9', borderColor: inTransitTrip ? '#F59E0B' : 'rgba(148, 163, 184, 0.3)' }}
           >
-            <option value="Immediate / Ready Now">⚡ Immediate / Ready Now</option>
-            <option value="Today Evening (6:00 PM)">🌆 Today Evening (6:00 PM)</option>
-            <option value="Tomorrow Morning (8:00 AM)">🌅 Tomorrow Morning (8:00 AM)</option>
-            <option value="Flexible (Within 24 Hours)">⏳ Flexible (Within 24 Hours)</option>
+            {inTransitTrip ? (
+              <>
+                <option value={`Post-Unloading (After ${inTransitTrip.route || 'delivery'})`}>
+                  🔄 Post-Unloading Return Trip (بعد از ان لوڈنگ)
+                </option>
+                <option value="Tomorrow Morning Post-Unloading">🌅 Tomorrow Morning Post-Unloading</option>
+                <option value="Next Day Post-Unloading">📅 Next Day Post-Unloading</option>
+              </>
+            ) : (
+              <>
+                <option value="Immediate / Ready Now">⚡ Immediate / Ready Now</option>
+                <option value="Today Evening (6:00 PM)">🌆 Today Evening (6:00 PM)</option>
+                <option value="Tomorrow Morning (8:00 AM)">🌅 Tomorrow Morning (8:00 AM)</option>
+                <option value="Flexible (Within 24 Hours)">⏳ Flexible (Within 24 Hours)</option>
+              </>
+            )}
           </select>
         </div>
 

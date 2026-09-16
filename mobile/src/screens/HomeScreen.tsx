@@ -24,9 +24,10 @@ interface CounterBid {
   originalPrice: number;
   offeredPrice: number;
   message: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected' | 'completed';
   shipperCounterPrice?: number;
   shipperCounterNote?: string;
+  driverRatingGiven?: number;
 }
 
 export default function HomeScreen() {
@@ -338,16 +339,33 @@ export default function HomeScreen() {
                         <Text style={styles.rejectBtnText}>❌</Text>
                       </TouchableOpacity>
                     </>
+                  ) : b.status === 'completed' ? (
+                    <View style={{ width: '100%', gap: 6 }}>
+                      <Text style={{ color: '#10B981', fontWeight: 'bold', textAlign: 'center' }}>
+                        ✅ Delivered & Closed ({b.driverRatingGiven ? `Rated ${b.driverRatingGiven}★` : 'Trip Complete'})
+                      </Text>
+                    </View>
                   ) : (
-                    <TouchableOpacity
-                      style={styles.chatBtn}
-                      onPress={() => {
-                        setChatTarget(b);
-                        setShowChatModal(true);
-                      }}
-                    >
-                      <Text style={styles.chatBtnText}>💬 Direct Chat with Driver</Text>
-                    </TouchableOpacity>
+                    <View style={{ width: '100%', gap: 8 }}>
+                      <TouchableOpacity
+                        style={[styles.acceptBtn, { backgroundColor: '#10B981' }]}
+                        onPress={() => {
+                          setBids(prev => prev.map(item => item.id === b.id ? { ...item, status: 'completed', driverRatingGiven: 5 } : item));
+                          Alert.alert('✅ Trip Closed & Rated', `Trip marked as Delivered & Closed! 5-Star Rating submitted for driver ${b.driverName}.`);
+                        }}
+                      >
+                        <Text style={styles.acceptBtnText}>✅ Mark Trip Delivered & Closed (شپمنٹ بند کریں)</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.chatBtn}
+                        onPress={() => {
+                          setChatTarget(b);
+                          setShowChatModal(true);
+                        }}
+                      >
+                        <Text style={styles.chatBtnText}>💬 Direct Chat with Driver</Text>
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
               </View>

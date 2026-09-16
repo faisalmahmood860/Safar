@@ -152,6 +152,13 @@ export default function PostLoadPage() {
   ]);
   const [chatInputText, setChatInputText] = useState('');
 
+  // Shipper Driver Rating & Review Modal State
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingTargetBid, setRatingTargetBid] = useState<DriverCounterBid | null>(null);
+  const [ratingStars, setRatingStars] = useState<number>(5);
+  const [selectedRatingTags, setSelectedRatingTags] = useState<string[]>(['⚡ Punctual & On-Time', '🛡️ Safe Cargo Handling']);
+  const [ratingComment, setRatingComment] = useState<string>('');
+
   // Form State
   const [pickupCity, setPickupCity] = useState('Multan');
   const [pickupAddress, setPickupAddress] = useState('Industrial Estate, Bosan Road');
@@ -787,6 +794,119 @@ export default function PostLoadPage() {
     setAgentDealTarget(null);
   };
 
+  const handleOpenRatingModal = (bid: DriverCounterBid) => {
+    setRatingTargetBid(bid);
+    if ((bid as any).shipperRatingSubmitted) {
+      setRatingStars((bid as any).shipperRatingSubmitted.stars || 5);
+      setSelectedRatingTags((bid as any).shipperRatingSubmitted.tags || ['⚡ Punctual & On-Time']);
+      setRatingComment((bid as any).shipperRatingSubmitted.comment || '');
+    } else {
+      setRatingStars(5);
+      setSelectedRatingTags(['⚡ Punctual & On-Time', '🛡️ Safe Cargo Handling']);
+      setRatingComment('');
+    }
+    setShowRatingModal(true);
+  };
+
+  const handleToggleRatingTag = (tag: string) => {
+    if (selectedRatingTags.includes(tag)) {
+      setSelectedRatingTags(selectedRatingTags.filter((t) => t !== tag));
+    } else {
+      setSelectedRatingTags([...selectedRatingTags, tag]);
+    }
+  };
+
+  const handleSubmitDriverRating = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ratingTargetBid) return;
+
+    const ratingRecord = {
+      stars: ratingStars,
+      tags: selectedRatingTags,
+      comment: ratingComment,
+      ratedAt: new Date().toLocaleDateString(),
+    };
+
+    const updatedBids = bids.map((b) =>
+      b.id === ratingTargetBid.id
+        ? {
+            ...b,
+            shipperRatingSubmitted: ratingRecord,
+            driverRating: Number(((b.driverRating + ratingStars) / 2).toFixed(1)),
+          }
+        : b
+    );
+    saveBidsToStorage(updatedBids);
+
+    try {
+      const storedRatings = localStorage.getItem('safarload_driver_ratings');
+      let ratingsList = storedRatings ? JSON.parse(storedRatings) : [];
+      ratingsList = ratingsList.filter((r: any) => r.bidId !== ratingTargetBid.id);
+      ratingsList.unshift({
+        bidId: ratingTargetBid.id,
+        driverName: ratingTargetBid.driverName,
+        driverPhone: ratingTargetBid.driverPhone,
+        truckNumber: ratingTargetBid.truckNumber,
+        shipperName: ratingTargetBid.shipperName,
+        stars: ratingStars,
+        tags: selectedRatingTags,
+        comment: ratingComment,
+        date: new Date().toLocaleDateString(),
+      });
+      localStorage.setItem('safarload_driver_ratings', JSON.stringify(ratingsList));
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      const storedDrivers = localStorage.getItem('safarload_fleet_drivers');
+      if (storedDrivers) {
+        let drivers = JSON.parse(storedDrivers);
+        drivers = drivers.map((d: any) => {
+          if (d.name === ratingTargetBid.driverName || d.phone === ratingTargetBid.driverPhone) {
+            const newSafety = Math.min(100, Math.max(70, d.safetyScore + (ratingStars >= 4 ? 1 : -2)));
+            return { ...d, safetyScore: newSafety };
+          }
+          return d;
+        });
+        localStorage.setItem('safarload_fleet_drivers', JSON.stringify(drivers));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    alert(
+      `⭐ Driver Rating & Review Submitted Successfully!\n\n👨‍✈️ Driver: ${ratingTargetBid.driverName}\n🚛 Vehicle: ${ratingTargetBid.truckNumber}\n🌟 Rating Given: ${ratingStars} / 5 Stars\n🏷️ Performance Badges: ${selectedRatingTags.join(', ')}\n\nThank you! Motive DRIVE safety score updated across platform.`
+    );
+
+    setShowRatingModal(false);
+    setRatingTargetBid(null);
+  };
+
+  const handleCloseShipmentAndRateDriver = (bid: DriverCounterBid) => {
+    const updated = bids.map((b) => (b.id === bid.id ? { ...b, status: 'completed' as const } : b));
+    saveBidsToStorage(updated);
+
+    try {
+      const storedLoads = localStorage.getItem('safarload_global_posted_loads');
+      if (storedLoads) {
+        const loads = JSON.parse(storedLoads);
+        const updatedLoads = loads.map((l: any) =>
+          l.id === bid.loadId || l.title?.includes(bid.loadTitle) ? { ...l, status: 'completed' } : l
+        );
+        localStorage.setItem('safarload_global_posted_loads', JSON.stringify(updatedLoads));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('safarload_loads_change'));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    alert(`✅ Trip marked as DELIVERED & CLOSED!\n70% Escrow final balance released to driver ${bid.driverName}.\n\nPlease submit your rating & review for the driver.`);
+    handleOpenRatingModal(bid);
+  };
+
   return (
     <div className={styles.container} dir={lang === 'ur' ? 'rtl' : 'ltr'}>
       {/* GLOBAL PLATFORM BANNERS & OVERDUE PAYMENT WARNINGS */}
@@ -846,7 +966,7 @@ export default function PostLoadPage() {
           <div className={styles.metricIcon}>🚛</div>
           <div>
             <div className={styles.metricVal}>
-              {bids.filter((b) => isShipperBid(b) && b.status === 'accepted').length} En-Route
+              {bids.filter((b) => isShipperBid(b) && (b.status === 'accepted' || b.status === 'completed')).length} En-Route / Closed
             </div>
             <div className={styles.metricSub}>Booked Trips & Active Bilty</div>
           </div>
@@ -877,7 +997,7 @@ export default function PostLoadPage() {
           onClick={() => setWorkspaceTab('booked')}
           className={`${styles.workspaceTab} ${workspaceTab === 'booked' ? styles.activeWorkspaceTab : ''}`}
         >
-          🚛 {lang === 'ur' ? 'بک شدہ سفر' : 'Booked Shipments'} ({bids.filter((b) => isShipperBid(b) && b.status === 'accepted').length})
+          🚛 {lang === 'ur' ? 'بک شدہ سفر' : 'Booked Shipments'} ({bids.filter((b) => isShipperBid(b) && (b.status === 'accepted' || b.status === 'completed')).length})
         </button>
         <button
           onClick={() => setWorkspaceTab('escrow')}
@@ -1133,7 +1253,7 @@ export default function PostLoadPage() {
 
           <div className={styles.bidsGrid}>
             {bids
-              .filter((b) => isShipperBid(b) && b.status === 'accepted')
+              .filter((b) => isShipperBid(b) && (b.status === 'accepted' || b.status === 'completed'))
               .map((b) => (
                 <div key={b.id} className={`${styles.bidCard} ${styles.acceptedBid}`}>
                   <div className={styles.bidCardHeader}>
@@ -1149,12 +1269,50 @@ export default function PostLoadPage() {
                   <div className={styles.bidMeta}>
                     <p>📍 <strong>Route:</strong> {b.route}</p>
                     <p>📦 <strong>Shipment:</strong> {b.loadTitle}</p>
-                    <span className="badge badge-success" style={{ marginTop: '4px', display: 'inline-block' }}>
-                      ● En Route / راستے میں (Escrow Protected)
-                    </span>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '4px' }}>
+                      {b.status === 'completed' ? (
+                        <span className="badge badge-success" style={{ background: '#059669', color: '#FFFFFF', fontWeight: 700 }}>
+                          ✅ Delivered & Closed / ٹرپ بند ہو گیا
+                        </span>
+                      ) : (
+                        <span className="badge badge-success">
+                          ● En Route / راستے میں (Escrow Protected)
+                        </span>
+                      )}
+                      <span className="badge badge-info" style={{ fontSize: '0.75rem' }}>
+                        🛡️ Motive DRIVE: 98/100 (Safe Hauler)
+                      </span>
+                    </div>
+                    {(b as any).shipperRatingSubmitted && (
+                      <div style={{ marginTop: '0.5rem', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid #F59E0B', padding: '0.5rem 0.75rem', borderRadius: '8px', fontSize: '0.8rem', color: '#F59E0B' }}>
+                        ⭐ <strong>Your Rating:</strong> {(b as any).shipperRatingSubmitted.stars}★ | <strong>Badges:</strong> {(b as any).shipperRatingSubmitted.tags?.join(', ')}
+                        {(b as any).shipperRatingSubmitted.comment && <div>💬 "{(b as any).shipperRatingSubmitted.comment}"</div>}
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.bidActions} style={{ flexDirection: 'column', gap: '0.5rem' }}>
+                    {b.status === 'accepted' && (
+                      <button
+                        onClick={() => handleCloseShipmentAndRateDriver(b)}
+                        className="btn btn-success btn-sm"
+                        style={{
+                          width: '100%',
+                          background: '#10B981',
+                          color: '#FFFFFF',
+                          fontWeight: 700,
+                          padding: '0.6rem 1rem',
+                          fontSize: '0.88rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justify: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        ✅ {lang === 'ur' ? 'شپمنٹ وصول ہو گئی - ٹرپ بند کریں اور ریٹنگ دیں' : 'Mark Trip Delivered & Closed'}
+                      </button>
+                    )}
+
                     <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                       <button
                         onClick={() =>
@@ -1176,9 +1334,14 @@ export default function PostLoadPage() {
                       </button>
                     </div>
 
-                    <button onClick={() => handleOpenBilty(b)} className="btn btn-outline btn-sm" style={{ width: '100%' }}>
-                      📜 {lang === 'ur' ? 'ڈیجیٹل بلٹی دیکھیں' : 'View Digital Bilty'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                      <button onClick={() => handleOpenBilty(b)} className="btn btn-outline btn-sm" style={{ flex: 1 }}>
+                        📜 {lang === 'ur' ? 'ڈیجیٹل بلٹی دیکھیں' : 'View Digital Bilty'}
+                      </button>
+                      <button onClick={() => handleOpenRatingModal(b)} className="btn btn-warning btn-sm" style={{ flex: 1 }}>
+                        ⭐ {(b as any).shipperRatingSubmitted ? `Rated ${(b as any).shipperRatingSubmitted.stars}★` : 'Rate Driver'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -2471,6 +2634,110 @@ export default function PostLoadPage() {
             <div className={styles.modalActions}>
               <button onClick={() => setPreviewSlipUrl(null)} className="btn btn-glass">Close</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SHIPPER DRIVER RATING & REVIEW MODAL */}
+      {showRatingModal && ratingTargetBid && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '540px', border: '1px solid #F59E0B' }}>
+            <div className={styles.modalHeader} style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+              <h3 style={{ color: '#F59E0B' }}>⭐ Rate & Review Driver — {ratingTargetBid.driverName}</h3>
+              <button onClick={() => setShowRatingModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleSubmitDriverRating} style={{ padding: '1.25rem' }}>
+              <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+                <p style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+                  How was your experience with driver <strong>{ratingTargetBid.driverName}</strong> on route <strong>{ratingTargetBid.route}</strong>?
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '2rem', cursor: 'pointer' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      onClick={() => setRatingStars(star)}
+                      style={{
+                        color: star <= ratingStars ? '#F59E0B' : '#475569',
+                        transition: 'transform 0.15s ease',
+                        transform: star <= ratingStars ? 'scale(1.15)' : 'scale(1)',
+                      }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#F59E0B', marginTop: '0.25rem' }}>
+                  {ratingStars === 5 && '🌟 Excellent Performance (آلہ کارکردگی)'}
+                  {ratingStars === 4 && '👍 Good Service (اچھی سروس)'}
+                  {ratingStars === 3 && '😐 Average Service (مناسب سروس)'}
+                  {ratingStars === 2 && '👎 Below Expectations (کمزور سروس)'}
+                  {ratingStars === 1 && '⚠️ Poor Service (خراب سروس)'}
+                </div>
+              </div>
+
+              {/* FEEDBACK TAGS */}
+              <div className={styles.inputGroup} style={{ marginBottom: '1.25rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC', marginBottom: '0.5rem', display: 'block' }}>
+                  Select Performance Badges (پرفارمنس ٹیگز):
+                </label>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  {[
+                    '⚡ Punctual & On-Time',
+                    '🛡️ Safe Cargo Handling',
+                    '🤝 Professional & Polite',
+                    '🚛 Clean & Well-Maintained Truck',
+                    '📍 Live GPS Compliant',
+                    '📄 Complete Paperwork/Bilty',
+                  ].map((tag) => {
+                    const isSelected = selectedRatingTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => handleToggleRatingTag(tag)}
+                        style={{
+                          padding: '0.4rem 0.75rem',
+                          borderRadius: '20px',
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          border: `1px solid ${isSelected ? '#F59E0B' : 'rgba(255,255,255,0.15)'}`,
+                          background: isSelected ? 'rgba(245, 158, 11, 0.2)' : 'rgba(15, 23, 42, 0.6)',
+                          color: isSelected ? '#F59E0B' : '#CBD5E1',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {isSelected ? '✅ ' : '+ '}{tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* COMMENT TEXTAREA */}
+              <div className={styles.inputGroup} style={{ marginBottom: '1.25rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#F8FAFC', marginBottom: '0.35rem', display: 'block' }}>
+                  Feedback & Review Notes (ڈرائیور کے لیے جائزہ):
+                </label>
+                <textarea
+                  value={ratingComment}
+                  onChange={(e) => setRatingComment(e.target.value)}
+                  placeholder="e.g. Excellent driver! Delivered cotton bales safely to Karachi on time without any damage."
+                  className="input"
+                  rows={3}
+                  style={{ width: '100%', resize: 'vertical' }}
+                />
+              </div>
+
+              <div className={styles.modalActions} style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setShowRatingModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-warning">
+                  ⭐ Submit Driver Rating & Review
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

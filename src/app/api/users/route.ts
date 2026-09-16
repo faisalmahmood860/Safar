@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, statements } from '@/lib/db';
+
+export const dynamic = 'force-static';
 
 const defaultUsers = [
   { id: 'usr-driver-1', role: 'driver', name: 'Verified Driver', name_ur: 'تصدیق شدہ ڈرائیور', email: 'driver@safarload.pk', phone: '03001234567', password: 'Driver@123', details: JSON.stringify({ cnicOrNtn: '35202-1234567-1' }) },

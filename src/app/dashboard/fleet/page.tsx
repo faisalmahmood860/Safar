@@ -3,9 +3,37 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { mockFleetTrucks, mockLoads, mockDrivers } from '@/lib/mockData';
+import { mockFleetTrucks, mockLoads, mockDrivers, pakistaniCities } from '@/lib/mockData';
 import { initiateVoIPCall, triggerIncomingDriverCall } from '@/lib/voipCallSystem';
 import { apiClient } from '@/lib/apiClient';
+
+const defaultFleetTrucks = [
+  { id: 'TRK-001', registrationNumber: 'LHR-5678', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Tariq Mehmood', currentCity: 'Multan', fuelLevel: 85, nextMaintenance: '2026-09-30', status: 'active' },
+  { id: 'TRK-002', registrationNumber: 'KHI-1234', type: 'Container (22ft / 20 Tons)', typeIcon: '📦', driverName: 'Abdul Rasheed', currentCity: 'Karachi', fuelLevel: 92, nextMaintenance: '2026-10-12', status: 'active' },
+  { id: 'TRK-003', registrationNumber: 'FSD-9012', type: 'Dumper Truck (30 Tons)', typeIcon: '🚛', driverName: 'Muhammad Aslam', currentCity: 'Faisalabad', fuelLevel: 45, nextMaintenance: '2026-09-22', status: 'idle' },
+  { id: 'TRK-004', registrationNumber: 'RWP-3456', type: '22-Wheeler Heavy Trailer', typeIcon: '🚛', driverName: 'Shahbaz Ali', currentCity: 'Rawalpindi', fuelLevel: 78, nextMaintenance: '2026-11-05', status: 'idle' },
+  { id: 'TRK-005', registrationNumber: 'PSH-7890', type: 'Bedford Open Rig (15 Tons)', typeIcon: '🚛', driverName: 'Khan Muhammad', currentCity: 'Peshawar', fuelLevel: 60, nextMaintenance: '2026-09-18', status: 'active' },
+  { id: 'TRK-006', registrationNumber: 'MLT-4567', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Zahid Khan', currentCity: 'Multan', fuelLevel: 90, nextMaintenance: '2026-10-25', status: 'idle' },
+  { id: 'TRK-007', registrationNumber: 'LHR-9988', type: 'Container (40ft / 35 Tons)', typeIcon: '📦', driverName: 'Kamran Akmal', currentCity: 'Lahore', fuelLevel: 30, nextMaintenance: '2026-09-16', status: 'maintenance' },
+  { id: 'TRK-008', registrationNumber: 'ISB-1122', type: 'Mazda Master (10 Tons)', typeIcon: '🚚', driverName: 'Rizwan Ahmed', currentCity: 'Islamabad', fuelLevel: 95, nextMaintenance: '2026-12-01', status: 'idle' },
+  { id: 'TRK-009', registrationNumber: 'GUJ-3344', type: 'Heavy Trailer (30 Tons)', typeIcon: '🚛', driverName: 'Imran Shah', currentCity: 'Gujranwala', fuelLevel: 72, nextMaintenance: '2026-10-15', status: 'active' },
+  { id: 'TRK-010', registrationNumber: 'SKT-5566', type: 'Shehzore Pickup (3 Tons)', typeIcon: '🛻', driverName: 'Farooq Azam', currentCity: 'Sialkot', fuelLevel: 88, nextMaintenance: '2026-11-20', status: 'idle' },
+];
+
+const defaultFleetDrivers = [
+  { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', cnic: '35201-1234567-1', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty', safetyScore: 98, brakingScore: 99, idlingScore: 96, onTimeRate: '99%' },
+  { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', cnic: '42201-9876543-1', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 95, brakingScore: 94, idlingScore: 92, onTimeRate: '97%' },
+  { id: 'DRV-003', name: 'Muhammad Aslam', phone: '+92 321 5551234', cnic: '33100-5551234-1', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available', safetyScore: 92, brakingScore: 90, idlingScore: 89, onTimeRate: '95%' },
+  { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', cnic: '37405-7778899-1', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available', safetyScore: 97, brakingScore: 98, idlingScore: 95, onTimeRate: '98%' },
+  { id: 'DRV-005', name: 'Khan Muhammad', phone: '+92 302 1122334', cnic: '17301-1122334-1', truck: 'PSH-7890 (Bedford)', cnicVerified: true, status: 'On Duty', safetyScore: 94, brakingScore: 93, idlingScore: 91, onTimeRate: '96%' },
+  { id: 'DRV-006', name: 'Zahid Khan', phone: '+92 304 9988776', cnic: '36302-9988776-1', truck: 'MLT-4567 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 97, idlingScore: 94, onTimeRate: '98%' },
+  { id: 'DRV-007', name: 'Kamran Akmal', phone: '+92 305 4433221', cnic: '35202-4433221-1', truck: 'LHR-9988 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 91, brakingScore: 89, idlingScore: 88, onTimeRate: '94%' },
+  { id: 'DRV-008', name: 'Rizwan Ahmed', phone: '+92 306 6655443', cnic: '61101-6655443-1', truck: 'ISB-1122 (Mazda)', cnicVerified: true, status: 'Available', safetyScore: 99, brakingScore: 100, idlingScore: 97, onTimeRate: '100%' },
+  { id: 'DRV-009', name: 'Imran Shah', phone: '+92 307 8899001', cnic: '34201-8899001-1', truck: 'GUJ-3344 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 93, brakingScore: 92, idlingScore: 90, onTimeRate: '95%' },
+  { id: 'DRV-010', name: 'Farooq Azam', phone: '+92 308 2233445', cnic: '34603-2233445-1', truck: 'SKT-5566 (Shehzore)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 95, idlingScore: 93, onTimeRate: '97%' },
+  { id: 'DRV-011', name: 'Bilal Hassan', phone: '+92 309 7766554', cnic: '35201-7766554-1', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 90, brakingScore: 88, idlingScore: 87, onTimeRate: '93%' },
+  { id: 'DRV-012', name: 'Noman Riaz', phone: '+92 310 1144778', cnic: '35202-1144778-1', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 94, brakingScore: 95, idlingScore: 92, onTimeRate: '96%' },
+];
 
 export default function FleetDashboard() {
   const [activeTab, setActiveTab] = useState<'roster' | 'bidding' | 'drivers' | 'my-bids'>('my-bids');
@@ -15,61 +43,118 @@ export default function FleetDashboard() {
   const [selectedLoad, setSelectedLoad] = useState<typeof mockLoads[0] | null>(null);
   const [submittedBids, setSubmittedBids] = useState<any[]>([]);
   const [fleetModal, setFleetModal] = useState<'trucks' | 'drivers' | 'revenue' | 'saas' | null>(null);
+  const [selectedSafetyDriver, setSelectedSafetyDriver] = useState<any>(null);
 
-  const loadSubmittedBids = async () => {
-    try {
-      const res = await apiClient.getBids();
-      if (res && res.success && res.data && res.data.length > 0) {
-        setSubmittedBids(res.data);
-        return;
-      }
-    } catch {
-      // fallback to localStorage
-    }
+  // Dynamic Trucks and Drivers Roster State
+  const [trucksList, setTrucksList] = useState<any[]>(defaultFleetTrucks);
+  const [driversList, setDriversList] = useState<any[]>(defaultFleetDrivers);
 
-    if (typeof window === 'undefined') return;
+  // Add Truck Form State
+  const [showAddTruckModal, setShowAddTruckModal] = useState(false);
+  const [newTruckReg, setNewTruckReg] = useState('');
+  const [newTruckType, setNewTruckType] = useState('Flatbed Trailer (25 Tons)');
+  const [newTruckDriver, setNewTruckDriver] = useState('Tariq Mehmood');
+  const [newTruckCity, setNewTruckCity] = useState('Lahore');
+  const [newTruckStatus, setNewTruckStatus] = useState<'idle' | 'active' | 'maintenance'>('idle');
+
+  // Add Driver Form State
+  const [showAddDriverModal, setShowAddDriverModal] = useState(false);
+  const [newDriverName, setNewDriverName] = useState('');
+  const [newDriverPhone, setNewDriverPhone] = useState('');
+  const [newDriverCnic, setNewDriverCnic] = useState('');
+  const [newDriverTruck, setNewDriverTruck] = useState('Unassigned (Reserve)');
+  const [newDriverStatus, setNewDriverStatus] = useState<'Available' | 'On Duty' | 'Standby'>('Available');
+
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem('safarload_global_bids');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setSubmittedBids(parsed);
-      }
+      const storedTrucks = localStorage.getItem('safarload_fleet_trucks');
+      if (storedTrucks) setTrucksList(JSON.parse(storedTrucks));
+      else localStorage.setItem('safarload_fleet_trucks', JSON.stringify(defaultFleetTrucks));
+
+      const storedDrivers = localStorage.getItem('safarload_fleet_drivers');
+      if (storedDrivers) setDriversList(JSON.parse(storedDrivers));
+      else localStorage.setItem('safarload_fleet_drivers', JSON.stringify(defaultFleetDrivers));
+
+      const storedBids = localStorage.getItem('safarload_global_bids');
+      if (storedBids) setSubmittedBids(JSON.parse(storedBids));
     } catch (e) {
       console.error(e);
     }
-  };
-
-  useEffect(() => {
-    loadSubmittedBids();
-
-    const handleSync = () => {
-      loadSubmittedBids();
-    };
-
-    window.addEventListener('storage', handleSync);
-    window.addEventListener('safarload_bid_change', handleSync);
-    return () => {
-      window.removeEventListener('storage', handleSync);
-      window.removeEventListener('safarload_bid_change', handleSync);
-    };
   }, []);
 
-  const [selectedSafetyDriver, setSelectedSafetyDriver] = useState<any | null>(null);
+  const handleAddTruckSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTruckReg.trim()) return;
 
-  const fleetRosterDrivers = [
-    { id: 'DRV-001', name: 'Tariq Mehmood', phone: '+92 301 2345678', truck: 'LHR-5678 (Trailer)', cnicVerified: true, status: 'On Duty', safetyScore: 98, brakingScore: 99, idlingScore: 96, onTimeRate: '99%' },
-    { id: 'DRV-002', name: 'Abdul Rasheed', phone: '+92 333 9876543', truck: 'KHI-1234 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 95, brakingScore: 94, idlingScore: 92, onTimeRate: '97%' },
-    { id: 'DRV-003', name: 'Muhammad Aslam', phone: '+92 321 5551234', truck: 'FSD-9012 (Dumper)', cnicVerified: true, status: 'Available', safetyScore: 92, brakingScore: 90, idlingScore: 89, onTimeRate: '95%' },
-    { id: 'DRV-004', name: 'Shahbaz Ali', phone: '+92 300 7778899', truck: 'RWP-3456 (22-Wheeler)', cnicVerified: true, status: 'Available', safetyScore: 97, brakingScore: 98, idlingScore: 95, onTimeRate: '98%' },
-    { id: 'DRV-005', name: 'Khan Muhammad', phone: '+92 302 1122334', truck: 'PSH-7890 (Bedford)', cnicVerified: true, status: 'On Duty', safetyScore: 94, brakingScore: 93, idlingScore: 91, onTimeRate: '96%' },
-    { id: 'DRV-006', name: 'Zahid Khan', phone: '+92 304 9988776', truck: 'MLT-4567 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 97, idlingScore: 94, onTimeRate: '98%' },
-    { id: 'DRV-007', name: 'Kamran Akmal', phone: '+92 305 4433221', truck: 'LHR-9988 (Container)', cnicVerified: true, status: 'On Duty', safetyScore: 91, brakingScore: 89, idlingScore: 88, onTimeRate: '94%' },
-    { id: 'DRV-008', name: 'Rizwan Ahmed', phone: '+92 306 6655443', truck: 'ISB-1122 (Mazda)', cnicVerified: true, status: 'Available', safetyScore: 99, brakingScore: 100, idlingScore: 97, onTimeRate: '100%' },
-    { id: 'DRV-009', name: 'Imran Shah', phone: '+92 307 8899001', truck: 'GUJ-3344 (Trailer)', cnicVerified: true, status: 'Available', safetyScore: 93, brakingScore: 92, idlingScore: 90, onTimeRate: '95%' },
-    { id: 'DRV-010', name: 'Farooq Azam', phone: '+92 308 2233445', truck: 'SKT-5566 (Shehzore)', cnicVerified: true, status: 'Available', safetyScore: 96, brakingScore: 95, idlingScore: 93, onTimeRate: '97%' },
-    { id: 'DRV-011', name: 'Bilal Hassan', phone: '+92 309 7766554', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 90, brakingScore: 88, idlingScore: 87, onTimeRate: '93%' },
-    { id: 'DRV-012', name: 'Noman Riaz', phone: '+92 310 1144778', truck: 'Unassigned (Reserve)', cnicVerified: true, status: 'Standby', safetyScore: 94, brakingScore: 95, idlingScore: 92, onTimeRate: '96%' },
-  ];
+    const newTruck = {
+      id: `TRK-${Date.now()}`,
+      registrationNumber: newTruckReg.trim().toUpperCase(),
+      type: newTruckType,
+      typeIcon: newTruckType.includes('Container') ? '📦' : newTruckType.includes('Shehzore') ? '🛻' : '🚛',
+      driverName: newTruckDriver,
+      currentCity: newTruckCity,
+      fuelLevel: 100,
+      nextMaintenance: '2026-10-30',
+      status: newTruckStatus,
+    };
+
+    const updated = [newTruck, ...trucksList];
+    setTrucksList(updated);
+    try {
+      localStorage.setItem('safarload_fleet_trucks', JSON.stringify(updated));
+    } catch (e) { console.error(e); }
+
+    setShowAddTruckModal(false);
+    setNewTruckReg('');
+    alert(`🚛 Vehicle ${newTruck.registrationNumber} added to fleet roster successfully!`);
+  };
+
+  const handleAddDriverSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDriverName.trim()) return;
+
+    const newDriver = {
+      id: `DRV-${Date.now()}`,
+      name: newDriverName.trim(),
+      phone: newDriverPhone.trim() || '+92 300 0000000',
+      cnic: newDriverCnic.trim() || '35202-0000000-1',
+      truck: newDriverTruck,
+      cnicVerified: true,
+      status: newDriverStatus,
+      safetyScore: 98,
+      brakingScore: 99,
+      idlingScore: 97,
+      onTimeRate: '99%',
+    };
+
+    const updated = [newDriver, ...driversList];
+    setDriversList(updated);
+    try {
+      localStorage.setItem('safarload_fleet_drivers', JSON.stringify(updated));
+    } catch (e) { console.error(e); }
+
+    setShowAddDriverModal(false);
+    setNewDriverName('');
+    setNewDriverPhone('');
+    setNewDriverCnic('');
+    alert(`👨‍✈️ Driver ${newDriver.name} registered and added to fleet directory!`);
+  };
+
+  const handleUpdateTruckStatus = (id: string, newStatus: 'idle' | 'active' | 'maintenance') => {
+    const updated = trucksList.map((t) => (t.id === id ? { ...t, status: newStatus } : t));
+    setTrucksList(updated);
+    try {
+      localStorage.setItem('safarload_fleet_trucks', JSON.stringify(updated));
+    } catch (e) { console.error(e); }
+  };
+
+  const handleUpdateDriverStatus = (id: string, newStatus: 'Available' | 'On Duty' | 'Standby') => {
+    const updated = driversList.map((d) => (d.id === id ? { ...d, status: newStatus } : d));
+    setDriversList(updated);
+    try {
+      localStorage.setItem('safarload_fleet_drivers', JSON.stringify(updated));
+    } catch (e) { console.error(e); }
+  };
 
   const handleOpenFleetBidModal = (load: typeof mockLoads[0]) => {
     setSelectedLoad(load);
@@ -79,8 +164,8 @@ export default function FleetDashboard() {
   const handleFleetBidSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLoad) return;
-    const selectedDriver = fleetRosterDrivers.find((d) => d.id === selectedDriverId);
-    const assignedTruckObj = mockFleetTrucks.find((t) => t.registrationNumber === selectedTruckId);
+    const selectedDriver = driversList.find((d) => d.id === selectedDriverId);
+    const assignedTruckObj = trucksList.find((t) => t.registrationNumber === selectedTruckId);
 
     const newFleetBid = {
       id: `BID-FLT-${Date.now()}`,
@@ -114,6 +199,7 @@ export default function FleetDashboard() {
       bidsList = bidsList.filter((b: any) => b.loadId !== selectedLoad.id);
       bidsList.unshift(newFleetBid);
       localStorage.setItem('safarload_global_bids', JSON.stringify(bidsList));
+      setSubmittedBids(bidsList);
 
       // Save booked load ID
       const storedBookedStr = localStorage.getItem('safarload_booked_loads');
@@ -154,6 +240,7 @@ export default function FleetDashboard() {
           : b
       );
       localStorage.setItem('safarload_global_bids', JSON.stringify(list));
+      setSubmittedBids(list);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('safarload_bid_change'));
       }
@@ -172,7 +259,7 @@ export default function FleetDashboard() {
             Fleet Command Center <span className={styles.titleUrdu}>/ فلیٹ کمانڈ سینٹر</span>
           </h1>
           <div className={styles.badge} style={{ marginTop: '0.5rem', display: 'inline-block' }}>
-            🏢 Al-Farooq Transport Co. | 10 Trucks | 12 Drivers
+            🏢 Al-Farooq Transport Co. | {trucksList.length} Trucks | {driversList.length} Drivers
           </div>
         </div>
 
@@ -204,16 +291,18 @@ export default function FleetDashboard() {
       <div className={styles.statsGrid}>
         <div onClick={() => setFleetModal('trucks')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Fleet Telematics & Roster">
           <div className="stat-card-icon">🚛</div>
-          <div className="stat-card-value">10</div>
+          <div className="stat-card-value">{trucksList.length}</div>
           <div className="stat-card-label">Total Fleet Trucks</div>
-          <div className="stat-card-change positive">6 Active | 4 Idle (Click for Details)</div>
+          <div className="stat-card-change positive">
+            {trucksList.filter((t) => t.status === 'active').length} Active | {trucksList.filter((t) => t.status === 'idle').length} Idle
+          </div>
         </div>
 
         <div onClick={() => setFleetModal('drivers')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Driver Verification Roster">
           <div className="stat-card-icon">👨‍✈️</div>
-          <div className="stat-card-value">12</div>
+          <div className="stat-card-value">{driversList.length}</div>
           <div className="stat-card-label">Verified Fleet Drivers</div>
-          <div className="stat-card-change positive">100% CNIC Verified (Click for Details)</div>
+          <div className="stat-card-change positive">100% CNIC Verified</div>
         </div>
 
         <div onClick={() => setFleetModal('revenue')} className="stat-card" style={{ cursor: 'pointer' }} title="Click for Gross Revenue Ledger">
@@ -243,13 +332,13 @@ export default function FleetDashboard() {
           onClick={() => setActiveTab('roster')}
           className={`${styles.tabBtn} ${activeTab === 'roster' ? styles.activeTab : ''}`}
         >
-          🚛 Fleet Vehicle Roster (10 Trucks)
+          🚛 Fleet Vehicle Roster ({trucksList.length} Trucks)
         </button>
         <button
           onClick={() => setActiveTab('drivers')}
           className={`${styles.tabBtn} ${activeTab === 'drivers' ? styles.activeTab : ''}`}
         >
-          👨‍✈️ Fleet Drivers Directory (12 Drivers)
+          👨‍✈️ Fleet Drivers Directory ({driversList.length} Drivers)
         </button>
         <button
           onClick={() => setActiveTab('bidding')}
@@ -396,8 +485,15 @@ export default function FleetDashboard() {
       {activeTab === 'roster' && (
         <div className={`${styles.panelCard} glass-card animate-fadeIn`}>
           <div className={styles.panelHeader}>
-            <h3>🚛 Active Fleet Vehicles & Real-Time Status</h3>
-            <span className="badge badge-success">10 Vehicles Monitored</span>
+            <div>
+              <h3>🚛 Active Fleet Vehicles & Real-Time Status</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                Manage operational status and track vehicle telematics across your active fleet.
+              </p>
+            </div>
+            <button onClick={() => setShowAddTruckModal(true)} className="btn btn-primary btn-sm">
+              ➕ Add New Truck
+            </button>
           </div>
 
           <div className="tableContainer">
@@ -410,28 +506,44 @@ export default function FleetDashboard() {
                   <th>Current City</th>
                   <th>Fuel Level</th>
                   <th>Maintenance</th>
-                  <th>Status</th>
+                  <th>Status / Availability</th>
                   <th>VoIP Call</th>
                 </tr>
               </thead>
               <tbody>
-                {mockFleetTrucks.map((t) => (
+                {trucksList.map((t) => (
                   <tr key={t.id}>
                     <td><strong>{t.registrationNumber}</strong></td>
-                    <td>{t.typeIcon} {t.type}</td>
+                    <td>{t.typeIcon || '🚛'} {t.type}</td>
                     <td>👨‍✈️ {t.driverName}</td>
                     <td>📍 {t.currentCity}</td>
                     <td>
                       <div className={styles.fuelMeter}>
-                        <div className={styles.fuelFill} style={{ width: `${t.fuelLevel}%` }}></div>
-                        <span>{t.fuelLevel}%</span>
+                        <div className={styles.fuelFill} style={{ width: `${t.fuelLevel || 100}%` }}></div>
+                        <span>{t.fuelLevel || 100}%</span>
                       </div>
                     </td>
-                    <td>Next: {t.nextMaintenance}</td>
+                    <td>Next: {t.nextMaintenance || '2026-10-30'}</td>
                     <td>
-                      {t.status === 'active' && <span className="badge badge-success">Active / راستے میں</span>}
-                      {t.status === 'idle' && <span className="badge badge-info">Idle / فارغ</span>}
-                      {t.status === 'maintenance' && <span className="badge badge-warning">Maintenance</span>}
+                      <select
+                        value={t.status}
+                        onChange={(e) => handleUpdateTruckStatus(t.id, e.target.value as 'idle' | 'active' | 'maintenance')}
+                        className="input input-sm"
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.8rem',
+                          borderRadius: '6px',
+                          fontWeight: 600,
+                          background: t.status === 'active' ? '#064E3B' : t.status === 'idle' ? '#1E3A8A' : '#78350F',
+                          color: '#F8FAFC',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="idle">Idle / Available (فارغ)</option>
+                        <option value="active">Active / On Route (راستے میں)</option>
+                        <option value="maintenance">In Maintenance (مرمت)</option>
+                      </select>
                     </td>
                     <td>
                       <button
@@ -458,12 +570,19 @@ export default function FleetDashboard() {
         </div>
       )}
 
-      {/* TAB 2: FLEET DRIVERS ROSTER (12 DRIVERS) */}
+      {/* TAB 2: FLEET DRIVERS ROSTER */}
       {activeTab === 'drivers' && (
         <div className={`${styles.panelCard} glass-card animate-fadeIn`}>
           <div className={styles.panelHeader}>
-            <h3>👨‍✈️ Fleet Drivers Directory (12 Company Drivers)</h3>
-            <span className="badge badge-success">12 CNIC Verified</span>
+            <div>
+              <h3>👨‍✈️ Fleet Drivers Directory ({driversList.length} Drivers)</h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                Manage company driver roster, NADRA CNIC KYC status, and duty availability.
+              </p>
+            </div>
+            <button onClick={() => setShowAddDriverModal(true)} className="btn btn-primary btn-sm">
+              ➕ Add New Driver
+            </button>
           </div>
 
           <div className="tableContainer">
@@ -475,12 +594,12 @@ export default function FleetDashboard() {
                   <th>Assigned Vehicle</th>
                   <th>DRIVE Safety Score</th>
                   <th>KYC CNIC Status</th>
-                  <th>Duty Status</th>
+                  <th>Duty Availability</th>
                   <th>Quick Action</th>
                 </tr>
               </thead>
               <tbody>
-                {fleetRosterDrivers.map((d) => (
+                {driversList.map((d) => (
                   <tr key={d.id}>
                     <td><strong>👨‍✈️ {d.name}</strong></td>
                     <td>{d.phone}</td>
@@ -492,14 +611,30 @@ export default function FleetDashboard() {
                         style={{ color: '#10B981', fontWeight: 800, cursor: 'pointer' }}
                         title="Click to view Motive DRIVE Safety Score Breakdown"
                       >
-                        ⭐ {d.safetyScore} / 100
+                        ⭐ {d.safetyScore || 95} / 100
                       </button>
                     </td>
                     <td><span className="badge badge-success">✅ CNIC Verified</span></td>
                     <td>
-                      {d.status === 'On Duty' && <span className="badge badge-info">On Duty</span>}
-                      {d.status === 'Available' && <span className="badge badge-success">Available</span>}
-                      {d.status === 'Standby' && <span className="badge badge-warning">Standby Reserve</span>}
+                      <select
+                        value={d.status}
+                        onChange={(e) => handleUpdateDriverStatus(d.id, e.target.value as 'Available' | 'On Duty' | 'Standby')}
+                        className="input input-sm"
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.8rem',
+                          borderRadius: '6px',
+                          fontWeight: 600,
+                          background: d.status === 'Available' ? '#064E3B' : d.status === 'On Duty' ? '#1E3A8A' : '#78350F',
+                          color: '#F8FAFC',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="Available">Available (دستیاب)</option>
+                        <option value="On Duty">On Duty (ڈیوٹی پر)</option>
+                        <option value="Standby">Standby Reserve (ریزرو)</option>
+                      </select>
                     </td>
                     <td>
                       <button
@@ -558,6 +693,162 @@ export default function FleetDashboard() {
         </div>
       )}
 
+      {/* ADD TRUCK MODAL */}
+      {showAddTruckModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>🚛 Add New Vehicle to Fleet Roster</h3>
+              <button onClick={() => setShowAddTruckModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleAddTruckSubmit}>
+              <div className={styles.inputGroup}>
+                <label>Registration Number (گاڑی کا نمبر)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. LHR-9900"
+                  value={newTruckReg}
+                  onChange={(e) => setNewTruckReg(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Vehicle Type (گاڑی کی قسم)</label>
+                <select value={newTruckType} onChange={(e) => setNewTruckType(e.target.value)} className="input">
+                  <option value="Flatbed Trailer (25 Tons)">Flatbed Trailer (25 Tons)</option>
+                  <option value="Container (22ft / 20 Tons)">Container (22ft / 20 Tons)</option>
+                  <option value="Container (40ft / 35 Tons)">Container (40ft / 35 Tons)</option>
+                  <option value="Dumper Truck (30 Tons)">Dumper Truck (30 Tons)</option>
+                  <option value="22-Wheeler Heavy Trailer">22-Wheeler Heavy Trailer</option>
+                  <option value="Bedford Open Rig (15 Tons)">Bedford Open Rig (15 Tons)</option>
+                  <option value="Mazda Master (10 Tons)">Mazda Master (10 Tons)</option>
+                  <option value="Shehzore Pickup (3 Tons)">Shehzore Pickup (3 Tons)</option>
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Assigned Driver Name (ڈرائیور)</label>
+                <select value={newTruckDriver} onChange={(e) => setNewTruckDriver(e.target.value)} className="input">
+                  {driversList.map((d) => (
+                    <option key={d.id} value={d.name}>{d.name} ({d.phone})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Current Location City (شہر)</label>
+                <select value={newTruckCity} onChange={(e) => setNewTruckCity(e.target.value)} className="input">
+                  {pakistaniCities.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Initial Fleet Status (حالت)</label>
+                <select value={newTruckStatus} onChange={(e) => setNewTruckStatus(e.target.value as any)} className="input">
+                  <option value="idle">Idle / Available (فارغ)</option>
+                  <option value="active">Active / On Route (راستے میں)</option>
+                  <option value="maintenance">Maintenance (مرمت)</option>
+                </select>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setShowAddTruckModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  ➕ Save Vehicle to Fleet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADD DRIVER MODAL */}
+      {showAddDriverModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
+            <div className={styles.modalHeader}>
+              <h3>👨‍✈️ Register New Driver to Fleet Directory</h3>
+              <button onClick={() => setShowAddDriverModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <form onSubmit={handleAddDriverSubmit}>
+              <div className={styles.inputGroup}>
+                <label>Driver Full Name (ڈرائیور کا نام)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Tariq Mehmood"
+                  value={newDriverName}
+                  onChange={(e) => setNewDriverName(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Phone Number (فون نمبر)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. +92 301 2345678"
+                  value={newDriverPhone}
+                  onChange={(e) => setNewDriverPhone(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>CNIC Number (شناختی کارڈ)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 35202-1234567-1"
+                  value={newDriverCnic}
+                  onChange={(e) => setNewDriverCnic(e.target.value)}
+                  className="input"
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Assigned Vehicle (گاڑی)</label>
+                <select value={newDriverTruck} onChange={(e) => setNewDriverTruck(e.target.value)} className="input">
+                  <option value="Unassigned (Reserve)">Unassigned (Reserve)</option>
+                  {trucksList.map((t) => (
+                    <option key={t.id} value={`${t.registrationNumber} (${t.type})`}>
+                      {t.registrationNumber} ({t.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label>Duty Availability Status</label>
+                <select value={newDriverStatus} onChange={(e) => setNewDriverStatus(e.target.value as any)} className="input">
+                  <option value="Available">Available (دستیاب)</option>
+                  <option value="On Duty">On Duty (ڈیوٹی پر)</option>
+                  <option value="Standby">Standby Reserve (ریزرو)</option>
+                </select>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setShowAddDriverModal(false)} className="btn btn-glass">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  ➕ Register Driver
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* FLEET BIDDING & TRUCK ASSIGNMENT MODAL */}
       {selectedLoad && (
         <div className={styles.modalBackdrop}>
@@ -571,7 +862,7 @@ export default function FleetDashboard() {
               <div className={styles.inputGroup}>
                 <label>Select Fleet Vehicle (گاڑی منتخب کریں)</label>
                 <select value={selectedTruckId} onChange={(e) => setSelectedTruckId(e.target.value)} className="input">
-                  {mockFleetTrucks.map((t) => (
+                  {trucksList.map((t) => (
                     <option key={t.id} value={t.registrationNumber}>
                       {t.registrationNumber} ({t.type}) — Located in {t.currentCity}
                     </option>
@@ -582,7 +873,7 @@ export default function FleetDashboard() {
               <div className={styles.inputGroup}>
                 <label>Assign Fleet Driver (ڈرائیور منتخب کریں)</label>
                 <select value={selectedDriverId} onChange={(e) => setSelectedDriverId(e.target.value)} className="input">
-                  {fleetRosterDrivers.map((d) => (
+                  {driversList.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name} ({d.phone}) — Status: {d.status}
                     </option>
@@ -623,8 +914,8 @@ export default function FleetDashboard() {
           <div className={`${styles.modalCard} glass-card animate-scaleIn`}>
             <div className={styles.modalHeader}>
               <h3>
-                {fleetModal === 'trucks' && '🚛 Fleet Vehicle Telematics & Roster (10 Trucks)'}
-                {fleetModal === 'drivers' && '👨‍✈️ Fleet Drivers CNIC & License Directory (12 Drivers)'}
+                {fleetModal === 'trucks' && `🚛 Fleet Vehicle Telematics & Roster (${trucksList.length} Trucks)`}
+                {fleetModal === 'drivers' && `👨‍✈️ Fleet Drivers CNIC & License Directory (${driversList.length} Drivers)`}
                 {fleetModal === 'revenue' && '💰 Fleet Revenue & Escrow Settlement Breakdown'}
                 {fleetModal === 'saas' && '🎫 Fleet SaaS Trip Pack Subscription'}
               </h3>
@@ -634,22 +925,26 @@ export default function FleetDashboard() {
             <div style={{ padding: '1.25rem', lineHeight: 1.6 }}>
               {fleetModal === 'trucks' && (
                 <div>
-                  <p><strong>Fleet Status:</strong> 6 Active Vehicles on Route | 4 Available Idle at Base Hubs</p>
+                  <p>
+                    <strong>Fleet Status:</strong> {trucksList.filter((t) => t.status === 'active').length} Active Vehicles on Route |{' '}
+                    {trucksList.filter((t) => t.status === 'idle').length} Available Idle at Base Hubs
+                  </p>
                   <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
-                    <li>✅ <strong>LHR-5678 (Trailer):</strong> Active on Multan → Karachi (GPS Online 🟢)</li>
-                    <li>✅ <strong>KHI-1234 (Container):</strong> Active on Lahore → Islamabad (GPS Online 🟢)</li>
-                    <li>✅ <strong>FSD-9012 (Dumper):</strong> Active on Faisalabad → Peshawar (GPS Online 🟢)</li>
-                    <li>⏸️ <strong>RWP-3456 (22-Wheeler):</strong> Available at Rawaddah Terminal (Idle)</li>
+                    {trucksList.slice(0, 5).map((t) => (
+                      <li key={t.id}>
+                        {t.status === 'active' ? '✅' : '⏸️'} <strong>{t.registrationNumber} ({t.type}):</strong> {t.status === 'active' ? `Active near ${t.currentCity} (GPS Online 🟢)` : `Available at ${t.currentCity} Hub`}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}
 
               {fleetModal === 'drivers' && (
                 <div>
-                  <p><strong>Total Verified Fleet Drivers:</strong> 12 Commercial Heavy Transport Drivers</p>
+                  <p><strong>Total Verified Fleet Drivers:</strong> {driversList.length} Commercial Heavy Transport Drivers</p>
                   <p><strong>CNIC Status:</strong> 100% Verified via NADRA Security Database</p>
                   <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', padding: '0.75rem', borderRadius: '8px', marginTop: '0.5rem' }}>
-                    ✅ All 12 drivers carry valid HTV / LTV Commercial Driving Licenses and Emergency Medical Insurance.
+                    ✅ All {driversList.length} drivers carry valid HTV / LTV Commercial Driving Licenses and Emergency Medical Insurance.
                   </div>
                 </div>
               )}
@@ -682,6 +977,7 @@ export default function FleetDashboard() {
           </div>
         </div>
       )}
+
       {/* MOTIVE-STYLE DRIVE SAFETY SCORE BREAKDOWN MODAL */}
       {selectedSafetyDriver && (
         <div className={styles.modalBackdrop}>
@@ -692,25 +988,25 @@ export default function FleetDashboard() {
             </div>
 
             <div style={{ padding: '1.25rem', lineHeight: 1.6, color: '#F8FAFC' }}>
-              <div style={{ textAlignment: 'center', textAlign: 'center', marginBottom: '1.25rem', background: '#1E293B', padding: '1rem', borderRadius: '14px' }}>
-                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10B981' }}>{selectedSafetyDriver.safetyScore} / 100</div>
+              <div style={{ textAlign: 'center', marginBottom: '1.25rem', background: '#1E293B', padding: '1rem', borderRadius: '14px' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10B981' }}>{selectedSafetyDriver.safetyScore || 95} / 100</div>
                 <div style={{ fontSize: '0.85rem', color: '#CBD5E1' }}>Overall Driving Performance Index (Top 5% Carrier Network)</div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                 <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
                   <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Smooth Driving & Braking:</div>
-                  <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>{selectedSafetyDriver.brakingScore} / 100</strong>
+                  <strong style={{ color: '#10B981', fontSize: '1.1rem' }}>{selectedSafetyDriver.brakingScore || 95} / 100</strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
                   <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>On-Time Arrival Rate:</div>
-                  <strong style={{ color: '#38BDF8', fontSize: '1.1rem' }}>{selectedSafetyDriver.onTimeRate}</strong>
+                  <strong style={{ color: '#38BDF8', fontSize: '1.1rem' }}>{selectedSafetyDriver.onTimeRate || '98%'}</strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>
                   <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Engine Idle Time Efficiency:</div>
-                  <strong style={{ color: '#F59E0B', fontSize: '1.1rem' }}>{selectedSafetyDriver.idlingScore} / 100</strong>
+                  <strong style={{ color: '#F59E0B', fontSize: '1.1rem' }}>{selectedSafetyDriver.idlingScore || 92} / 100</strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.85rem', borderRadius: '10px' }}>

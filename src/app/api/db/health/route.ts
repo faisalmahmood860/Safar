@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db, statements } from '@/lib/db';
 
+export const dynamic = 'force-static';
+
 export async function GET() {
   try {
     const startTime = performance.now();

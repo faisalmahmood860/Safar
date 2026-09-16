@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { db, statements } from '@/lib/db';
 
+export const dynamic = 'force-static';
+
+export function generateStaticParams() {
+  return [{ id: '1' }];
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

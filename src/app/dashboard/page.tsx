@@ -191,6 +191,61 @@ export default function DashboardPage() {
       {/* Driver Availability & Target Route Broadcast Widget */}
       <DriverAvailabilityWidget driverName={userName} />
 
+      {/* Motive-Grade Telematics & DRIVE Safety Scorecard Banner */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%)', border: '1px solid #10B981', borderRadius: '16px', padding: '1.25rem', margin: '1.25rem 0 1.5rem 0', boxShadow: '0 8px 32px rgba(16, 185, 129, 0.1)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>🛡️</span>
+              <h3 style={{ margin: 0, color: '#10B981', fontSize: '1.2rem', fontWeight: 800 }}>
+                Motive-Grade Telematics & DRIVE Safety Score Suite <span style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 400 }}>/ موٹیو سیفٹی سسٹم</span>
+              </h3>
+            </div>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#CBD5E1' }}>
+              Real-time ELD compliance logging, vehicle gateway telematics, driver ratings, and AI safety scorecard.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Link href="/dashboard/tracking" className="btn btn-primary btn-sm">
+              📍 Live Telematics Radar
+            </Link>
+            <Link href="/dashboard/trips" className="btn btn-outline btn-sm">
+              ⏱️ HOS ELD Logbook
+            </Link>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          {/* Motive DRIVE Score */}
+          <div style={{ background: '#1E293B', borderRadius: '12px', padding: '1rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+            <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⭐ Motive DRIVE Score</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#10B981', margin: '4px 0' }}>98 / 100</div>
+            <div style={{ fontSize: '0.78rem', color: '#38BDF8' }}>Top 5% Network Driver • 0 Hard Brakes</div>
+          </div>
+
+          {/* Motive ELD HOS Logbook */}
+          <div style={{ background: '#1E293B', borderRadius: '12px', padding: '1rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+            <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⏱️ HOS Duty Log (ELD)</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#3B82F6', margin: '4px 0' }}>6h 45m</div>
+            <div style={{ fontSize: '0.78rem', color: '#10B981' }}>11h Driving Limit • 0 HOS Violations</div>
+          </div>
+
+          {/* Motive Vehicle Telematics */}
+          <div style={{ background: '#1E293B', borderRadius: '12px', padding: '1rem', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+            <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>🩺 Gateway Telematics</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#F59E0B', margin: '4px 0' }}>0 DTC Faults</div>
+            <div style={{ fontSize: '0.78rem', color: '#CBD5E1' }}>Fuel 85% • Batt 24.2V • 3.8 km/L</div>
+          </div>
+
+          {/* Shipper Driver Rating */}
+          <div style={{ background: '#1E293B', borderRadius: '12px', padding: '1rem', border: '1px solid rgba(236, 72, 153, 0.3)' }}>
+            <div style={{ fontSize: '0.78rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>💬 Shipper Rating Score</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#EC4899', margin: '4px 0' }}>4.9 ★</div>
+            <div style={{ fontSize: '0.78rem', color: '#10B981' }}>100% Punctual Delivery Feedback</div>
+          </div>
+        </div>
+      </div>
+
       {/* Stats Grid — Clickable Cards with Info Modals */}
       <div className={`${styles.statsGrid} ${styles.stagger2}`}>
         <div
