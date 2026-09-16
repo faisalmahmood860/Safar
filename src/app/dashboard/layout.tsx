@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const [lang, setLang] = useState('en');
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [role, setRole] = useState<UserRole>('driver');
   const [user, setUser] = useState<{ name: string; email: string; role: UserRole } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -80,6 +80,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
     const storedUser = localStorage.getItem('safarload_logged_user');
+    const storedTheme = (localStorage.getItem('safarload_theme') as 'dark' | 'light') || 'light';
+    setTheme(storedTheme);
 
     if (!storedUser) {
       // Require Credentials: Without username & password portal cannot be accessed
@@ -130,7 +132,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('safarload_theme', next);
+      return next;
+    });
   };
 
   if (!mounted || !isAuthenticated) {

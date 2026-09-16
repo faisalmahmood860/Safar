@@ -200,7 +200,6 @@
   color: #0F172A !important;
 }
 
-[data-theme="light"] button,
 [data-theme="light"] .btn-glass,
 [data-theme="light"] .langToggle {
   background: #E2E8F0 !important;
