@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { mockLoads } from '@/lib/mockData';
+import { mockLoads, mockDriverAvailabilities } from '@/lib/mockData';
 import { translations, Language } from '@/lib/translations';
 import { triggerBidSubmittedNotification, triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 import { apiClient } from '@/lib/apiClient';
+import { initiateVoIPCall } from '@/lib/voipCallSystem';
 import UrduVoiceSearchModal from '@/components/UrduVoiceSearchModal';
 
 export default function LoadsPage() {
@@ -14,6 +15,10 @@ export default function LoadsPage() {
   const t = translations[language];
   const isRtl = language === 'ur';
   
+  const [marketTab, setMarketTab] = useState<'cargo' | 'fleet-trucks' | 'driver-radar'>('cargo');
+  const [fleetTrucks, setFleetTrucks] = useState<any[]>([]);
+  const [driverBroadcasts, setDriverBroadcasts] = useState<any[]>([]);
+
   const [search, setSearch] = useState('');
   const [view, setView] = useState<'list' | 'map'>('list');
   const [filterCityFrom, setFilterCityFrom] = useState('');
@@ -67,8 +72,37 @@ export default function LoadsPage() {
     }
   };
 
+  const loadFleetTrucksAndRadar = () => {
+    try {
+      const storedFleet = localStorage.getItem('safarload_fleet_trucks');
+      if (storedFleet) {
+        setFleetTrucks(JSON.parse(storedFleet));
+      } else {
+        const defaultTrucks = [
+          { id: 'TRK-001', registrationNumber: 'LHR-5678', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Tariq Mehmood', driverPhone: '+92 301 2345678', currentCity: 'Multan', fuelLevel: 85, status: 'idle', operatorName: 'Al-Farooq Logistics' },
+          { id: 'TRK-002', registrationNumber: 'KHI-1234', type: 'Container (22ft / 20 Tons)', typeIcon: '📦', driverName: 'Abdul Rasheed', driverPhone: '+92 333 9876543', currentCity: 'Karachi', fuelLevel: 92, status: 'idle', operatorName: 'Port Freight Lines' },
+          { id: 'TRK-003', registrationNumber: 'FSD-9012', type: 'Dumper Truck (30 Tons)', typeIcon: '🚛', driverName: 'Muhammad Aslam', driverPhone: '+92 321 5551234', currentCity: 'Faisalabad', fuelLevel: 45, status: 'idle', operatorName: 'Faisalabad Heavy Fleet' },
+          { id: 'TRK-004', registrationNumber: 'RWP-3456', type: '22-Wheeler Heavy Trailer', typeIcon: '🚛', driverName: 'Shahbaz Ali', driverPhone: '+92 300 7778899', currentCity: 'Rawalpindi', fuelLevel: 78, status: 'idle', operatorName: 'Northern Freight Co.' },
+          { id: 'TRK-005', registrationNumber: 'PSH-7890', type: 'Bedford Open Rig (15 Tons)', typeIcon: '🚛', driverName: 'Khan Muhammad', driverPhone: '+92 302 1122334', currentCity: 'Peshawar', fuelLevel: 60, status: 'idle', operatorName: 'Khyber Express Fleet' },
+          { id: 'TRK-006', registrationNumber: 'MLT-4567', type: 'Flatbed Trailer (25 Tons)', typeIcon: '🚛', driverName: 'Zahid Khan', driverPhone: '+92 304 9988776', currentCity: 'Multan', fuelLevel: 90, status: 'idle', operatorName: 'South Punjab Transport' },
+        ];
+        setFleetTrucks(defaultTrucks);
+      }
+
+      const storedRadar = localStorage.getItem('safarload_driver_availabilities');
+      if (storedRadar) {
+        setDriverBroadcasts(JSON.parse(storedRadar));
+      } else {
+        setDriverBroadcasts(mockDriverAvailabilities);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   React.useEffect(() => {
     loadAllLoadsFromStorage();
+    loadFleetTrucksAndRadar();
 
     try {
       const storedBooked = localStorage.getItem('safarload_booked_loads');
@@ -81,6 +115,7 @@ export default function LoadsPage() {
 
     const handleSyncLoads = () => {
       loadAllLoadsFromStorage();
+      loadFleetTrucksAndRadar();
       try {
         const storedBooked = localStorage.getItem('safarload_booked_loads');
         if (storedBooked) {
@@ -353,77 +388,129 @@ export default function LoadsPage() {
           </button>
         </div>
       </header>
-      
-      {/* Search & Filters */}
-      <div className={styles.searchSection}>
-        <div className={styles.searchBox}>
-          <span className={styles.searchIcon}>🔍</span>
-          <input 
-            type="text" 
-            className={styles.searchInput}
-            placeholder={isRtl ? 'روٹ، شہر یا کارگو کے لحاظ سے سرچ کریں...' : 'Search loads by route, city, cargo type...'}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button className={styles.clearSearch} onClick={() => setSearch('')}>✕</button>
-          )}
-        </div>
-        
-        <div className={styles.filtersBar}>
-          <select 
-            className={styles.filterSelect}
-            value={filterCityFrom}
-            onChange={(e) => setFilterCityFrom(e.target.value)}
-          >
-            <option value="">📍 {isRtl ? 'پک اپ شہر (تمام)' : 'From City (All)'}</option>
-            <option value="Multan">Multan (ملتان)</option>
-            <option value="Lahore">Lahore (لاہور)</option>
-            <option value="Faisalabad">Faisalabad (فیصل آباد)</option>
-            <option value="DG Khan">DG Khan (ڈی جی خان)</option>
-            <option value="Larkana">Larkana (لاڑکانہ)</option>
-          </select>
-          
-          <select 
-            className={styles.filterSelect}
-            value={filterCityTo}
-            onChange={(e) => setFilterCityTo(e.target.value)}
-          >
-            <option value="">🏁 {isRtl ? 'ڈیلیوری شہر (تمام)' : 'To City (All)'}</option>
-            <option value="Karachi">Karachi (کراچی)</option>
-            <option value="Lahore">Lahore (لاہور)</option>
-            <option value="Peshawar">Peshawar (پشاور)</option>
-          </select>
-          
-          <select 
-            className={styles.filterSelect}
-            value={filterTruckType}
-            onChange={(e) => setFilterTruckType(e.target.value)}
-          >
-            <option value="">🚛 {isRtl ? 'ٹرک کی قسم (تمام)' : 'Truck Type (All)'}</option>
-            <option value="Trailer">Trailer (ٹریلر)</option>
-            <option value="22-Wheeler">22-Wheeler (22 وہیلر)</option>
-            <option value="Dumper">Dumper (ڈمپر)</option>
-            <option value="Container">Container (کنٹینر)</option>
-          </select>
-          
-          {(filterCityFrom || filterCityTo || filterTruckType) && (
-            <button 
-              className={styles.resetFiltersBtn}
-              onClick={() => {
-                setFilterCityFrom('');
-                setFilterCityTo('');
-                setFilterTruckType('');
-              }}
-            >
-              🔄 {isRtl ? 'فلٹر صاف کریں' : 'Reset'}
-            </button>
-          )}
-        </div>
+
+      {/* 3-Category Marketplace Switcher Bar */}
+      <div style={{ display: 'flex', gap: '0.75rem', margin: '0 0 1.25rem 0', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setMarketTab('cargo')}
+          style={{
+            padding: '0.65rem 1.25rem',
+            borderRadius: '12px',
+            border: marketTab === 'cargo' ? '2px solid #10B981' : '1px solid rgba(255, 255, 255, 0.1)',
+            background: marketTab === 'cargo' ? 'rgba(16, 185, 129, 0.2)' : '#1E293B',
+            color: marketTab === 'cargo' ? '#10B981' : '#94A3B8',
+            fontWeight: 800,
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          📦 {isRtl ? 'پوسٹ شدہ کارگو لوڈز' : 'Cargo Loads Board'} ({filteredLoads.length})
+        </button>
+        <button
+          onClick={() => setMarketTab('fleet-trucks')}
+          style={{
+            padding: '0.65rem 1.25rem',
+            borderRadius: '12px',
+            border: marketTab === 'fleet-trucks' ? '2px solid #3B82F6' : '1px solid rgba(255, 255, 255, 0.1)',
+            background: marketTab === 'fleet-trucks' ? 'rgba(59, 130, 246, 0.2)' : '#1E293B',
+            color: marketTab === 'fleet-trucks' ? '#60A5FA' : '#94A3B8',
+            fontWeight: 800,
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          🚛 {isRtl ? 'دستیاب فلیٹ گاڑیاں' : 'Available Fleet Trucks'} ({fleetTrucks.filter((t) => t.status === 'idle').length})
+        </button>
+        <button
+          onClick={() => setMarketTab('driver-radar')}
+          style={{
+            padding: '0.65rem 1.25rem',
+            borderRadius: '12px',
+            border: marketTab === 'driver-radar' ? '2px solid #F59E0B' : '1px solid rgba(255, 255, 255, 0.1)',
+            background: marketTab === 'driver-radar' ? 'rgba(245, 158, 11, 0.2)' : '#1E293B',
+            color: marketTab === 'driver-radar' ? '#FBBF24' : '#94A3B8',
+            fontWeight: 800,
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+          }}
+        >
+          🟢 {isRtl ? 'ڈرائیور واپسی رڈار' : 'Driver Return Radar'} ({driverBroadcasts.length})
+        </button>
       </div>
 
-      {/* Load Cards Grid */}
-      <div className={styles.grid}>
+      {/* SEARCH & FILTERS */}
+      {marketTab === 'cargo' && (
+        <div className={styles.searchSection}>
+          <div className={styles.searchBox}>
+            <span className={styles.searchIcon}>🔍</span>
+            <input 
+              type="text" 
+              className={styles.searchInput}
+              placeholder={isRtl ? 'روٹ، شہر یا کارگو کے لحاظ سے سرچ کریں...' : 'Search loads by route, city, cargo type...'}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button className={styles.clearSearch} onClick={() => setSearch('')}>✕</button>
+            )}
+          </div>
+          
+          <div className={styles.filtersBar}>
+            <select 
+              className={styles.filterSelect}
+              value={filterCityFrom}
+              onChange={(e) => setFilterCityFrom(e.target.value)}
+            >
+              <option value="">📍 {isRtl ? 'پک اپ شہر (تمام)' : 'From City (All)'}</option>
+              <option value="Multan">Multan (ملتان)</option>
+              <option value="Lahore">Lahore (لاہور)</option>
+              <option value="Faisalabad">Faisalabad (فیصل آباد)</option>
+              <option value="DG Khan">DG Khan (ڈی جی خان)</option>
+              <option value="Larkana">Larkana (لاڑکانہ)</option>
+            </select>
+            
+            <select 
+              className={styles.filterSelect}
+              value={filterCityTo}
+              onChange={(e) => setFilterCityTo(e.target.value)}
+            >
+              <option value="">🏁 {isRtl ? 'ڈیلیوری شہر (تمام)' : 'To City (All)'}</option>
+              <option value="Karachi">Karachi (کراچی)</option>
+              <option value="Lahore">Lahore (لاہور)</option>
+              <option value="Peshawar">Peshawar (پشاور)</option>
+            </select>
+            
+            <select 
+              className={styles.filterSelect}
+              value={filterTruckType}
+              onChange={(e) => setFilterTruckType(e.target.value)}
+            >
+              <option value="">🚛 {isRtl ? 'ٹرک کی قسم (تمام)' : 'Truck Type (All)'}</option>
+              <option value="Trailer">Trailer (ٹریلر)</option>
+              <option value="22-Wheeler">22-Wheeler (22 وہیلر)</option>
+              <option value="Dumper">Dumper (ڈمپر)</option>
+              <option value="Container">Container (کنٹینر)</option>
+            </select>
+            
+            {(filterCityFrom || filterCityTo || filterTruckType) && (
+              <button 
+                className={styles.resetFiltersBtn}
+                onClick={() => {
+                  setFilterCityFrom('');
+                  setFilterCityTo('');
+                  setFilterTruckType('');
+                }}
+              >
+                🔄 {isRtl ? 'فلٹر صاف کریں' : 'Reset'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW CATEGORY 1: CARGO LOADS BOARD */}
+      {marketTab === 'cargo' && (
+        <div className={styles.grid}>
         {filteredLoads.map((load) => {
           const isBooked = bookedLoadIds.includes(load.id);
           return (
@@ -515,6 +602,137 @@ export default function LoadsPage() {
           );
         })}
       </div>
+      )}
+
+      {/* VIEW CATEGORY 2: AVAILABLE FLEET TRUCKS */}
+      {marketTab === 'fleet-trucks' && (
+        <div className={styles.grid}>
+          {fleetTrucks.filter((t) => t.status === 'idle').length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: '#94A3B8', background: 'rgba(30, 41, 59, 0.5)', borderRadius: '16px' }}>
+              🚛 No idle fleet trucks currently available. Check back soon!
+            </div>
+          ) : (
+            fleetTrucks.filter((t) => t.status === 'idle').map((truck) => (
+              <div key={truck.id} className={`${styles.card} glass-card`}>
+                <div className={styles.cardHeader}>
+                  <div className={styles.routeGroup}>
+                    <span className={styles.city}>{truck.typeIcon || '🚛'} {truck.registrationNumber}</span>
+                  </div>
+                  <span className="badge badge-success">🟢 Idle & Available</span>
+                </div>
+
+                <div className={styles.cargoInfo}>
+                  <span className={styles.cargoText}>
+                    <strong>Vehicle:</strong> {truck.type}
+                  </span>
+                </div>
+
+                <div className={styles.metaRow}>
+                  <span>📍 Location: <strong>{truck.currentCity}</strong></span>
+                  <span>👨‍✈️ Driver: <strong>{truck.driverName}</strong></span>
+                </div>
+
+                <div className={styles.shipperRow}>
+                  <div className={styles.shipperMeta}>
+                    <span className={styles.shipperName}>🏢 Operator: {truck.operatorName || 'Fleet Logistics Partner'}</span>
+                  </div>
+                </div>
+
+                <div className={styles.cardActions} style={{ display: 'flex', gap: '0.4rem', marginTop: '1rem' }}>
+                  <button
+                    onClick={() =>
+                      initiateVoIPCall({
+                        id: truck.id,
+                        name: truck.driverName,
+                        phone: truck.driverPhone || '+92 301 2345678',
+                        truck: `${truck.registrationNumber} (${truck.type})`,
+                        role: 'driver',
+                      })
+                    }
+                    className="btn btn-primary btn-sm"
+                    style={{ flex: 1 }}
+                  >
+                    📞 Call Driver Direct
+                  </button>
+                  <Link
+                    href={`/dashboard/post-load?targetTruck=${encodeURIComponent(truck.registrationNumber)}`}
+                    className="btn btn-success btn-sm"
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    ⚡ Assign Cargo Load
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* VIEW CATEGORY 3: DRIVER RETURN RADAR */}
+      {marketTab === 'driver-radar' && (
+        <div className={styles.grid}>
+          {driverBroadcasts.length === 0 ? (
+            <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: '#94A3B8', background: 'rgba(30, 41, 59, 0.5)', borderRadius: '16px' }}>
+              🟢 No active driver return broadcasts.
+            </div>
+          ) : (
+            driverBroadcasts.map((radar) => (
+              <div key={radar.id} className={`${styles.card} glass-card`}>
+                <div className={styles.cardHeader}>
+                  <div className={styles.routeGroup}>
+                    <span className={styles.city}>{radar.currentCity}</span>
+                    <span className={styles.arrow}>➔</span>
+                    <span className={styles.city}>{radar.preferredDestination}</span>
+                  </div>
+                  <span className="badge badge-warning">🟢 Return Leg</span>
+                </div>
+
+                <div className={styles.cargoInfo}>
+                  <span className={styles.cargoText}>
+                    🚛 {radar.truckType} ({radar.truckNumber})
+                  </span>
+                </div>
+
+                <div className={styles.metaRow}>
+                  <span>⚖️ Available Capacity: <strong>{radar.availableCapacityTons} Tons</strong></span>
+                  <span>⏱️ Departure: <strong>{radar.departureTime}</strong></span>
+                </div>
+
+                <div className={styles.shipperRow}>
+                  <div className={styles.shipperMeta}>
+                    <span className={styles.shipperName}>👨‍✈️ {radar.driverName} ({radar.driverPhone})</span>
+                  </div>
+                </div>
+
+                <div className={styles.cardActions} style={{ display: 'flex', gap: '0.4rem', marginTop: '1rem' }}>
+                  <button
+                    onClick={() =>
+                      initiateVoIPCall({
+                        id: radar.id,
+                        name: radar.driverName,
+                        phone: radar.driverPhone,
+                        truck: `${radar.truckNumber} (${radar.truckType})`,
+                        role: 'driver',
+                      })
+                    }
+                    className="btn btn-primary btn-sm"
+                    style={{ flex: 1 }}
+                  >
+                    📞 Call Driver Direct
+                  </button>
+                  <Link
+                    href={`/dashboard/post-load?pickupCity=${encodeURIComponent(radar.currentCity)}&dropoffCity=${encodeURIComponent(radar.preferredDestination)}`}
+                    className="btn btn-success btn-sm"
+                    style={{ flex: 1, textAlign: 'center' }}
+                  >
+                    ⚡ Offer Return Cargo Load
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* INTERACTIVE LOAD BOOKING & BIDDING MODAL */}
       {selectedLoad && (
@@ -572,7 +790,7 @@ export default function LoadsPage() {
                 <div className={styles.reqsBox}>
                   <span>⚠️ Special Driver Requirements:</span>
                   <div className={styles.reqChips}>
-                    {selectedLoad.specialRequirements.map((r, i) => (
+                    {(selectedLoad.specialRequirements || []).map((r: any, i: number) => (
                       <span key={i} className={styles.reqChip}>✅ {r}</span>
                     ))}
                   </div>

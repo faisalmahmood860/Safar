@@ -46,7 +46,7 @@ export default function PostLoadPage() {
     });
   };
   const [formStep, setFormStep] = useState<1 | 2 | 3>(1);
-  const [workspaceTab, setWorkspaceTab] = useState<'post' | 'bids' | 'booked' | 'escrow' | 'radar'>('post');
+  const [workspaceTab, setWorkspaceTab] = useState<'post' | 'my-loads' | 'bids' | 'booked' | 'escrow' | 'radar'>('post');
   const [voicePosting, setVoicePosting] = useState(false);
   const [loadPostedSuccess, setLoadPostedSuccess] = useState(false);
   const [bids, setBids] = useState<DriverCounterBid[]>(mockDriverCounterBids);

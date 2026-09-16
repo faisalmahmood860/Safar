@@ -122,7 +122,8 @@ export default function DashboardPage() {
   const [capacityTons, setCapacityTons] = useState('25');
   const [availableDate, setAvailableDate] = useState('2026-08-20');
 
-  const [userName, setUserName] = useState('Admin');
+  const [userName, setUserName] = useState('Driver');
+  const [userRole, setUserRole] = useState<string>('driver');
 
   useEffect(() => {
     setMounted(true);
@@ -130,10 +131,29 @@ export default function DashboardPage() {
     setLang(isRtl ? 'ur' : 'en');
 
     const storedUser = localStorage.getItem('safarload_logged_user');
+    const storedRole = localStorage.getItem('safarload_user_role');
+    
     if (storedUser) {
       try {
         const p = JSON.parse(storedUser);
         if (p.name) setUserName(p.name);
+        const activeRole = storedRole || p.role || 'driver';
+        setUserRole(activeRole);
+
+        // Strict User-Centric Role Routing
+        if (activeRole === 'shipper') {
+          window.location.href = '/dashboard/post-load';
+          return;
+        } else if (activeRole === 'fleet') {
+          window.location.href = '/dashboard/fleet';
+          return;
+        } else if (activeRole === 'finance') {
+          window.location.href = '/dashboard/finance';
+          return;
+        } else if (activeRole === 'support') {
+          window.location.href = '/dashboard/support';
+          return;
+        }
       } catch (e) {}
     }
     
@@ -163,7 +183,7 @@ export default function DashboardPage() {
       <div className={`${styles.welcomeBanner} ${styles.stagger1}`}>
         <div className={styles.bannerContent}>
           <h1 className={styles.welcomeTitle}>
-            {lang === 'en' ? `Welcome back, ${userName}! 👋` : `خوش آمدید، ${userName}! 👋`}
+            {lang === 'en' ? `Welcome back, ${userName}! 👨‍✈️` : `خوش آمدید، ${userName}! 👨‍✈️`}
           </h1>
           <p className={styles.dateText}>
             {lang === 'en' 
@@ -172,13 +192,22 @@ export default function DashboardPage() {
           </p>
           <div className={styles.bannerActions}>
             <Link href="/dashboard/loads" className="btn btn-primary">
-              📋 {lang === 'en' ? 'Find Load' : 'لوڈ تلاش کریں'}
+              📋 {lang === 'en' ? 'Find Cargo Loads' : 'لوڈ تلاش کریں'}
             </Link>
-            <button onClick={() => setShowPostTripModal(true)} className="btn btn-secondary">
-              🚛 {lang === 'en' ? 'Post Return Trip' : 'سفر پوسٹ کریں'}
+            <button
+              onClick={() => {
+                const el = document.getElementById('driverAvailabilitySection');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="btn btn-secondary"
+            >
+              🟢 {lang === 'en' ? 'Broadcast Route Availability' : 'روٹ کی دستیابی درج کریں'}
             </button>
             <Link href="/dashboard/wallet" className="btn btn-glass">
-              💰 {lang === 'en' ? 'View Wallet' : 'بٹوہ دیکھیں'}
+              💰 {lang === 'en' ? 'Earnings & Wallet' : 'بٹوہ اور آمدنی'}
+            </Link>
+            <Link href="/dashboard/trips" className="btn btn-outline">
+              🚛 {lang === 'en' ? 'My Active Trips' : 'میرے فعال سفر'}
             </Link>
           </div>
         </div>
@@ -189,7 +218,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Driver Availability & Target Route Broadcast Widget */}
-      <DriverAvailabilityWidget driverName={userName} />
+      <div id="driverAvailabilitySection">
+        <DriverAvailabilityWidget driverName={userName} />
+      </div>
 
       {/* Motive-Grade Telematics & DRIVE Safety Scorecard Banner */}
       <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%)', border: '1px solid #10B981', borderRadius: '16px', padding: '1.25rem', margin: '1.25rem 0 1.5rem 0', boxShadow: '0 8px 32px rgba(16, 185, 129, 0.1)' }}>
