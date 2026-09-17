@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { mockCommissionInvoices, CommissionInvoice } from '@/lib/mockData';
+import { getSavedPaymentMethods, UserPaymentMethod } from '@/lib/paymentMethods';
 
 import { DepositSlip, initialDepositSlips, LedgerEntry, initialLedgerEntries } from '@/lib/depositSlipData';
 export type { DepositSlip, LedgerEntry };
@@ -11,7 +12,8 @@ export { initialDepositSlips, initialLedgerEntries };
 
 export default function FinancialManagerPage() {
   const [lang, setLang] = useState<'en' | 'ur'>('en');
-  const [mainTab, setMainTab] = useState<'slips' | 'invoices' | 'ledgers' | 'clearing'>('slips');
+  const [mainTab, setMainTab] = useState<'slips' | 'invoices' | 'ledgers' | 'clearing' | 'bank_accounts'>('slips');
+  const [userPaymentMethods, setUserPaymentMethods] = useState<UserPaymentMethod[]>([]);
   const [invoices, setInvoices] = useState<CommissionInvoice[]>(mockCommissionInvoices);
   const [ledgers, setLedgers] = useState<LedgerEntry[]>(initialLedgerEntries);
   const [depositSlips, setDepositSlips] = useState<DepositSlip[]>(initialDepositSlips);
@@ -50,17 +52,25 @@ export default function FinancialManagerPage() {
         return;
       }
     }
+    const loadPaymentMethods = () => {
+      setUserPaymentMethods(getSavedPaymentMethods());
+    };
+
     loadSlipsFromStorage();
+    loadPaymentMethods();
 
     const handleSync = () => {
       loadSlipsFromStorage();
+      loadPaymentMethods();
     };
 
     window.addEventListener('storage', handleSync);
     window.addEventListener('safarload_deposit_slip_event', handleSync);
+    window.addEventListener('safarload_payment_methods_change', loadPaymentMethods);
     return () => {
       window.removeEventListener('storage', handleSync);
       window.removeEventListener('safarload_deposit_slip_event', handleSync);
+      window.removeEventListener('safarload_payment_methods_change', loadPaymentMethods);
     };
   }, []);
 
@@ -278,6 +288,12 @@ export default function FinancialManagerPage() {
           className={`btn ${mainTab === 'clearing' ? 'btn-primary' : 'btn-glass'}`}
         >
           💳 Manual Escrow Console
+        </button>
+        <button
+          onClick={() => setMainTab('bank_accounts')}
+          className={`btn ${mainTab === 'bank_accounts' ? 'btn-primary' : 'btn-glass'}`}
+        >
+          🏦 Registered User Bank Accounts ({userPaymentMethods.length})
         </button>
       </div>
 
@@ -692,6 +708,85 @@ export default function FinancialManagerPage() {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: REGISTERED USER BANK ACCOUNTS & PAYMENT CHANNELS */}
+      {mainTab === 'bank_accounts' && (
+        <div className={`${styles.panel} glass-card animate-fadeIn`}>
+          <div className={styles.panelHeader}>
+            <div>
+              <h3>🏦 Registered User Bank Accounts & Payment Channels</h3>
+              <p>Inspect and verify bank names, account titles, IBAN numbers, and mobile wallets registered by Drivers, Shippers, and Fleet operators for payouts.</p>
+            </div>
+            <span className="badge badge-info">
+              {userPaymentMethods.length} Registered Channels
+            </span>
+          </div>
+
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>User / Carrier</th>
+                  <th>Role</th>
+                  <th>Channel Type</th>
+                  <th>Local Bank Name (بینک کا نام)</th>
+                  <th>Account Title (اکاؤنٹ ہولڈر کا نام)</th>
+                  <th>Account Number / IBAN (اکاؤنٹ نمبر یا IBAN)</th>
+                  <th>Added Date</th>
+                  <th>Audit Status</th>
+                  <th>Verification Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userPaymentMethods.map((pm) => (
+                  <tr key={pm.id}>
+                    <td>
+                      <strong>{pm.userName}</strong>
+                      <br />
+                      <small style={{ color: '#94A3B8' }}>ID: {pm.id}</small>
+                    </td>
+                    <td>
+                      <span className={`badge ${pm.userRole === 'driver' ? 'badge-primary' : pm.userRole === 'shipper' ? 'badge-info' : 'badge-warning'}`}>
+                        {pm.userRole.toUpperCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <strong>
+                        {pm.channelType === 'bank' ? '🏦 Commercial Bank' : pm.channelType === 'jazzcash' ? '📱 JazzCash' : pm.channelType === 'easypaisa' ? '💲 Easypaisa' : '💳 Fintech Wallet'}
+                      </strong>
+                    </td>
+                    <td>
+                      <strong style={{ color: '#38BDF8' }}>{pm.bankName}</strong>
+                    </td>
+                    <td>
+                      <strong style={{ color: '#10B981' }}>{pm.accountTitle}</strong>
+                    </td>
+                    <td>
+                      <code style={{ background: 'rgba(56, 189, 248, 0.15)', padding: '2px 8px', borderRadius: '4px', color: '#38bdf8', fontWeight: 700 }}>
+                        {pm.accountNumber}
+                      </code>
+                    </td>
+                    <td>
+                      <small>{pm.addedDate}</small>
+                    </td>
+                    <td>
+                      <span className="badge badge-success">Verified ✅</span>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => alert(`✅ Payment details verified for ${pm.userName}!\n\n🏦 Local Bank: ${pm.bankName}\n👤 Account Title: ${pm.accountTitle}\n💳 Account/IBAN: ${pm.accountNumber}\n\nCleared for automated bank payouts & freight settlements.`)}
+                        className="btn btn-primary btn-sm"
+                      >
+                        🔍 Audit & Approve
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

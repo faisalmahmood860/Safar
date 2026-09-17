@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react';
 import styles from './page.module.css';
 import { mockTransactions, dashboardStats } from '@/lib/mockData';
 import { translations, isRTL, getTranslation } from '@/lib/translations';
+import {
+  getSavedPaymentMethods,
+  savePaymentMethod,
+  deletePaymentMethod,
+  UserPaymentMethod,
+  pakistaniLocalBanks,
+} from '@/lib/paymentMethods';
 
 // Formatting helper
 const formatRs = (amount: number) => {
@@ -18,10 +25,19 @@ export default function WalletPage() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState<'jazzcash' | 'easypaisa' | 'bank'>('jazzcash');
 
-  // Interactive Breakdown Modals State
+  // Interactive Breakdown Modals & Payment Methods State
   const [walletStatModal, setWalletStatModal] = useState<'earnings' | 'pending' | 'lastMonth' | null>(null);
   const [selectedTxn, setSelectedTxn] = useState<any | null>(null);
   const [showAddMethodModal, setShowAddMethodModal] = useState(false);
+
+  const [loggedUser, setLoggedUser] = useState<any>(null);
+  const [paymentMethods, setPaymentMethods] = useState<UserPaymentMethod[]>([]);
+  
+  // Add Payment Method Form Input Fields
+  const [newChannelType, setNewChannelType] = useState<'bank' | 'jazzcash' | 'easypaisa' | 'nayapay' | 'sadapay'>('bank');
+  const [newBankName, setNewBankName] = useState<string>('Meezan Bank Limited');
+  const [newAccountTitle, setNewAccountTitle] = useState<string>('');
+  const [newAccountNumber, setNewAccountNumber] = useState<string>('');
 
   const lang = 'en'; // Ideally from a context
   const rtl = isRTL(lang);
@@ -45,8 +61,62 @@ export default function WalletPage() {
       }
     }, 16);
     
-    return () => clearInterval(timer);
+    const loadMethods = () => {
+      setPaymentMethods(getSavedPaymentMethods());
+    };
+    loadMethods();
+
+    try {
+      const stored = localStorage.getItem('safarload_logged_user');
+      if (stored) {
+        setLoggedUser(JSON.parse(stored));
+      }
+    } catch (e) {}
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('safarload_payment_methods_change', loadMethods);
+      return () => {
+        clearInterval(timer);
+        window.removeEventListener('safarload_payment_methods_change', loadMethods);
+      };
+    }
   }, []);
+
+  const handleSaveNewPaymentMethod = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAccountTitle.trim() || !newAccountNumber.trim()) {
+      alert('Please fill out both Account Title and Account Number / IBAN!');
+      return;
+    }
+
+    const newPm: UserPaymentMethod = {
+      id: `PM-${Math.floor(100 + Math.random() * 900)}`,
+      userName: loggedUser?.name || 'Tariq Mehmood',
+      userRole: loggedUser?.role || 'driver',
+      channelType: newChannelType,
+      bankName: newBankName,
+      accountTitle: newAccountTitle,
+      accountNumber: newAccountNumber,
+      addedDate: new Date().toISOString().split('T')[0],
+      status: 'verified',
+    };
+
+    savePaymentMethod(newPm);
+
+    alert(
+      `✅ Payment Account Connected & Verified!\n\n🏦 Local Bank: ${newBankName}\n👤 Account Title: ${newAccountTitle}\n💳 Account / IBAN: ${newAccountNumber}\n\nThis payment method is now synced with SafarLoad Finance Desk for instant withdrawals & payouts!`
+    );
+
+    setNewAccountTitle('');
+    setNewAccountNumber('');
+    setShowAddMethodModal(false);
+  };
+
+  const handleRemovePaymentMethod = (id: string, bank: string) => {
+    if (confirm(`Are you sure you want to remove ${bank} from your connected payment methods?`)) {
+      deletePaymentMethod(id);
+    }
+  };
 
   const [transactionsList, setTransactionsList] = useState(mockTransactions);
 
@@ -282,31 +352,35 @@ export default function WalletPage() {
             Payment Methods <span className={styles.sectionTitleUr}>ادائیگی کے طریقے</span>
           </h2>
         </div>
-        <div className={styles.methodsScroll}>
-          <div className={`${styles.methodCard} ${styles.jazzcash}`}>
-            <div className={styles.methodHeader}>
-              <span className={styles.methodBrand}>📱 JazzCash</span>
-              <span className={styles.connectedBadge}>✅ Connected</span>
+        <div className={styles.methodsScroll} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {paymentMethods.map((pm) => (
+            <div key={pm.id} className={`${styles.methodCard} ${styles.bank}`} style={{ minWidth: '260px', flex: 1 }}>
+              <div className={styles.methodHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <span className={styles.methodBrand} style={{ fontWeight: 700, color: '#38BDF8' }}>
+                  {pm.channelType === 'bank' ? '🏦' : pm.channelType === 'jazzcash' ? '📱' : pm.channelType === 'easypaisa' ? '💲' : '💳'} {pm.bankName}
+                </span>
+                <span className={styles.connectedBadge} style={{ fontSize: '0.75rem' }}>✅ Verified</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#F1F5F9', fontWeight: 600 }}>
+                👤 Account Title: <strong>{pm.accountTitle}</strong>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#CBD5E1', marginTop: '2px', wordBreak: 'break-all' }}>
+                💳 Account #: <strong>{pm.accountNumber}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.4rem' }}>
+                <small style={{ color: '#94A3B8', fontSize: '0.75rem' }}>Added: {pm.addedDate}</small>
+                <button
+                  onClick={() => handleRemovePaymentMethod(pm.id, pm.bankName)}
+                  style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  🗑️ Remove
+                </button>
+              </div>
             </div>
-            <div className={styles.methodDetails}>+92 301 234 5678</div>
-          </div>
-          <div className={`${styles.methodCard} ${styles.easypaisa}`}>
-            <div className={styles.methodHeader}>
-              <span className={styles.methodBrand}>💲 Easypaisa</span>
-              <span className={styles.connectedBadge}>✅ Connected</span>
-            </div>
-            <div className={styles.methodDetails}>+92 301 234 5678</div>
-          </div>
-          <div className={`${styles.methodCard} ${styles.bank}`}>
-            <div className={styles.methodHeader}>
-              <span className={styles.methodBrand}>🏦 Bank Transfer</span>
-              <span className={styles.connectedBadge}>✅ Connected</span>
-            </div>
-            <div className={styles.methodDetails}>HBL ****4567</div>
-          </div>
-          <div onClick={() => setShowAddMethodModal(true)} className={styles.addMethodCard} style={{ cursor: 'pointer' }}>
+          ))}
+          <div onClick={() => setShowAddMethodModal(true)} className={styles.addMethodCard} style={{ cursor: 'pointer', minWidth: '200px' }}>
             <span style={{ fontSize: '24px' }}>➕</span>
-            <span>Add New Method</span>
+            <span>Add New Payment Method</span>
           </div>
         </div>
       </div>
@@ -462,24 +536,82 @@ export default function WalletPage() {
             <button onClick={() => setShowAddMethodModal(false)} className={styles.btnOutline} style={{ width: 'auto' }}>✕ Close</button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSaveNewPaymentMethod} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1' }}>Select Channel Type:</label>
-              <select className={styles.amountInput} style={{ fontSize: '1rem' }}>
-                <option>📱 JazzCash Wallet</option>
-                <option>💲 Easypaisa Wallet</option>
-                <option>🏦 Commercial Bank Account (IBFT)</option>
-                <option>💳 Nayapay / Sadapay Business</option>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1', fontWeight: 600 }}>
+                1. Select Channel Type (ادائیگی کا طریقہ):
+              </label>
+              <select
+                value={newChannelType}
+                onChange={(e) => setNewChannelType(e.target.value as any)}
+                className={styles.amountInput}
+                style={{ fontSize: '1rem', width: '100%' }}
+              >
+                <option value="bank">🏦 Commercial Bank Account (IBFT)</option>
+                <option value="jazzcash">📱 JazzCash Wallet</option>
+                <option value="easypaisa">💲 Easypaisa Wallet</option>
+                <option value="nayapay">💳 NayaPay Account</option>
+                <option value="sadapay">💳 SadaPay Account</option>
               </select>
             </div>
+
             <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1' }}>Account Title / Account Number (IBAN):</label>
-              <input type="text" className={styles.amountInput} placeholder="e.g. PK36 MEZN 0001 2345 6789 0101" style={{ fontSize: '1rem' }} />
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1', fontWeight: 600 }}>
+                2. Select Local Bank Name (بینک کا نام):
+              </label>
+              <select
+                value={newBankName}
+                onChange={(e) => setNewBankName(e.target.value)}
+                className={styles.amountInput}
+                style={{ fontSize: '1rem', width: '100%' }}
+              >
+                {pakistaniLocalBanks.map((bank) => (
+                  <option key={bank} value={bank}>
+                    {bank}
+                  </option>
+                ))}
+              </select>
             </div>
-            <button onClick={() => { alert('✅ New payment account connected successfully!'); setShowAddMethodModal(false); }} className={styles.btnPrimary}>
-              🚀 Save & Verify Account Channel
-            </button>
-          </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1', fontWeight: 600 }}>
+                3. Account Title / Owner Name (اکاؤنٹ ہولڈر کا نام):
+              </label>
+              <input
+                type="text"
+                value={newAccountTitle}
+                onChange={(e) => setNewAccountTitle(e.target.value)}
+                className={styles.amountInput}
+                placeholder="e.g. Tariq Mehmood or Noor Textile Mills"
+                style={{ fontSize: '1rem', width: '100%' }}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#CBD5E1', fontWeight: 600 }}>
+                4. Account Number / IBAN (اکاؤنٹ نمبر یا IBAN):
+              </label>
+              <input
+                type="text"
+                value={newAccountNumber}
+                onChange={(e) => setNewAccountNumber(e.target.value)}
+                className={styles.amountInput}
+                placeholder="e.g. PK36 MEZN 0099 2301 0482 9101"
+                style={{ fontSize: '1rem', width: '100%' }}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <button type="button" onClick={() => setShowAddMethodModal(false)} className={styles.btnOutline} style={{ width: 'auto' }}>
+                Cancel
+              </button>
+              <button type="submit" className={styles.btnPrimary} style={{ width: 'auto', background: '#3B82F6', borderColor: '#3B82F6' }}>
+                🚀 Save & Connect Account to Finance Desk
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>
