@@ -74,9 +74,17 @@ export interface KYCSubmission {
   permanentAddress: string;
   city: string;
   
-  // Driver / Truck Specific
+  // Driver / Truck Specific Documents & Statuses
   truckNumber?: string;
   truckType?: string;
+  truckCardCopyUrl?: string;
+  truckFitnessCertUrl?: string;
+  truckFitnessExpiryDate?: string;
+  fitnessCertStatus?: 'passed' | 'due_renewal' | 'expired';
+  truckTokenTaxReceiptUrl?: string;
+  truckTokenTaxExpiryDate?: string;
+  tokenTaxStatus?: 'paid' | 'due' | 'expired';
+
   isTruckOwnerDifferent?: boolean;
   truckOwnerName?: string;
   truckOwnerCnicFrontUrl?: string;
@@ -169,7 +177,61 @@ export const mockDriverAvailabilities: DriverAvailabilityBroadcast[] = [];
 export const presetTestAccounts: TestAccount[] = [];
 
 // ===== MOCK KYC SUBMISSIONS (FOR SUPPORT STAFF) =====
-export const mockKYCSubmissions: KYCSubmission[] = [];
+export const mockKYCSubmissions: KYCSubmission[] = [
+  {
+    id: 'KYC-2026-901',
+    userType: 'driver',
+    applicantName: 'Tariq Mehmood',
+    applicantNameUr: 'طارق محمود',
+    phone: '+92 301 2345678',
+    cnicFrontUrl: 'CNIC_Front_TariqMehmood_35201-1234567-1.jpg',
+    cnicBackUrl: 'CNIC_Back_TariqMehmood_35201-1234567-1.jpg',
+    permanentAddress: 'House 42, Block B, Gulberg III, Lahore',
+    city: 'Lahore',
+    truckNumber: 'LHR-5678',
+    truckType: 'Flatbed Trailer (25 Tons)',
+    truckCardCopyUrl: 'Truck_SmartCard_Registration_LHR5678.pdf',
+    truckFitnessCertUrl: 'Fitness_Certificate_LHR5678_2026.pdf',
+    truckFitnessExpiryDate: '2026-12-31',
+    fitnessCertStatus: 'passed',
+    truckTokenTaxReceiptUrl: 'TokenTax_PaidReceipt_LHR5678_2027.pdf',
+    truckTokenTaxExpiryDate: '2027-06-30',
+    tokenTaxStatus: 'paid',
+    isTruckOwnerDifferent: false,
+    status: 'approved',
+    submittedDate: '2026-08-10',
+    assignedSupportAgent: 'Ayesha Khan (Support Staff)',
+    reviewNotes: 'Verified Driver CNIC, Truck Smart Card, Fitness Certificate and Token Tax Receipt. All authentic.',
+  },
+  {
+    id: 'KYC-2026-902',
+    userType: 'driver',
+    applicantName: 'Abdul Rasheed',
+    applicantNameUr: 'عبد الرشید',
+    phone: '+92 333 9876543',
+    cnicFrontUrl: 'CNIC_Front_AbdulRasheed_35201-9876543-1.jpg',
+    cnicBackUrl: 'CNIC_Back_AbdulRasheed_35201-9876543-1.jpg',
+    permanentAddress: 'Chak 204 RB, Faisalabad',
+    city: 'Faisalabad',
+    truckNumber: 'KHI-1234',
+    truckType: '22ft Container Truck',
+    truckCardCopyUrl: 'Truck_SmartCard_Registration_KHI1234.pdf',
+    truckFitnessCertUrl: 'Fitness_Certificate_KHI1234_Expired.pdf',
+    truckFitnessExpiryDate: '2026-09-22',
+    fitnessCertStatus: 'due_renewal',
+    truckTokenTaxReceiptUrl: 'TokenTax_PaidReceipt_KHI1234_Due.pdf',
+    truckTokenTaxExpiryDate: '2026-09-30',
+    tokenTaxStatus: 'due',
+    isTruckOwnerDifferent: true,
+    truckOwnerName: 'Chaudhry Ghulam Nabi',
+    truckOwnerCnicFrontUrl: 'Owner_CNIC_Front_ChaudhryGhulam.jpg',
+    truckOwnerCnicBackUrl: 'Owner_CNIC_Back_ChaudhryGhulam.jpg',
+    truckOwnerAddress: 'Station Road, Faisalabad',
+    status: 'pending',
+    submittedDate: '2026-09-12',
+    reviewNotes: 'Truck owner CNIC attached. Token tax & fitness renewal due soon.',
+  },
+];
 
 // ===== MOCK REVENUE & COMMISSION INVOICES (FOR FINANCE MANAGER) =====
 export const mockCommissionInvoices: CommissionInvoice[] = [];

@@ -429,17 +429,36 @@ export default function SupportDeskPage() {
 
             {/* Uploaded Documents Inspection Panel */}
             <div className={styles.docsSection}>
-              <h4>📄 Uploaded Verification Documents</h4>
+              <h4>📄 Uploaded Verification Documents (4 Required KYC Papers)</h4>
               <div className={styles.docsGrid}>
                 <div className={styles.docCard}>
                   <span>🪪 Driver/Applicant CNIC Front</span>
-                  <div className={styles.docPreview}>{selectedKyc.cnicFrontUrl}</div>
+                  <div className={styles.docPreview}>{selectedKyc.cnicFrontUrl || 'Driver_CNIC_Front.jpg'}</div>
                 </div>
 
                 <div className={styles.docCard}>
                   <span>🪪 Driver/Applicant CNIC Back</span>
-                  <div className={styles.docPreview}>{selectedKyc.cnicBackUrl}</div>
+                  <div className={styles.docPreview}>{selectedKyc.cnicBackUrl || 'Driver_CNIC_Back.jpg'}</div>
                 </div>
+
+                {selectedKyc.userType === 'driver' && (
+                  <>
+                    <div className={styles.docCard}>
+                      <span>🚛 Truck Registration Smart Card / Copy</span>
+                      <div className={styles.docPreview}>{selectedKyc.truckCardCopyUrl || `Truck_SmartCard_${selectedKyc.truckNumber || 'LHR5678'}.pdf`}</div>
+                    </div>
+
+                    <div className={styles.docCard}>
+                      <span>📋 Vehicle Fitness Certificate (Expires: {selectedKyc.truckFitnessExpiryDate || '2026-12-31'})</span>
+                      <div className={styles.docPreview}>{selectedKyc.truckFitnessCertUrl || `Fitness_Cert_${selectedKyc.truckNumber || 'LHR5678'}.pdf`}</div>
+                    </div>
+
+                    <div className={styles.docCard}>
+                      <span>💳 Token Tax Paid Receipt (Expires: {selectedKyc.truckTokenTaxExpiryDate || '2027-06-30'})</span>
+                      <div className={styles.docPreview}>{selectedKyc.truckTokenTaxReceiptUrl || `TokenTax_Receipt_${selectedKyc.truckNumber || 'LHR5678'}.pdf`}</div>
+                    </div>
+                  </>
+                )}
 
                 {selectedKyc.isTruckOwnerDifferent && (
                   <>

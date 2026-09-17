@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import DriverAvailabilityWidget from '@/components/DriverAvailabilityWidget';
+import DriverKycAlertsCard from '@/components/DriverKycAlertsCard';
 import { pakistaniCities } from '@/lib/mockData';
 import { triggerDriverAvailableNotification } from '@/lib/notificationSystem';
 
@@ -216,6 +217,9 @@ export default function DashboardPage() {
           <div className={styles.decorationCircle2}></div>
         </div>
       </div>
+
+      {/* DRIVER VEHICLE COMPLIANCE & TOKEN TAX ALERTS CARD */}
+      {userRole === 'driver' && <DriverKycAlertsCard />}
 
       {/* Driver Availability & Target Route Broadcast Widget */}
       <div id="driverAvailabilitySection">

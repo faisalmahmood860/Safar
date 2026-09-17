@@ -8,6 +8,8 @@ import { apiClient } from '@/lib/apiClient';
 
 import DigitalBiltyModal, { BiltyData } from '@/components/DigitalBiltyModal';
 import GlobalBannerContainer from '@/components/GlobalBannerContainer';
+import DriverKycAlertsCard from '@/components/DriverKycAlertsCard';
+import { getDriverVehicleDocs, DriverVehicleDocs } from '@/lib/vehicleDocs';
 import { useBiltyEnabled } from '@/lib/biltyConfig';
 
 interface TripItem {
@@ -34,6 +36,7 @@ export default function DriverTripsPage() {
   const [selectedBilty, setSelectedBilty] = useState<BiltyData | null>(null);
   const biltyEnabled = useBiltyEnabled();
   const [showPoliceModal, setShowPoliceModal] = useState(false);
+  const [vehicleDocs, setVehicleDocs] = useState<DriverVehicleDocs>(getDriverVehicleDocs());
 
   const [userRole, setUserRole] = useState<string>('driver');
   const [loggedUser, setLoggedUser] = useState<any>(null);
@@ -151,9 +154,18 @@ export default function DriverTripsPage() {
         localStorage.setItem('safarload_global_bids', JSON.stringify([]));
       }
 
+      const loadDocs = () => {
+        setVehicleDocs(getDriverVehicleDocs());
+      };
+      loadDocs();
+
       if (typeof window !== 'undefined') {
         window.addEventListener('safarload_trips_change', loadUserTrips);
-        return () => window.removeEventListener('safarload_trips_change', loadUserTrips);
+        window.addEventListener('safarload_vehicledocs_change', loadDocs);
+        return () => {
+          window.removeEventListener('safarload_trips_change', loadUserTrips);
+          window.removeEventListener('safarload_vehicledocs_change', loadDocs);
+        };
       }
     } catch (e) {
       console.error(e);
@@ -432,6 +444,9 @@ export default function DriverTripsPage() {
           </button>
         </div>
       </header>
+
+      {/* DRIVER VEHICLE COMPLIANCE & TOKEN TAX ALERTS CARD */}
+      {userRole === 'driver' && <DriverKycAlertsCard />}
 
       {/* DRIVER ACTIVE BIDS & SHIPPER COUNTER OFFERS SECTION */}
       <section className={`${styles.bidsSection} glass-card`} style={{ marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px' }}>
@@ -914,7 +929,7 @@ export default function DriverTripsPage() {
       {/* NHMP HIGHWAY POLICE ROADSIDE INSPECTION MODAL */}
       {showPoliceModal && (
         <div className={styles.modalBackdrop}>
-          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '640px', border: '2px solid #F59E0B' }}>
+          <div className={`${styles.modalCard} glass-card animate-scaleIn`} style={{ maxWidth: '680px', border: '2px solid #F59E0B' }}>
             <div className={styles.modalHeader} style={{ background: 'rgba(245, 158, 11, 0.2)' }}>
               <h3 style={{ color: '#F59E0B' }}>👮 NHMP Police Inspection Mode (موٹروے پولیس ہیلپ ڈیسک)</h3>
               <button onClick={() => setShowPoliceModal(false)} className={styles.closeBtn}>✕</button>
@@ -932,17 +947,17 @@ export default function DriverTripsPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', fontSize: '0.9rem' }}>
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Driver Name:</div>
-                  <strong>Tariq Mehmood</strong>
+                  <strong>{vehicleDocs.driverName || 'Tariq Mehmood'}</strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>CNIC Number:</div>
-                  <strong>35201-1234567-1</strong>
+                  <strong>{vehicleDocs.cnicNumber} <span style={{ color: '#10B981' }}>✅ VERIFIED</span></strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Vehicle Registration:</div>
-                  <strong>LHR-5678 (Trailer)</strong>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Vehicle Registration & Card:</div>
+                  <strong>{vehicleDocs.truckNumber} ({vehicleDocs.truckType}) <span style={{ color: '#10B981' }}>✅</span></strong>
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
@@ -952,12 +967,31 @@ export default function DriverTripsPage() {
 
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Vehicle Token Tax:</div>
-                  <strong style={{ color: '#10B981' }}>PAID (June 2027)</strong>
+                  {vehicleDocs.tokenTaxStatus === 'paid' ? (
+                    <strong style={{ color: '#10B981' }}>PAID ✅ (Till {vehicleDocs.tokenTaxExpiryDate})</strong>
+                  ) : (
+                    <strong style={{ color: '#EF4444' }}>⚠️ DUE / EXPIRED (Till {vehicleDocs.tokenTaxExpiryDate})</strong>
+                  )}
                 </div>
 
                 <div style={{ background: '#1E293B', padding: '0.75rem', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Fitness Certificate:</div>
-                  <strong style={{ color: '#10B981' }}>PASSED & VALID</strong>
+                  {vehicleDocs.fitnessCertStatus === 'passed' ? (
+                    <strong style={{ color: '#10B981' }}>PASSED & VALID ✅ (Till {vehicleDocs.fitnessCertExpiryDate})</strong>
+                  ) : (
+                    <strong style={{ color: '#EF4444' }}>⚠️ DUE RENEWAL (Till {vehicleDocs.fitnessCertExpiryDate})</strong>
+                  )}
+                </div>
+              </div>
+
+              {/* Verified Documents Checklist */}
+              <div style={{ marginTop: '1rem', background: '#1E293B', padding: '0.85rem', borderRadius: '10px', fontSize: '0.82rem' }}>
+                <div style={{ fontWeight: 700, color: '#38BDF8', marginBottom: '0.4rem' }}>📁 Verified Carrier Documents On File:</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', color: '#CBD5E1' }}>
+                  <div>🪪 Driver CNIC: <span style={{ color: '#10B981' }}>{vehicleDocs.cnicFrontUrl}</span></div>
+                  <div>🚛 Truck Registration Card Copy: <span style={{ color: '#10B981' }}>{vehicleDocs.truckCardCopyUrl}</span></div>
+                  <div>💳 Token Tax Receipt: <span style={{ color: vehicleDocs.tokenTaxStatus === 'paid' ? '#10B981' : '#F59E0B' }}>{vehicleDocs.tokenTaxReceiptUrl}</span></div>
+                  <div>📋 Fitness Certificate: <span style={{ color: vehicleDocs.fitnessCertStatus === 'passed' ? '#10B981' : '#EF4444' }}>{vehicleDocs.fitnessCertUrl}</span></div>
                 </div>
               </div>
 
