@@ -403,37 +403,28 @@ export default function DriverAvailabilityWidget({
           </select>
         </div>
 
-        {/* Departure Time */}
-        <div>
-          <label htmlFor="driverDepartureTime" style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#CBD5E1', marginBottom: '4px' }}>
-            ⏰ Departure Schedule:
-          </label>
-          <select
-            id="driverDepartureTime"
-            aria-label="Departure Schedule"
-            value={departureTime}
-            onChange={(e) => setDepartureTime(e.target.value)}
-            className="input"
-            style={{ width: '100%', background: '#1E293B', color: '#F1F5F9', borderColor: inTransitTrip ? '#F59E0B' : 'rgba(148, 163, 184, 0.3)' }}
-          >
-            {inTransitTrip ? (
-              <>
-                <option value={`Post-Unloading (After ${inTransitTrip.route || 'delivery'})`}>
-                  🔄 Post-Unloading Return Trip (بعد از ان لوڈنگ)
-                </option>
-                <option value="Tomorrow Morning Post-Unloading">🌅 Tomorrow Morning Post-Unloading</option>
-                <option value="Next Day Post-Unloading">📅 Next Day Post-Unloading</option>
-              </>
-            ) : (
-              <>
-                <option value="Immediate / Ready Now">⚡ Immediate / Ready Now</option>
-                <option value="Today Evening (6:00 PM)">🌆 Today Evening (6:00 PM)</option>
-                <option value="Tomorrow Morning (8:00 AM)">🌅 Tomorrow Morning (8:00 AM)</option>
-                <option value="Flexible (Within 24 Hours)">⏳ Flexible (Within 24 Hours)</option>
-              </>
-            )}
-          </select>
-        </div>
+        {/* Return Trip Schedule (Shown only when in Return Radar mode during active trips) */}
+        {inTransitTrip && (
+          <div>
+            <label htmlFor="driverDepartureTime" style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#F59E0B', marginBottom: '4px' }}>
+              🔄 Return Unloading Schedule (روانگی کا وقت):
+            </label>
+            <select
+              id="driverDepartureTime"
+              aria-label="Departure Schedule"
+              value={departureTime}
+              onChange={(e) => setDepartureTime(e.target.value)}
+              className="input"
+              style={{ width: '100%', background: '#1E293B', color: '#F1F5F9', borderColor: '#F59E0B' }}
+            >
+              <option value={`Post-Unloading (After ${inTransitTrip.route || 'delivery'})`}>
+                🔄 Post-Unloading Return Trip (ان لوڈنگ کے بعد)
+              </option>
+              <option value="Tomorrow Morning Post-Unloading">🌅 Tomorrow Morning Post-Unloading</option>
+              <option value="Next Day Post-Unloading">📅 Next Day Post-Unloading</option>
+            </select>
+          </div>
+        )}
 
         {/* Submit Broadcast Button */}
         <div>
