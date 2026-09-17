@@ -131,6 +131,32 @@ export default function FleetDashboard() {
     } catch (e) { console.error(e); }
   };
 
+  const handleRemoveTruck = (id: string, regNum: string) => {
+    if (confirm(`Are you sure you want to remove vehicle ${regNum} from your fleet roster?`)) {
+      const updated = trucksList.filter((t) => t.id !== id);
+      setTrucksList(updated);
+      try {
+        localStorage.setItem('safarload_fleet_trucks', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      alert(`🗑️ Vehicle ${regNum} removed from fleet roster.`);
+    }
+  };
+
+  const handleRemoveDriver = (id: string, driverName: string) => {
+    if (confirm(`Are you sure you want to remove driver ${driverName} from your fleet directory?`)) {
+      const updated = driversList.filter((d) => d.id !== id);
+      setDriversList(updated);
+      try {
+        localStorage.setItem('safarload_fleet_drivers', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      alert(`🗑️ Driver ${driverName} removed from fleet directory.`);
+    }
+  };
+
   const handleOpenFleetBidModal = (load: typeof mockLoads[0]) => {
     setSelectedLoad(load);
     setBidAmount(load.price.toString());
@@ -482,7 +508,7 @@ export default function FleetDashboard() {
                   <th>Fuel Level</th>
                   <th>Maintenance</th>
                   <th>Status / Availability</th>
-                  <th>VoIP Call</th>
+                  <th>Roster Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -521,21 +547,39 @@ export default function FleetDashboard() {
                       </select>
                     </td>
                     <td>
-                      <button
-                        onClick={() =>
-                          initiateVoIPCall({
-                            id: t.id,
-                            name: t.driverName,
-                            phone: '+92 301 2345678',
-                            truck: `${t.registrationNumber} (${t.type})`,
-                            role: 'driver',
-                          })
-                        }
-                        className="btn btn-primary btn-sm"
-                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
-                      >
-                        📞 Call
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                        <button
+                          onClick={() =>
+                            initiateVoIPCall({
+                              id: t.id,
+                              name: t.driverName,
+                              phone: '+92 301 2345678',
+                              truck: `${t.registrationNumber} (${t.type})`,
+                              role: 'driver',
+                            })
+                          }
+                          className="btn btn-primary btn-sm"
+                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
+                        >
+                          📞 Call
+                        </button>
+                        <button
+                          onClick={() => handleRemoveTruck(t.id, t.registrationNumber)}
+                          className="btn btn-sm"
+                          style={{
+                            padding: '0.25rem 0.6rem',
+                            fontSize: '0.75rem',
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            color: '#EF4444',
+                            border: '1px solid rgba(239, 68, 68, 0.4)',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                          }}
+                          title="Remove truck from fleet roster"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -570,7 +614,7 @@ export default function FleetDashboard() {
                   <th>DRIVE Safety Score</th>
                   <th>KYC CNIC Status</th>
                   <th>Duty Availability</th>
-                  <th>Quick Action</th>
+                  <th>Management Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -612,20 +656,39 @@ export default function FleetDashboard() {
                       </select>
                     </td>
                     <td>
-                      <button
-                        onClick={() =>
-                          initiateVoIPCall({
-                            id: d.id,
-                            name: d.name,
-                            phone: d.phone,
-                            truck: d.truck,
-                            role: 'driver',
-                          })
-                        }
-                        className="btn btn-primary btn-sm"
-                      >
-                        📞 Call Driver Direct
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                        <button
+                          onClick={() =>
+                            initiateVoIPCall({
+                              id: d.id,
+                              name: d.name,
+                              phone: d.phone,
+                              truck: d.truck,
+                              role: 'driver',
+                            })
+                          }
+                          className="btn btn-primary btn-sm"
+                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
+                        >
+                          📞 Call
+                        </button>
+                        <button
+                          onClick={() => handleRemoveDriver(d.id, d.name)}
+                          className="btn btn-sm"
+                          style={{
+                            padding: '0.25rem 0.6rem',
+                            fontSize: '0.75rem',
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            color: '#EF4444',
+                            border: '1px solid rgba(239, 68, 68, 0.4)',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                          }}
+                          title="Remove driver from fleet directory"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
