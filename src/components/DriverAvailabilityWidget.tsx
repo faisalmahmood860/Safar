@@ -53,6 +53,30 @@ export default function DriverAvailabilityWidget({
     }
   }, []);
 
+  const updateGlobalAvailabilities = (broadcastItem: DriverAvailabilityBroadcast) => {
+    try {
+      const globalStored = localStorage.getItem('safarload_driver_availabilities');
+      let list: DriverAvailabilityBroadcast[] = globalStored ? JSON.parse(globalStored) : [];
+
+      // Filter out any prior broadcast for this driver or truck to prevent duplicate cards!
+      list = list.filter(
+        (b) =>
+          b.driverName?.toLowerCase() !== broadcastItem.driverName?.toLowerCase() &&
+          b.truckNumber?.toLowerCase() !== broadcastItem.truckNumber?.toLowerCase()
+      );
+
+      // Add single updated broadcast
+      list.unshift(broadcastItem);
+      localStorage.setItem('safarload_driver_availabilities', JSON.stringify(list));
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('safarload_availability_change'));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleBroadcastSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -90,26 +114,23 @@ export default function DriverAvailabilityWidget({
       if (data.success && data.broadcast) {
         setActiveBroadcast(data.broadcast);
         localStorage.setItem('safarload_driver_active_broadcast', JSON.stringify(data.broadcast));
-
-        // Also add to global availabilities list in localStorage for instant offline sync
-        const globalStored = localStorage.getItem('safarload_driver_availabilities');
-        const list = globalStored ? JSON.parse(globalStored) : [];
-        const updatedList = [data.broadcast, ...list];
-        localStorage.setItem('safarload_driver_availabilities', JSON.stringify(updatedList));
+        updateGlobalAvailabilities(data.broadcast);
 
         if (onBroadcastSuccess) {
           onBroadcastSuccess(data.broadcast);
         }
         alert(
-          inTransitTrip
-            ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}\nDeparture: ${formattedDeparture}\n\nShippers searching for return loads from ${currentCity} can now view your post-unloading availability!`
+          activeBroadcast
+            ? `✏️ Live Availability Updated Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons\n\nYour active position has been updated without duplicates on the radar.`
+            : inTransitTrip
+            ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}\nDeparture: ${formattedDeparture}`
             : `📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons`
         );
       }
     } catch (err) {
-      // Fallback local broadcast
+      // Fallback local broadcast with de-duplication
       const fallbackBroadcast: DriverAvailabilityBroadcast = {
-        id: `RADAR-${Date.now()}`,
+        id: activeBroadcast ? activeBroadcast.id : `RADAR-${Date.now()}`,
         driverName,
         driverNameUr: driverName,
         driverPhone,
@@ -127,23 +148,21 @@ export default function DriverAvailabilityWidget({
         availableCapacityTons: parseFloat(capacityTons) || 25,
         departureTime: formattedDeparture,
         status: 'available',
-        postedAgo: 'Just now',
+        postedAgo: 'Updated Just Now',
       };
 
       setActiveBroadcast(fallbackBroadcast);
       localStorage.setItem('safarload_driver_active_broadcast', JSON.stringify(fallbackBroadcast));
-
-      const globalStored = localStorage.getItem('safarload_driver_availabilities');
-      const list = globalStored ? JSON.parse(globalStored) : [];
-      const updatedList = [fallbackBroadcast, ...list];
-      localStorage.setItem('safarload_driver_availabilities', JSON.stringify(updatedList));
+      updateGlobalAvailabilities(fallbackBroadcast);
 
       if (onBroadcastSuccess) {
         onBroadcastSuccess(fallbackBroadcast);
       }
       alert(
-        inTransitTrip
-          ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}\nDeparture: ${formattedDeparture}`
+        activeBroadcast
+          ? `✏️ Live Availability Updated Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons\n\nYour position has been updated on the radar.`
+          : inTransitTrip
+          ? `🔄 Post-Return Availability Broadcasted!\n\nDriver Status: Online & In-Transit (${inTransitTrip.route})\nUnloading City: ${currentCity}\nTarget Return Route: ${destinationText}`
           : `📡 Availability Broadcasted Successfully!\n\nCurrent City: ${currentCity}\nTarget Route: ${destinationText}\nCapacity: ${capacityTons} Tons`
       );
     } finally {
@@ -152,8 +171,26 @@ export default function DriverAvailabilityWidget({
   };
 
   const handleToggleOffline = () => {
+    if (activeBroadcast) {
+      try {
+        const globalStored = localStorage.getItem('safarload_driver_availabilities');
+        if (globalStored) {
+          let list: DriverAvailabilityBroadcast[] = JSON.parse(globalStored);
+          list = list.filter(
+            (b) =>
+              b.driverName?.toLowerCase() !== activeBroadcast.driverName?.toLowerCase() &&
+              b.truckNumber?.toLowerCase() !== activeBroadcast.truckNumber?.toLowerCase()
+          );
+          localStorage.setItem('safarload_driver_availabilities', JSON.stringify(list));
+        }
+      } catch (e) {}
+    }
+
     setActiveBroadcast(null);
     localStorage.removeItem('safarload_driver_active_broadcast');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('safarload_availability_change'));
+    }
     alert('🔴 Your status is now set to Offline. Shippers will no longer see your truck on the active radar.');
   };
 

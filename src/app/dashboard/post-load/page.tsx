@@ -113,17 +113,40 @@ export default function PostLoadPage() {
     };
   }, []);
 
-  // Sync bids with localStorage on mount & update
+  // Sync bids and posted loads with localStorage & listen to real-time changes
   React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem('safarload_global_bids');
-      if (stored) {
-        setBids(JSON.parse(stored));
-      } else {
-        localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
+    const loadBidsAndPostedLoads = () => {
+      try {
+        const storedBids = localStorage.getItem('safarload_global_bids');
+        if (storedBids) {
+          setBids(JSON.parse(storedBids));
+        } else {
+          localStorage.setItem('safarload_global_bids', JSON.stringify(mockDriverCounterBids));
+        }
+
+        const storedLoads = localStorage.getItem('safarload_global_posted_loads');
+        if (storedLoads) {
+          setMyPostedLoads(JSON.parse(storedLoads));
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
+    };
+
+    loadBidsAndPostedLoads();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', loadBidsAndPostedLoads);
+      window.addEventListener('safarload_bid_change', loadBidsAndPostedLoads);
+      window.addEventListener('safarload_loads_change', loadBidsAndPostedLoads);
+      window.addEventListener('safarload_trips_change', loadBidsAndPostedLoads);
+
+      return () => {
+        window.removeEventListener('storage', loadBidsAndPostedLoads);
+        window.removeEventListener('safarload_bid_change', loadBidsAndPostedLoads);
+        window.removeEventListener('safarload_loads_change', loadBidsAndPostedLoads);
+        window.removeEventListener('safarload_trips_change', loadBidsAndPostedLoads);
+      };
     }
   }, []);
 
@@ -588,8 +611,7 @@ export default function PostLoadPage() {
 
   const isShipperBid = (b: any) => {
     if (!b) return false;
-    if (!b.shipperName) return true;
-    return b.shipperName.includes('Noor Textile') || b.shipperName.includes(currentShipperName);
+    return true; // Display all bids and accepted trips in the Shipper Workspace!
   };
 
   // Dynamic Approved Escrow Vault Balance Calculation
