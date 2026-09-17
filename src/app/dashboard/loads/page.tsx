@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import { mockLoads, mockDriverAvailabilities } from '@/lib/mockData';
